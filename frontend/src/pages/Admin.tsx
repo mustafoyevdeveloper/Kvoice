@@ -32,7 +32,7 @@ const Admin = () => {
 
     // Simulate API call
     setTimeout(() => {
-      if (password === "admin" && "ADMIN") {
+      if (password === "12345678!@WEB") {
         setIsAuthorized(true);
       } else {
         setError("Noto'g'ri parol! Qaytadan urinib ko'ring.");

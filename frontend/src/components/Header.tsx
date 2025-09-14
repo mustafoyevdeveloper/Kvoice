@@ -103,9 +103,9 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
           {/* Search */}
           <form onSubmit={handleSearch} className="flex items-center space-x-2">
             <div className="relative">
-              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors duration-300 ${
+              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors duration-300 z-10 pointer-events-none ${
                 isHomePage && !isScrolled ? 'text-white drop-shadow-lg' : 'text-muted-foreground'
-              }`} />
+              }`} style={{ zIndex: 10 }} />
               <Input
                 type="text"
                 placeholder="Qidiruv..."

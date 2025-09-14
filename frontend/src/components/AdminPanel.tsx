@@ -318,7 +318,7 @@ export const AdminPanel = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="siteName">Sayt Nomi</Label>
-                <Input id="siteName" defaultValue="AsilMedia" />
+                <Input id="siteName" defaultValue="MovieMedia" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="siteDescription">Sayt Tavsifi</Label>
@@ -326,7 +326,7 @@ export const AdminPanel = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="contactEmail">Aloqa Email</Label>
-                <Input id="contactEmail" defaultValue="contact@asilmedia.org" />
+                <Input id="contactEmail" defaultValue="contact@moviemedia.org" />
               </div>
               <Button className="w-full">
                 Sozlamalarni Saqlash

@@ -39,7 +39,6 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
     { id: "movies", label: "Kinolar", icon: Film, path: "/movies" },
     { id: "series", label: "Seriallar", icon: Tv, path: "/series" },
     { id: "new", label: "Yangi", icon: Calendar, path: "/new" },
-    { id: "admin", label: "Admin", icon: Settings, path: "/admin" },
   ];
 
   const handleSearch = (e: React.FormEvent) => {

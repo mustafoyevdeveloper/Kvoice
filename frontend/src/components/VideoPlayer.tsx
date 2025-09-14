@@ -40,6 +40,8 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
   const [showControls, setShowControls] = useState(true);
   const [selectedQuality, setSelectedQuality] = useState(movie.quality[movie.quality.length - 1]);
   const [isBuffering, setIsBuffering] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
   // Auto-hide controls
   useEffect(() => {
@@ -51,6 +53,21 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
 
     return () => clearTimeout(timer);
   }, [isPlaying, showControls]);
+
+  // Close settings when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showSettings) {
+        const target = event.target as Element;
+        if (!target.closest('.settings-dropdown')) {
+          setShowSettings(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSettings]);
 
   const togglePlayPause = () => {
     if (videoRef.current) {
@@ -103,6 +120,19 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
     if (videoRef.current) {
       videoRef.current.currentTime += seconds;
     }
+  };
+
+  const changePlaybackSpeed = (speed: number) => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = speed;
+      setPlaybackSpeed(speed);
+    }
+  };
+
+  const changeQuality = (quality: string) => {
+    setSelectedQuality(quality);
+    // Here you would typically change the video source
+    // For now, we'll just update the state
   };
 
   const toggleFullscreen = () => {
@@ -229,29 +259,29 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
                 {isPlaying ? <Pause className="h-4 w-4 md:h-5 md:w-5" /> : <Play className="h-4 w-4 md:h-5 md:w-5" />}
               </Button>
 
-              {/* Skip Buttons */}
+              {/* Skip Buttons - Always visible */}
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20 touch-feedback btn-interactive hidden sm:flex"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive"
                 onClick={() => skip(-10)}
               >
                 <SkipBack className="h-3 w-3 md:h-4 md:w-4" />
-                <span className="text-xs ml-1">10s</span>
+                <span className="text-xs ml-1 hidden sm:inline">10s</span>
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20 touch-feedback btn-interactive hidden sm:flex"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive"
                 onClick={() => skip(10)}
               >
-                <span className="text-xs mr-1">10s</span>
+                <span className="text-xs mr-1 hidden sm:inline">10s</span>
                 <SkipForward className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
 
-              {/* Volume - Hidden on mobile */}
-              <div className="hidden md:flex items-center space-x-2">
+              {/* Volume - Always visible */}
+              <div className="flex items-center space-x-2">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -263,12 +293,13 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
                     <Volume2 className="h-4 w-4" />
                   }
                 </Button>
-                <div className="w-20">
+                <div className="w-16 md:w-20">
                   <Slider
                     value={[isMuted ? 0 : volume]}
                     max={1}
                     step={0.1}
                     onValueChange={handleVolumeChange}
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -276,7 +307,7 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
 
             <div className="flex items-center space-x-1 md:space-x-2">
               {/* Quality Selector */}
-              <Select value={selectedQuality} onValueChange={setSelectedQuality}>
+              <Select value={selectedQuality} onValueChange={changeQuality}>
                 <SelectTrigger className="w-16 md:w-20 h-6 md:h-8 bg-transparent border-white/30 text-white text-xs">
                   <SelectValue />
                 </SelectTrigger>
@@ -289,14 +320,43 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
                 </SelectContent>
               </Select>
 
-              {/* Settings - Hidden on mobile */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20 touch-feedback btn-interactive hidden md:flex"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
+              {/* Settings Menu */}
+              <div className="relative settings-dropdown">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20 touch-feedback btn-interactive"
+                  onClick={() => setShowSettings(!showSettings)}
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+
+                {/* Settings Dropdown */}
+                {showSettings && (
+                  <div className="absolute bottom-12 right-0 bg-black/90 backdrop-blur-sm rounded-lg p-4 min-w-48 border border-white/20 z-50">
+                    <div className="space-y-4">
+                      {/* Playback Speed */}
+                      <div>
+                        <h4 className="text-white text-sm font-medium mb-2">Tezlik</h4>
+                        <div className="space-y-2">
+                          {[0.5, 0.75, 1, 1.25, 1.5, 2].map((speed) => (
+                            <Button
+                              key={speed}
+                              variant={playbackSpeed === speed ? "default" : "ghost"}
+                              size="sm"
+                              className="w-full justify-start text-white hover:bg-white/20"
+                              onClick={() => changePlaybackSpeed(speed)}
+                            >
+                              {speed}x
+                              {playbackSpeed === speed && " ✓"}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Fullscreen */}
               <Button

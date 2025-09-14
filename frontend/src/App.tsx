@@ -10,6 +10,9 @@ import Series from "./pages/Series";
 import New from "./pages/New";
 import Admin from "./pages/Admin";
 import MoviePlayer from "./pages/MoviePlayer";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +31,9 @@ const App = () => (
           <Route path="/new" element={<New />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/movie/:id" element={<MoviePlayer />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/about" element={<About />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

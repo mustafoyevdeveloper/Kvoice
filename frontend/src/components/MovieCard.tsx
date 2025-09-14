@@ -55,8 +55,8 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
           </Button>
         </div>
 
-        {/* Quality badges */}
-        <div className="absolute top-1 md:top-2 left-1 md:left-2 flex flex-wrap gap-1">
+        {/* Quality badges - Vertical layout */}
+        <div className="absolute top-1 md:top-2 left-1 md:left-2 flex flex-col gap-1">
           {movie.quality.map((q) => (
             <span key={q} className={`${getQualityBadgeClass(q)} animate-fade-in`}>
               {q}

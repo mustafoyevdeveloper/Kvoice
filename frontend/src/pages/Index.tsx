@@ -154,6 +154,7 @@ const Index = () => {
         onSearch={handleSearch}
         onCategorySelect={handleCategorySelect}
         selectedCategory={selectedCategory}
+        isHomePage={true}
       />
       
       {!searchQuery && selectedCategory === "all" && (

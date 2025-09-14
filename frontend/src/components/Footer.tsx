@@ -1,6 +1,7 @@
 import { Mail, Phone, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
   return (
@@ -9,7 +10,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-            <h3 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-4 animate-fade-in">AsilMedia</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-4 animate-fade-in">MovieMedia</h3>
             <p className="text-muted-foreground mb-4 text-sm md:text-base leading-relaxed">
               O'zbek tilidagi eng yangi va sifatli kinolar, seriallar va premyeralar.
             </p>
@@ -30,11 +31,11 @@ export const Footer = () => {
           <div>
             <h4 className="font-semibold text-foreground mb-3 md:mb-4 text-sm md:text-base">Tezkor havolalar</h4>
             <ul className="space-y-2 text-xs md:text-sm">
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200">Bosh sahifa</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200">Premyeralar</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200">Kinolar</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200">Seriallar</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200">Yangiliklar</a></li>
+              <li><Link to="/" className="text-muted-foreground hover:text-primary transition-colors duration-200">Bosh sahifa</Link></li>
+              <li><Link to="/premieres" className="text-muted-foreground hover:text-primary transition-colors duration-200">Premyeralar</Link></li>
+              <li><Link to="/movies" className="text-muted-foreground hover:text-primary transition-colors duration-200">Kinolar</Link></li>
+              <li><Link to="/series" className="text-muted-foreground hover:text-primary transition-colors duration-200">Seriallar</Link></li>
+              <li><Link to="/new" className="text-muted-foreground hover:text-primary transition-colors duration-200">Yangiliklar</Link></li>
             </ul>
           </div>
 
@@ -44,7 +45,7 @@ export const Footer = () => {
             <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
               <li className="flex items-center space-x-2">
                 <Mail className="h-3 w-3 md:h-4 md:w-4" />
-                <span>info@asilmedia.uz</span>
+                <span>info@movimedia.uz</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-3 w-3 md:h-4 md:w-4" />
@@ -61,12 +62,12 @@ export const Footer = () => {
         {/* Bottom */}
         <div className="border-t border-border/30 pt-4 md:pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-xs text-muted-foreground mb-3 md:mb-0">
-            © 2025 AsilMedia. Barcha huquqlar himoyalangan.
+            © 2025 MovieMedia. Barcha huquqlar himoyalangan.
           </p>
           <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs">
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200">Maxfiylik</a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200">Shartlar</a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200">Biz haqimizda</a>
+            <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors duration-200">Maxfiylik</Link>
+            <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors duration-200">Shartlar</Link>
+            <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors duration-200">Biz haqimizda</Link>
           </div>
         </div>
 

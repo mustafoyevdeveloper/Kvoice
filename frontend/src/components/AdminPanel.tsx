@@ -62,7 +62,7 @@ export const AdminPanel = () => {
   return (
     <div className="space-y-6">
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Jami Kinolar</CardTitle>
@@ -119,16 +119,28 @@ export const AdminPanel = () => {
       {/* Main Admin Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="movies">Kinolar</TabsTrigger>
-          <TabsTrigger value="users">Foydalanuvchilar</TabsTrigger>
-          <TabsTrigger value="analytics">Tahlil</TabsTrigger>
-          <TabsTrigger value="settings">Sozlamalar</TabsTrigger>
+          <TabsTrigger value="movies" className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
+            <Film className="h-4 w-4" />
+            <span className="hidden md:inline">Kinolar</span>
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
+            <Users className="h-4 w-4" />
+            <span className="hidden md:inline">Foydalanuvchilar</span>
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden md:inline">Tahlil</span>
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
+            <Settings className="h-4 w-4" />
+            <span className="hidden md:inline">Sozlamalar</span>
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="movies" className="space-y-6">
-          <div className="flex justify-between items-center">
+        <TabsContent value="movies" className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <h3 className="text-lg font-semibold">Kinolar Boshqaruvi</h3>
-            <Button onClick={handleAddMovie} className="bg-primary hover:bg-primary-glow">
+            <Button onClick={handleAddMovie} className="bg-primary hover:bg-primary-glow w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Yangi Kino Qo'shish
             </Button>
@@ -187,28 +199,29 @@ export const AdminPanel = () => {
               <CardTitle>Mavjud Kinolar</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {movies.map((movie) => (
-                  <div key={movie.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="space-y-1">
-                      <h4 className="font-semibold">{movie.title}</h4>
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <div key={movie.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
+                    <div className="space-y-1 flex-1">
+                      <h4 className="font-semibold text-sm md:text-base">{movie.title}</h4>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs md:text-sm text-muted-foreground">
                         <span>{movie.year}</span>
-                        <Badge variant="secondary">{movie.category}</Badge>
+                        <Badge variant="secondary" className="text-xs">{movie.category}</Badge>
                         <span>⭐ {movie.rating}</span>
                         <span>👁 {movie.views}</span>
                       </div>
                     </div>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4" />
+                    <div className="flex space-x-2 self-end sm:self-auto">
+                      <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                        <Edit className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
                       <Button 
                         variant="destructive" 
                         size="sm"
+                        className="h-8 w-8 p-0"
                         onClick={() => handleDeleteMovie(movie.id)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
                     </div>
                   </div>
@@ -218,10 +231,10 @@ export const AdminPanel = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="users" className="space-y-6">
-          <div className="flex justify-between items-center">
+        <TabsContent value="users" className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <h3 className="text-lg font-semibold">Foydalanuvchilar</h3>
-            <Button className="bg-primary hover:bg-primary-glow">
+            <Button className="bg-primary hover:bg-primary-glow w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Yangi Foydalanuvchi
             </Button>
@@ -229,25 +242,28 @@ export const AdminPanel = () => {
 
           <Card>
             <CardContent className="p-0">
-              <div className="space-y-4 p-6">
+              <div className="space-y-3 md:space-y-4 p-4 md:p-6">
                 {users.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="space-y-1">
-                      <h4 className="font-semibold">{user.name}</h4>
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <span>{user.email}</span>
-                        <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-                          {user.role}
-                        </Badge>
-                        <span>Oxirgi kirish: {user.lastLogin}</span>
+                  <div key={user.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
+                    <div className="space-y-1 flex-1">
+                      <h4 className="font-semibold text-sm md:text-base">{user.name}</h4>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                        <span className="break-all">{user.email}</span>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={user.role === "admin" ? "default" : "secondary"} className="text-xs">
+                            {user.role}
+                          </Badge>
+                          <span className="hidden sm:inline">Oxirgi kirish: {user.lastLogin}</span>
+                        </div>
                       </div>
+                      <span className="text-xs text-muted-foreground sm:hidden">Oxirgi kirish: {user.lastLogin}</span>
                     </div>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4" />
+                    <div className="flex space-x-2 self-end sm:self-auto">
+                      <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                        <Edit className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
+                      <Button variant="destructive" size="sm" className="h-8 w-8 p-0">
+                        <Trash2 className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
                     </div>
                   </div>
@@ -257,10 +273,10 @@ export const AdminPanel = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-6">
+        <TabsContent value="analytics" className="space-y-4 md:space-y-6">
           <h3 className="text-lg font-semibold">Analitika va Hisobotlar</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <Card>
               <CardHeader>
                 <CardTitle>Ko'rishlar Statistikasi</CardTitle>
@@ -292,7 +308,7 @@ export const AdminPanel = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-6">
+        <TabsContent value="settings" className="space-y-4 md:space-y-6">
           <h3 className="text-lg font-semibold">Sayt Sozlamalari</h3>
           
           <Card>

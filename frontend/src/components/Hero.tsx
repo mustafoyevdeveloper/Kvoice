@@ -16,11 +16,16 @@ interface HeroProps {
 
 export const Hero = ({ featuredMovie }: HeroProps) => {
   return (
-    <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center overflow-hidden">
+    <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-bg"
-        style={{ backgroundImage: `url(${heroBg})` }}
+        style={{ 
+          backgroundImage: `url(${heroBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
       >
         <div className="absolute inset-0 bg-black/60" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />

@@ -1,73 +1,63 @@
-# Welcome to your Lovable project
+# MovieMedia - O'zbek Kino Streaming Sayti
 
-## Project info
+## Loyiha haqida
 
-**URL**: https://lovable.dev/projects/83873037-b44d-47be-9fc4-8380c4a7e051
+MovieMedia - o'zbek tilidagi eng yangi va sifatli kinolar, seriallar va premyeralar uchun professional streaming platformasi.
 
-## How can I edit this code?
+## Texnologiyalar
 
-There are several ways of editing your application.
+Bu loyiha quyidagi texnologiyalar bilan qurilgan:
 
-**Use Lovable**
+- **Vite** - Tez development server
+- **TypeScript** - Type safety
+- **React 18** - Modern UI library
+- **shadcn/ui** - Professional UI komponentlar
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Router** - Client-side routing
+- **TanStack Query** - Data fetching va caching
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/83873037-b44d-47be-9fc4-8380c4a7e051) and start prompting.
+## O'rnatish va ishga tushirish
 
-Changes made via Lovable will be committed automatically to this repo.
+```bash
+# Dependencies o'rnatish
+npm install
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Development server ishga tushirish
 npm run dev
+
+# Production build
+npm run build
+
+# Build preview
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+## Xususiyatlar
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- 📱 **Responsive Design** - Barcha qurilmalarda mukammal ishlaydi
+- 🎬 **Video Player** - Professional video player
+- 🔍 **Qidiruv** - Tez va aniq qidiruv
+- 📱 **Touch Gestures** - Mobil uchun swipe gesturalar
+- ⚡ **Performance** - GPU acceleration va optimallashtirish
+- 🎨 **Animatsiyalar** - Smooth va professional animatsiyalar
 
-**Use GitHub Codespaces**
+## Loyiha struktura
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+├── components/     # React komponentlar
+├── pages/         # Sahifalar
+├── hooks/         # Custom hooks
+├── lib/           # Utility funksiyalar
+└── assets/        # Rasm va media fayllar
+```
 
-## What technologies are used for this project?
+## Deploy
 
-This project is built with:
+Loyihani deploy qilish uchun:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```bash
+npm run build
+```
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/83873037-b44d-47be-9fc4-8380c4a7e051) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Build fayllar `dist/` papkasida hosil bo'ladi.

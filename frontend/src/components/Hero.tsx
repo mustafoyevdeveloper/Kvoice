@@ -16,10 +16,10 @@ interface HeroProps {
 
 export const Hero = ({ featuredMovie }: HeroProps) => {
   return (
-    <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">
+    <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-bg"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
         <div className="absolute inset-0 bg-black/60" />
@@ -30,30 +30,30 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
       <div className="relative z-10 container mx-auto px-4 text-center">
         <div className="max-w-4xl mx-auto">
           {/* Movie Info */}
-          <div className="mb-6">
-            <Badge variant="default" className="mb-4 bg-primary text-primary-foreground">
+          <div className="mb-4 md:mb-6">
+            <Badge variant="default" className="mb-3 md:mb-4 bg-primary text-primary-foreground animate-scale-in">
               Eng so'nggi 2025 Tarjima Kinolar
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 animate-fade-in">
+            <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-foreground mb-3 md:mb-4 animate-fade-in-up leading-tight">
               {featuredMovie.title}
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 animate-slide-up">
+            <p className="text-sm md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 md:mb-6 animate-slide-up px-4">
               {featuredMovie.description}
             </p>
           </div>
 
           {/* Movie Details */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-8 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-6 md:mb-8 text-xs md:text-sm text-muted-foreground animate-fade-in-up">
             <div className="flex items-center space-x-1">
-              <Star className="h-4 w-4 text-yellow-400 fill-current" />
+              <Star className="h-3 w-3 md:h-4 md:w-4 text-yellow-400 fill-current" />
               <span className="font-medium">{featuredMovie.rating}</span>
             </div>
-            <span>•</span>
+            <span className="hidden md:inline">•</span>
             <span>{featuredMovie.year}</span>
-            <span>•</span>
-            <div className="flex gap-2">
+            <span className="hidden md:inline">•</span>
+            <div className="flex gap-1 md:gap-2">
               {featuredMovie.quality.map((q) => (
-                <Badge key={q} variant="outline" className="border-primary/30 text-primary">
+                <Badge key={q} variant="outline" className="border-primary/30 text-primary text-xs">
                   {q}
                 </Badge>
               ))}
@@ -61,23 +61,30 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="bg-primary hover:bg-primary-glow text-primary-foreground px-8 animate-glow-pulse">
-              <Play className="h-5 w-5 mr-2" />
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center animate-fade-in-up">
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 md:px-8 animate-glow-pulse btn-interactive touch-feedback w-full sm:w-auto"
+            >
+              <Play className="h-4 w-4 md:h-5 md:w-5 mr-2" />
               Tomosha qilish
             </Button>
-            <Button size="lg" variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 px-8">
-              <Info className="h-5 w-5 mr-2" />
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="border-primary/30 text-primary hover:bg-primary/10 px-6 md:px-8 btn-interactive touch-feedback w-full sm:w-auto"
+            >
+              <Info className="h-4 w-4 md:h-5 md:w-5 mr-2" />
               Batafsil ma'lumot
             </Button>
           </div>
 
           {/* Description */}
-          <div className="mt-8 text-center">
-            <p className="text-primary font-medium mb-2">
+          <div className="mt-6 md:mt-8 text-center animate-fade-in-up">
+            <p className="text-primary font-medium mb-1 md:mb-2 text-sm md:text-base">
               Issiq'ida tomosha qilib oling! Hammasi bizda!
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground">
               barchasi faqat bizda!
             </p>
           </div>

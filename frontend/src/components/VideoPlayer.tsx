@@ -150,13 +150,14 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Video Player */}
       <div 
         ref={containerRef}
         className={`relative bg-black rounded-lg overflow-hidden ${isFullscreen ? 'fixed inset-0 z-50' : 'aspect-video'}`}
         onMouseMove={() => setShowControls(true)}
         onMouseLeave={() => isPlaying && setShowControls(false)}
+        onTouchStart={() => setShowControls(true)}
       >
         {/* Video Element */}
         <video
@@ -186,22 +187,22 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
           <div className="absolute inset-0 flex items-center justify-center">
             <Button 
               size="lg" 
-              className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full h-20 w-20"
+              className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full h-16 w-16 md:h-20 md:w-20 btn-interactive touch-feedback animate-scale-in"
               onClick={togglePlayPause}
             >
-              <Play className="h-8 w-8 ml-1" />
+              <Play className="h-6 w-6 md:h-8 md:w-8 ml-1" />
             </Button>
           </div>
         )}
 
         {/* Video Controls */}
         <div 
-          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300 ${
+          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 md:p-4 transition-opacity duration-300 ${
             showControls ? 'opacity-100' : 'opacity-0'
           }`}
         >
           {/* Progress Bar */}
-          <div className="mb-4">
+          <div className="mb-2 md:mb-4">
             <Slider
               value={[currentTime]}
               max={duration || 100}
@@ -217,44 +218,44 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
 
           {/* Control Buttons */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 md:space-x-2">
               {/* Play/Pause */}
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive"
                 onClick={togglePlayPause}
               >
-                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                {isPlaying ? <Pause className="h-4 w-4 md:h-5 md:w-5" /> : <Play className="h-4 w-4 md:h-5 md:w-5" />}
               </Button>
 
               {/* Skip Buttons */}
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive hidden sm:flex"
                 onClick={() => skip(-10)}
               >
-                <SkipBack className="h-4 w-4" />
+                <SkipBack className="h-3 w-3 md:h-4 md:w-4" />
                 <span className="text-xs ml-1">10s</span>
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive hidden sm:flex"
                 onClick={() => skip(10)}
               >
                 <span className="text-xs mr-1">10s</span>
-                <SkipForward className="h-4 w-4" />
+                <SkipForward className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
 
-              {/* Volume */}
-              <div className="flex items-center space-x-2">
+              {/* Volume - Hidden on mobile */}
+              <div className="hidden md:flex items-center space-x-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-white/20"
+                  className="text-white hover:bg-white/20 touch-feedback btn-interactive"
                   onClick={toggleMute}
                 >
                   {isMuted || volume === 0 ? 
@@ -273,10 +274,10 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 md:space-x-2">
               {/* Quality Selector */}
               <Select value={selectedQuality} onValueChange={setSelectedQuality}>
-                <SelectTrigger className="w-20 h-8 bg-transparent border-white/30 text-white text-xs">
+                <SelectTrigger className="w-16 md:w-20 h-6 md:h-8 bg-transparent border-white/30 text-white text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -288,11 +289,11 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
                 </SelectContent>
               </Select>
 
-              {/* Settings */}
+              {/* Settings - Hidden on mobile */}
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive hidden md:flex"
               >
                 <Settings className="h-4 w-4" />
               </Button>
@@ -301,7 +302,7 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive"
                 onClick={toggleFullscreen}
               >
                 {isFullscreen ? 
@@ -315,34 +316,36 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
       </div>
 
       {/* Movie Information */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
           {/* Movie Details */}
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4 space-y-4 md:space-y-0">
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold text-foreground">{movie.title}</h1>
-                  <div className="flex items-center space-x-4 text-muted-foreground">
+                  <h1 className="text-xl md:text-3xl font-bold text-foreground animate-fade-in-up">{movie.title}</h1>
+                  <div className="flex flex-wrap items-center gap-2 md:gap-4 text-muted-foreground text-sm md:text-base">
                     <span className="flex items-center space-x-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      <Star className="h-3 w-3 md:h-4 md:w-4 text-yellow-400 fill-current" />
                       <span>{movie.rating}</span>
                     </span>
                     <span className="flex items-center space-x-1">
-                      <Clock className="h-4 w-4" />
+                      <Clock className="h-3 w-3 md:h-4 md:w-4" />
                       <span>{movie.year}</span>
                     </span>
-                    <Badge variant="secondary">{movie.category}</Badge>
+                    <Badge variant="secondary" className="text-xs">{movie.category}</Badge>
                   </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" onClick={handleShare}>
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Ulashish
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button variant="outline" size="sm" onClick={handleShare} className="btn-interactive touch-feedback">
+                    <Share2 className="h-3 w-3 md:h-4 md:w-4 mr-2" />
+                    <span className="hidden sm:inline">Ulashish</span>
+                    <span className="sm:hidden">Share</span>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleDownload}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Yuklab olish
+                  <Button variant="outline" size="sm" onClick={handleDownload} className="btn-interactive touch-feedback">
+                    <Download className="h-3 w-3 md:h-4 md:w-4 mr-2" />
+                    <span className="hidden sm:inline">Yuklab olish</span>
+                    <span className="sm:hidden">Download</span>
                   </Button>
                 </div>
               </div>

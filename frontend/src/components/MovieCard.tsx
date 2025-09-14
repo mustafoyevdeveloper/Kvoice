@@ -35,70 +35,80 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
   };
 
   return (
-    <div className="movie-card rounded-lg overflow-hidden cursor-pointer group relative"
+    <div className="movie-card rounded-lg overflow-hidden cursor-pointer group relative touch-feedback"
          onClick={() => onClick(movie)}>
       {/* Movie Poster */}
       <div className="relative aspect-[2/3] overflow-hidden">
         <img
           src={movie.poster}
           alt={movie.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 group-active:scale-105"
           loading="lazy"
         />
         
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <Button size="lg" className="bg-primary hover:bg-primary-glow text-primary-foreground">
-            <Play className="h-5 w-5 mr-2" />
-            Tomosha qilish
+        {/* Overlay on hover/touch */}
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <Button size="lg" className="bg-primary hover:bg-primary-glow text-primary-foreground btn-interactive animate-scale-in">
+            <Play className="h-4 w-4 md:h-5 md:w-5 mr-2" />
+            <span className="hidden sm:inline">Tomosha qilish</span>
+            <span className="sm:hidden">Play</span>
           </Button>
         </div>
 
         {/* Quality badges */}
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+        <div className="absolute top-1 md:top-2 left-1 md:left-2 flex flex-wrap gap-1">
           {movie.quality.map((q) => (
-            <span key={q} className={getQualityBadgeClass(q)}>
+            <span key={q} className={`${getQualityBadgeClass(q)} animate-fade-in`}>
               {q}
             </span>
           ))}
         </div>
 
         {/* New/Premiere badges */}
-        <div className="absolute top-2 right-2 flex flex-col gap-1">
+        <div className="absolute top-1 md:top-2 right-1 md:right-2 flex flex-col gap-1">
           {movie.isNew && (
-            <Badge variant="destructive" className="text-xs">
+            <Badge variant="destructive" className="text-xs animate-bounce-gentle">
               Yangi
             </Badge>
           )}
           {movie.isPremiere && (
-            <Badge variant="default" className="text-xs bg-primary">
+            <Badge variant="default" className="text-xs bg-primary animate-glow-pulse">
               Premyera
             </Badge>
           )}
         </div>
 
         {/* Rating */}
-        <div className="absolute bottom-2 left-2 flex items-center space-x-1 bg-black/70 rounded px-2 py-1">
-          <Star className="h-3 w-3 text-yellow-400 fill-current" />
+        <div className="absolute bottom-1 md:bottom-2 left-1 md:left-2 flex items-center space-x-1 bg-black/70 rounded px-1 md:px-2 py-1">
+          <Star className="h-2 w-2 md:h-3 md:w-3 text-yellow-400 fill-current" />
           <span className="text-xs text-white font-medium">{movie.rating}</span>
         </div>
 
         {/* Views */}
-        <div className="absolute bottom-2 right-2 bg-black/70 rounded px-2 py-1">
+        <div className="absolute bottom-1 md:bottom-2 right-1 md:right-2 bg-black/70 rounded px-1 md:px-2 py-1">
           <span className="text-xs text-white">+{movie.views}</span>
         </div>
       </div>
 
       {/* Movie Info */}
-      <div className="p-3">
-        <h3 className="font-semibold text-sm text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+      <div className="p-2 md:p-3">
+        <h3 className="font-semibold text-xs md:text-sm text-card-foreground line-clamp-2 mb-1 md:mb-2 group-hover:text-primary transition-colors">
           {movie.title}
         </h3>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>{movie.year}</span>
-          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs hover:text-primary">
-            <Download className="h-3 w-3 mr-1" />
-            Yuklab olish
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-5 md:h-6 px-1 md:px-2 text-xs hover:text-primary touch-feedback btn-interactive"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Handle download
+            }}
+          >
+            <Download className="h-2 w-2 md:h-3 md:w-3 mr-1" />
+            <span className="hidden sm:inline">Yuklab olish</span>
+            <span className="sm:hidden">↓</span>
           </Button>
         </div>
       </div>

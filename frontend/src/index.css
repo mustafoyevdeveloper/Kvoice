@@ -109,28 +109,75 @@ All colors MUST be HSL.
     @apply bg-background text-foreground font-sans;
     background: var(--hero-gradient);
     background-attachment: fixed;
+    /* Smooth scrolling for mobile */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
 
-  /* Movie card animations */
+  /* Mobile-first responsive design */
+  @media (max-width: 768px) {
+    body {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  }
+
+  /* Enhanced movie card animations with GPU acceleration */
   .movie-card {
-    @apply transition-all duration-300 hover:scale-105;
+    @apply transition-all duration-300 ease-out;
     background: var(--card-gradient);
     box-shadow: var(--card-shadow);
+    transform: translate3d(0, 0, 0);
+    will-change: transform, box-shadow;
+    backface-visibility: hidden;
+    perspective: 1000px;
   }
 
-  .movie-card:hover {
+  .movie-card:hover,
+  .movie-card:active {
     background: var(--card-hover);
     box-shadow: var(--glow-shadow), var(--card-shadow);
+    transform: translate3d(0, -4px, 0) scale(1.02);
   }
 
-  /* Quality badges */
-  .quality-480 { background: hsl(var(--quality-480)); }
-  .quality-720 { background: hsl(var(--quality-720)); }
-  .quality-1080 { background: hsl(var(--quality-1080)); }
+  /* Mobile touch interactions with optimized performance */
+  @media (hover: none) and (pointer: coarse) {
+    .movie-card:active {
+      transform: translate3d(0, -2px, 0) scale(1.01);
+      transition-duration: 150ms;
+    }
+  }
 
-  /* Scrollbar styling */
+  /* Performance optimization for animations */
+  @media (prefers-reduced-motion: reduce) {
+    .movie-card,
+    .movie-card:hover,
+    .movie-card:active {
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* Quality badges with better mobile visibility */
+  .quality-480 { 
+    background: hsl(var(--quality-480)); 
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  .quality-720 { 
+    background: hsl(var(--quality-720)); 
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  .quality-1080 { 
+    background: hsl(var(--quality-1080)); 
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  /* Enhanced scrollbar styling */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
   
   ::-webkit-scrollbar-track {
@@ -139,6 +186,180 @@ All colors MUST be HSL.
   
   ::-webkit-scrollbar-thumb {
     background: hsl(var(--primary));
-    border-radius: 4px;
+    border-radius: 3px;
+  }
+
+  /* Mobile scrollbar */
+  @media (max-width: 768px) {
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+  }
+
+  /* Smooth page transitions */
+  .page-transition {
+    animation: fadeInUp 0.4s ease-out;
+  }
+
+  /* Loading states */
+  .loading-shimmer {
+    background: linear-gradient(90deg, 
+      hsl(var(--muted)) 25%, 
+      hsl(var(--muted-foreground) / 0.1) 50%, 
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Touch feedback */
+  .touch-feedback {
+    transition: all 0.1s ease-out;
+  }
+
+  .touch-feedback:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+
+  /* Mobile navigation improvements */
+  @media (max-width: 768px) {
+    .mobile-nav {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+  }
+
+  /* Improved button interactions with GPU acceleration */
+  .btn-interactive {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  .btn-interactive::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    transition: width 0.3s ease, height 0.3s ease;
+    will-change: width, height;
+  }
+
+  .btn-interactive:active::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  /* Optimize for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .btn-interactive::before {
+      transition: none;
+    }
+  }
+
+  /* Parallax effect for hero section */
+  .parallax-bg {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Smooth reveal animations with GPU acceleration */
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
+    transition: all 0.6s ease-out;
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* Optimize for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* Staggered animation delays */
+  .reveal:nth-child(1) { transition-delay: 0.1s; }
+  .reveal:nth-child(2) { transition-delay: 0.2s; }
+  .reveal:nth-child(3) { transition-delay: 0.3s; }
+  .reveal:nth-child(4) { transition-delay: 0.4s; }
+  .reveal:nth-child(5) { transition-delay: 0.5s; }
+  .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+  /* Hide scrollbar for mobile carousel */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Smooth scroll snap for mobile */
+  .scroll-snap-x {
+    scroll-snap-type: x mandatory;
+  }
+  
+  .scroll-snap-start {
+    scroll-snap-align: start;
+  }
+
+  /* Performance optimization utilities */
+  .gpu-accelerated {
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Optimize images for mobile */
+  .optimized-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .movie-card {
+      border: 2px solid hsl(var(--primary));
+    }
+    
+    .btn-interactive {
+      border: 1px solid currentColor;
+    }
   }
 }

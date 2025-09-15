@@ -17,7 +17,7 @@ type MoviesContextValue = {
 
 const MoviesContext = createContext<MoviesContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "mm_movies";
+const STORAGE_KEY = "mm_movies_v2";
 
 const seedMovies: Movie[] = [
   // PREMIERES (6 ta)
@@ -349,6 +349,9 @@ export const MoviesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [movies, setMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
+    // Clear old localStorage data
+    localStorage.removeItem('mm_movies');
+    
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       try {

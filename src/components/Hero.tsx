@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import heroBg from "@/assets/hero-bg.jpg";
 
 interface HeroProps {
-  featuredMovie: {
+  featuredMovie?: {
     title: string;
     description: string;
     poster: string;
@@ -15,6 +15,11 @@ interface HeroProps {
 }
 
 export const Hero = ({ featuredMovie }: HeroProps) => {
+  // Safety check to prevent errors
+  if (!featuredMovie) {
+    return null;
+  }
+
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}

@@ -34,7 +34,14 @@ const Index = () => {
         year: featuredFromStore.year,
         quality: featuredFromStore.quality,
       }
-    : undefined as any;
+    : {
+        title: "Yura davri dunyosi: Qayta tug'ilish",
+        description: "Eng yangi va ajoyib premyera filmi. Dramatik va hayajonli voqealar bilan to'la muhim kino.",
+        poster: poster1,
+        rating: 8.5,
+        year: 2025,
+        quality: ["480p", "720p", "1080p"],
+      };
 
   // Filter movies based on category and search
   const filteredMovies = useMemo(() => {

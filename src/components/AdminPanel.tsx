@@ -69,7 +69,7 @@ export const AdminPanel = () => {
       isPremiere: isPremiere,
       isNew: isNew,
     });
-    toast({ title: "Kino qo'shildi", description: `${getCategoryTitle(selectedCategory)} bo'limiga yangi kino qo'shildi.` });
+    toast({ title: "Kino qo'shildi", description: `${getCategoryTitle(selectedCategory)} bo'limiga yangi ${getCategoryItemName(selectedCategory)} qo'shildi.` });
   };
 
   const handleDeleteMovie = (id: string) => {
@@ -97,6 +97,18 @@ export const AdminPanel = () => {
       case "trailers": return "Treylerlar";
       case "new": return "Yangi";
       default: return "Barchasi";
+    }
+  };
+
+  const getCategoryItemName = (category: string) => {
+    switch (category) {
+      case "all": return "Kino";
+      case "premieres": return "Premyera";
+      case "movies": return "Kino";
+      case "series": return "Serial";
+      case "trailers": return "Treyler";
+      case "new": return "Kino";
+      default: return "Kino";
     }
   };
 
@@ -213,7 +225,7 @@ export const AdminPanel = () => {
           {/* Add Movie Form */}
           <Card>
             <CardHeader>
-              <CardTitle>{getCategoryTitle(selectedCategory)} bo'limiga Yangi Kino Qo'shish</CardTitle>
+              <CardTitle>{getCategoryTitle(selectedCategory)} bo'limiga yangi {getCategoryItemName(selectedCategory)} qo'shish</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -254,7 +266,7 @@ export const AdminPanel = () => {
               </div>
               <div className="flex gap-2">
                 <Button className="flex-1" onClick={handleAddMovie}>
-                  {getCategoryTitle(selectedCategory)} bo'limiga Qo'shish
+                  {getCategoryTitle(selectedCategory)} bo'limiga qo'shish
                 </Button>
                 <Button variant="outline" onClick={() => setSelectedCategory("all")}>
                   Barcha Kategoriyalarni Ko'rish

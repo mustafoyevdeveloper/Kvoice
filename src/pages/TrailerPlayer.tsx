@@ -6,7 +6,7 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Star, Eye, Calendar, Share2, Download } from "lucide-react";
+import { Star, Eye, Calendar, Share2, Download } from "lucide-react";
 
 interface Trailer {
   id: string;
@@ -102,20 +102,8 @@ const TrailerPlayer = () => {
       />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <div className="mb-6">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="flex items-center space-x-2 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Orqaga qaytish</span>
-          </Button>
-        </div>
-
         {/* Video Player */}
-        <VideoPlayer movie={movie} />
+        <VideoPlayer movie={movie} onBack={() => navigate(-1)} />
 
         {/* Removed duplicate info/sidebar to avoid double sections; VideoPlayer already shows details. */}
       </main>

@@ -12,7 +12,8 @@ import {
   Download,
   Share2,
   Star,
-  Clock
+  Clock,
+  ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -24,9 +25,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface VideoPlayerProps {
   movie: Movie;
+  onBack?: () => void;
 }
 
-export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
+export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -181,6 +183,20 @@ export const VideoPlayer = ({ movie }: VideoPlayerProps) => {
 
   return (
     <div className="space-y-4 md:space-y-6">
+      {/* Back Button */}
+      {onBack && (
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            onClick={onBack}
+            className="flex items-center space-x-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Orqaga qaytish</span>
+          </Button>
+        </div>
+      )}
+
       {/* Video Player */}
       <div 
         ref={containerRef}

@@ -33,7 +33,7 @@ const Premieres = () => {
   }, [searchQuery, movies]);
 
   const handleMovieClick = (movie: Movie) => {
-    navigate(`/movie/${movie.id}`);
+    navigate(`/premiere/${movie.id}`);
   };
 
   const handleCategorySelect = (category: string) => {

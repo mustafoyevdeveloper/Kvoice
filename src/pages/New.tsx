@@ -33,7 +33,7 @@ const New = () => {
   }, [searchQuery, movies]);
 
   const handleMovieClick = (movie: Movie) => {
-    navigate(`/movie/${movie.id}`);
+    navigate(`/new/${movie.id}`);
   };
 
   const handleCategorySelect = (category: string) => {

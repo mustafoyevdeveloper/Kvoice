@@ -124,7 +124,7 @@ const MoviePlayer = () => {
       />
       
       <main className="container mx-auto px-4 py-8">
-        <VideoPlayer movie={movie} />
+        <VideoPlayer movie={movie} onBack={() => navigate(-1)} />
       </main>
 
       <Footer />

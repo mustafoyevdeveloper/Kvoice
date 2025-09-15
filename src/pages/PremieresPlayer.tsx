@@ -17,7 +17,7 @@ const PremieresPlayer = () => {
   }, []);
 
   // Find movie from store
-  const movie = movies.find(m => m.id === id);
+  const movie = movies?.find(m => m.id === id);
 
   const handleCategorySelect = (category: string) => {
     navigate(category === "all" ? "/" : `/${category}`);

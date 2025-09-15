@@ -15,6 +15,9 @@ import Terms from "./pages/Terms";
 import About from "./pages/About";
 import Trailers from "./pages/Trailers";
 import TrailerPlayer from "./pages/TrailerPlayer";
+import PremieresPlayer from "./pages/PremieresPlayer";
+import SeriesPlayer from "./pages/SeriesPlayer";
+import NewPlayer from "./pages/NewPlayer";
 import NotFound from "./pages/NotFound";
 import { MoviesProvider } from "./store/movies";
 

@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { Movie } from "@/components/MovieCard";
+import { useMovies } from "@/store/movies";
 
 // Import movie posters
 import poster1 from "@/assets/poster1.jpg";
@@ -17,76 +18,10 @@ const MoviePlayer = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const { movies } = useMovies();
 
-  // Sample movie data (would come from backend)
-  const movies: Movie[] = [
-    {
-      id: "1",
-      title: "Yura davri dunyosi: Qayta tug'ilish",
-      poster: poster1,
-      rating: 8.5,
-      year: 2025,
-      quality: ["480p", "720p", "1080p"],
-      category: "premieres",
-      views: 194,
-      isPremiere: true,
-      isNew: true,
-    },
-    {
-      id: "2", 
-      title: "Osiris: Yirtqich missiyasi",
-      poster: poster2,
-      rating: 7.8,
-      year: 2025,
-      quality: ["480p", "720p", "1080p"],
-      category: "premieres",
-      views: 85,
-      isPremiere: true,
-    },
-    {
-      id: "3",
-      title: "Esh yovuz o'liklarga qarshi",
-      poster: poster3,
-      rating: 8.2,
-      year: 2015,
-      quality: ["480p", "1080p"],
-      category: "series",
-      views: 19,
-    },
-    {
-      id: "4",
-      title: "Tinchlikparvar DC seriali",
-      poster: poster4,
-      rating: 9.1,
-      year: 2022,
-      quality: ["480p", "720p", "1080p"],
-      category: "series",
-      views: 57,
-    },
-    {
-      id: "5",
-      title: "Urush va Jang 2: Hind kino",
-      poster: poster5,
-      rating: 8.7,
-      year: 2025,
-      quality: ["480p", "720p", "1080p"],
-      category: "movies",
-      views: 143,
-      isNew: true,
-    },
-    {
-      id: "6",
-      title: "Qizil Sonya: Qizilsoch Sonya",
-      poster: poster6,
-      rating: 7.5,
-      year: 2024,
-      quality: ["480p", "720p", "1080p"],
-      category: "movies",
-      views: 38,
-    },
-  ];
-
-  const movie = movies.find(m => m.id === id);
+  // Find movie from store
+  const movie = movies?.find(m => m.id === id);
 
   const handleCategorySelect = (category: string) => {
     navigate(category === "all" ? "/" : `/${category}`);

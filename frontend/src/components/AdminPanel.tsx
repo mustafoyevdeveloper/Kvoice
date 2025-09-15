@@ -9,7 +9,15 @@ import {
   Settings,
   Eye,
   Calendar,
-  Star
+  Star,
+  X,
+  Save,
+  Search,
+  Filter,
+  MoreVertical,
+  Play,
+  Download,
+  Share2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,18 +27,51 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useMovies } from "@/store/movies";
+import { Movie } from "./MovieCard";
+
+interface MovieFormData {
+  title: string;
+  poster: string;
+  rating: number;
+  year: number;
+  quality: string[];
+  category: string;
+  views: number;
+  isNew?: boolean;
+  isPremiere?: boolean;
+  description?: string;
+}
 
 export const AdminPanel = () => {
   const { toast } = useToast();
   const { movies, addMovie, updateMovie, deleteMovie } = useMovies();
   const [selectedTab, setSelectedTab] = useState("movies");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
+  const [formData, setFormData] = useState<MovieFormData>({
+    title: "",
+    poster: "",
+    rating: 8.0,
+    year: new Date().getFullYear(),
+    quality: ["480p", "720p", "1080p"],
+    category: "movies",
+    views: 0,
+    isNew: false,
+    isPremiere: false,
+    description: ""
+  });
 
   const [users] = useState([
-    { id: "1", name: "Admin User", email: "admin@asilmedia.org", role: "admin", lastLogin: "2025-01-14" },
-    { id: "2", name: "Editor User", email: "editor@asilmedia.org", role: "editor", lastLogin: "2025-01-13" },
+    { id: "1", name: "Admin User", email: "admin@movimedia.uz", role: "admin", lastLogin: "2025-01-14" },
+    { id: "2", name: "Editor User", email: "editor@movimedia.uz", role: "editor", lastLogin: "2025-01-13" },
   ]);
 
   const stats = {
@@ -40,52 +81,108 @@ export const AdminPanel = () => {
     todayViews: 1247,
   };
 
-  const handleAddMovie = () => {
-    // Determine category based on selected filter
-    let category = "movies";
-    let isPremiere = false;
-    let isNew = false;
-
-    if (selectedCategory === "premieres") {
-      category = "premieres";
-      isPremiere = true;
-    } else if (selectedCategory === "series") {
-      category = "series";
-    } else if (selectedCategory === "trailers") {
-      category = "trailers";
-    } else if (selectedCategory === "new") {
-      category = "movies";
-      isNew = true;
-    }
-
-    addMovie({
-      title: "Yangi kino",
+  // Reset form data
+  const resetFormData = () => {
+    setFormData({
+      title: "",
       poster: "",
-      rating: 8,
+      rating: 8.0,
       year: new Date().getFullYear(),
       quality: ["480p", "720p", "1080p"],
-      category: category,
+      category: selectedCategory === "all" ? "movies" : selectedCategory,
       views: 0,
-      isPremiere: isPremiere,
-      isNew: isNew,
+      isNew: selectedCategory === "new",
+      isPremiere: selectedCategory === "premieres",
+      description: ""
     });
-    toast({ title: "Kino qo'shildi", description: `${getCategoryTitle(selectedCategory)} bo'limiga yangi ${getCategoryItemName(selectedCategory)} qo'shildi.` });
   };
 
+  // Open add dialog
+  const handleOpenAddDialog = () => {
+    resetFormData();
+    setIsAddDialogOpen(true);
+  };
+
+  // Open edit dialog
+  const handleOpenEditDialog = (movie: Movie) => {
+    setEditingMovie(movie);
+    setFormData({
+      title: movie.title,
+      poster: movie.poster,
+      rating: movie.rating,
+      year: movie.year,
+      quality: movie.quality,
+      category: movie.category,
+      views: movie.views,
+      isNew: movie.isNew || false,
+      isPremiere: movie.isPremiere || false,
+      description: ""
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.title.trim()) {
+      toast({ title: "Xatolik", description: "Kino nomi kiritilishi shart!", variant: "destructive" });
+      return;
+    }
+
+    if (editingMovie) {
+      // Update existing movie
+      updateMovie(editingMovie.id, formData);
+      toast({ title: "Muvaffaqiyat", description: "Kino muvaffaqiyatli yangilandi!" });
+      setIsEditDialogOpen(false);
+      setEditingMovie(null);
+    } else {
+      // Add new movie
+      addMovie(formData);
+      toast({ title: "Muvaffaqiyat", description: "Yangi kino muvaffaqiyatli qo'shildi!" });
+      setIsAddDialogOpen(false);
+    }
+    
+    resetFormData();
+  };
+
+  // Handle delete movie
   const handleDeleteMovie = (id: string) => {
     deleteMovie(id);
-    toast({ title: "Kino o'chirildi", description: "Kino muvaffaqiyatli o'chirildi." });
+    toast({ title: "Muvaffaqiyat", description: "Kino muvaffaqiyatli o'chirildi!" });
   };
 
-  // Filter movies by selected category
+  // Handle quality change
+  const handleQualityChange = (quality: string, checked: boolean) => {
+    if (checked) {
+      setFormData(prev => ({
+        ...prev,
+        quality: [...prev.quality, quality]
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        quality: prev.quality.filter(q => q !== quality)
+      }));
+    }
+  };
+
+  // Filter movies by selected category and search
   const filteredMovies = movies.filter(movie => {
-    if (selectedCategory === "all") return true;
-    if (selectedCategory === "premieres") return movie.category === "premieres" || movie.isPremiere;
-    if (selectedCategory === "movies") return movie.category === "movies";
-    if (selectedCategory === "series") return movie.category === "series";
-    if (selectedCategory === "trailers") return movie.category === "trailers";
-    if (selectedCategory === "new") return movie.isNew;
-    return true;
+    // Category filter
+    let categoryMatch = true;
+    if (selectedCategory === "all") categoryMatch = true;
+    else if (selectedCategory === "premieres") categoryMatch = movie.category === "premieres" || movie.isPremiere;
+    else if (selectedCategory === "movies") categoryMatch = movie.category === "movies";
+    else if (selectedCategory === "series") categoryMatch = movie.category === "series";
+    else if (selectedCategory === "trailers") categoryMatch = movie.category === "trailers";
+    else if (selectedCategory === "new") categoryMatch = movie.isNew;
+    
+    // Search filter
+    const searchMatch = !searchQuery.trim() || 
+      movie.title.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return categoryMatch && searchMatch;
   });
 
   const getCategoryTitle = (category: string) => {
@@ -111,6 +208,157 @@ export const AdminPanel = () => {
       default: return "Kino";
     }
   };
+
+  // Movie form component
+  const MovieForm = () => (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="title">Kino Nomi *</Label>
+          <Input
+            id="title"
+            value={formData.title}
+            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+            placeholder="Kino nomini kiriting"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="year">Yil *</Label>
+          <Input
+            id="year"
+            type="number"
+            value={formData.year}
+            onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) }))}
+            placeholder="2025"
+            min="1900"
+            max="2030"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="rating">Reyting *</Label>
+          <Input
+            id="rating"
+            type="number"
+            step="0.1"
+            min="0"
+            max="10"
+            value={formData.rating}
+            onChange={(e) => setFormData(prev => ({ ...prev, rating: parseFloat(e.target.value) }))}
+            placeholder="8.5"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="views">Ko'rishlar</Label>
+          <Input
+            id="views"
+            type="number"
+            min="0"
+            value={formData.views}
+            onChange={(e) => setFormData(prev => ({ ...prev, views: parseInt(e.target.value) }))}
+            placeholder="0"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">Kategoriya *</Label>
+          <Select
+            value={formData.category}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Kategoriyani tanlang" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="premieres">Premyeralar</SelectItem>
+              <SelectItem value="movies">Kinolar</SelectItem>
+              <SelectItem value="series">Seriallar</SelectItem>
+              <SelectItem value="trailers">Treylerlar</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="poster">Poster URL *</Label>
+          <Input
+            id="poster"
+            value={formData.poster}
+            onChange={(e) => setFormData(prev => ({ ...prev, poster: e.target.value }))}
+            placeholder="https://example.com/poster.jpg"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Video Sifatlar</Label>
+        <div className="flex flex-wrap gap-2">
+          {["480p", "720p", "1080p", "4K"].map((quality) => (
+            <label key={quality} className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={formData.quality.includes(quality)}
+                onChange={(e) => handleQualityChange(quality, e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm">{quality}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Tavsif</Label>
+        <Textarea
+          id="description"
+          value={formData.description}
+          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+          placeholder="Kino haqida qisqacha ma'lumot"
+          rows={3}
+        />
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={formData.isNew}
+            onChange={(e) => setFormData(prev => ({ ...prev, isNew: e.target.checked }))}
+            className="rounded"
+          />
+          <span className="text-sm">Yangi</span>
+        </label>
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={formData.isPremiere}
+            onChange={(e) => setFormData(prev => ({ ...prev, isPremiere: e.target.checked }))}
+            className="rounded"
+          />
+          <span className="text-sm">Premyera</span>
+        </label>
+      </div>
+
+      <div className="flex justify-end space-x-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            setIsAddDialogOpen(false);
+            setIsEditDialogOpen(false);
+            setEditingMovie(null);
+            resetFormData();
+          }}
+        >
+          Bekor qilish
+        </Button>
+        <Button type="submit" className="bg-primary hover:bg-primary-glow">
+          <Save className="h-4 w-4 mr-2" />
+          {editingMovie ? "Yangilash" : "Qo'shish"}
+        </Button>
+      </div>
+    </form>
+  );
 
   return (
     <div className="space-y-6">
@@ -191,12 +439,24 @@ export const AdminPanel = () => {
         </TabsList>
 
         <TabsContent value="movies" className="space-y-4 md:space-y-6">
+          {/* Header with Search and Add Button */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <h3 className="text-lg font-semibold">Kinolar Boshqaruvi</h3>
-            <Button onClick={handleAddMovie} className="bg-primary hover:bg-primary-glow w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />
-              Yangi Kino Qo'shish
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Kino qidirish..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 w-full sm:w-64"
+                />
+              </div>
+              <Button onClick={handleOpenAddDialog} className="bg-primary hover:bg-primary-glow">
+                <Plus className="h-4 w-4 mr-2" />
+                Yangi Qo'shish
+              </Button>
+            </div>
           </div>
 
           {/* Category Filter Tabs */}

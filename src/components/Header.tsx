@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Menu, X, Home, Film, Tv, Star, Calendar, Settings } from "lucide-react";
+import { Search, Menu, X, Home, Film, Tv, Star, Calendar, Settings, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -38,6 +38,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
     { id: "premieres", label: "Premyeralar", icon: Star, path: "/premieres" },
     { id: "movies", label: "Kinolar", icon: Film, path: "/movies" },
     { id: "series", label: "Seriallar", icon: Tv, path: "/series" },
+    { id: "trailers", label: "Treylerlar", icon: Play, path: "/trailers" },
     { id: "new", label: "Yangi", icon: Calendar, path: "/new" },
   ];
 

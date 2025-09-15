@@ -20,17 +20,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useMovies } from "@/store/movies";
 
 export const AdminPanel = () => {
   const { toast } = useToast();
+  const { movies, addMovie, updateMovie, deleteMovie } = useMovies();
   const [selectedTab, setSelectedTab] = useState("movies");
-
-  // Sample data (would come from backend)
-  const [movies, setMovies] = useState([
-    { id: "1", title: "Yura davri dunyosi", rating: 8.5, year: 2025, category: "premieres", views: 194 },
-    { id: "2", title: "Osiris: Yirtqich missiyasi", rating: 7.8, year: 2025, category: "premieres", views: 85 },
-    { id: "3", title: "Esh yovuz o'liklarga qarshi", rating: 8.2, year: 2015, category: "series", views: 19 },
-  ]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const [users] = useState([
     { id: "1", name: "Admin User", email: "admin@asilmedia.org", role: "admin", lastLogin: "2025-01-14" },
@@ -45,18 +41,63 @@ export const AdminPanel = () => {
   };
 
   const handleAddMovie = () => {
-    toast({
-      title: "Kino qo'shildi",
-      description: "Yangi kino muvaffaqiyatli qo'shildi.",
+    // Determine category based on selected filter
+    let category = "movies";
+    let isPremiere = false;
+    let isNew = false;
+
+    if (selectedCategory === "premieres") {
+      category = "premieres";
+      isPremiere = true;
+    } else if (selectedCategory === "series") {
+      category = "series";
+    } else if (selectedCategory === "trailers") {
+      category = "trailers";
+    } else if (selectedCategory === "new") {
+      category = "movies";
+      isNew = true;
+    }
+
+    addMovie({
+      title: "Yangi kino",
+      poster: "",
+      rating: 8,
+      year: new Date().getFullYear(),
+      quality: ["480p", "720p", "1080p"],
+      category: category,
+      views: 0,
+      isPremiere: isPremiere,
+      isNew: isNew,
     });
+    toast({ title: "Kino qo'shildi", description: `${getCategoryTitle(selectedCategory)} bo'limiga yangi kino qo'shildi.` });
   };
 
   const handleDeleteMovie = (id: string) => {
-    setMovies(movies.filter(movie => movie.id !== id));
-    toast({
-      title: "Kino o'chirildi",
-      description: "Kino muvaffaqiyatli o'chirildi.",
-    });
+    deleteMovie(id);
+    toast({ title: "Kino o'chirildi", description: "Kino muvaffaqiyatli o'chirildi." });
+  };
+
+  // Filter movies by selected category
+  const filteredMovies = movies.filter(movie => {
+    if (selectedCategory === "all") return true;
+    if (selectedCategory === "premieres") return movie.category === "premieres" || movie.isPremiere;
+    if (selectedCategory === "movies") return movie.category === "movies";
+    if (selectedCategory === "series") return movie.category === "series";
+    if (selectedCategory === "trailers") return movie.category === "trailers";
+    if (selectedCategory === "new") return movie.isNew;
+    return true;
+  });
+
+  const getCategoryTitle = (category: string) => {
+    switch (category) {
+      case "all": return "Barchasi";
+      case "premieres": return "Premyeralar";
+      case "movies": return "Kinolar";
+      case "series": return "Seriallar";
+      case "trailers": return "Treylerlar";
+      case "new": return "Yangi";
+      default: return "Barchasi";
+    }
   };
 
   return (
@@ -146,10 +187,33 @@ export const AdminPanel = () => {
             </Button>
           </div>
 
+          {/* Category Filter Tabs */}
+          <div className="flex flex-wrap gap-2">
+            {["all", "premieres", "movies", "series", "trailers", "new"].map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className="animate-slide-in-left"
+              >
+                {getCategoryTitle(category)}
+                <Badge variant="secondary" className="ml-2 text-xs">
+                  {category === "all" ? movies.length : 
+                   category === "premieres" ? movies.filter(m => m.category === "premieres" || m.isPremiere).length :
+                   category === "movies" ? movies.filter(m => m.category === "movies").length :
+                   category === "series" ? movies.filter(m => m.category === "series").length :
+                   category === "trailers" ? movies.filter(m => m.category === "trailers").length :
+                   category === "new" ? movies.filter(m => m.isNew).length : 0}
+                </Badge>
+              </Button>
+            ))}
+          </div>
+
           {/* Add Movie Form */}
           <Card>
             <CardHeader>
-              <CardTitle>Yangi Kino Qo'shish</CardTitle>
+              <CardTitle>{getCategoryTitle(selectedCategory)} bo'limiga Yangi Kino Qo'shish</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -167,7 +231,7 @@ export const AdminPanel = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="category">Kategoriya</Label>
-                  <Select>
+                  <Select defaultValue={selectedCategory}>
                     <SelectTrigger>
                       <SelectValue placeholder="Kategoriyani tanlang" />
                     </SelectTrigger>
@@ -175,6 +239,7 @@ export const AdminPanel = () => {
                       <SelectItem value="premieres">Premyeralar</SelectItem>
                       <SelectItem value="movies">Kinolar</SelectItem>
                       <SelectItem value="series">Seriallar</SelectItem>
+                      <SelectItem value="trailers">Treylerlar</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -187,20 +252,25 @@ export const AdminPanel = () => {
                 <Label htmlFor="poster">Poster URL</Label>
                 <Input id="poster" placeholder="https://example.com/poster.jpg" />
               </div>
-              <Button className="w-full" onClick={handleAddMovie}>
-                Kinoni Saqlash
-              </Button>
+              <div className="flex gap-2">
+                <Button className="flex-1" onClick={handleAddMovie}>
+                  {getCategoryTitle(selectedCategory)} bo'limiga Qo'shish
+                </Button>
+                <Button variant="outline" onClick={() => setSelectedCategory("all")}>
+                  Barcha Kategoriyalarni Ko'rish
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
           {/* Movies List */}
           <Card>
             <CardHeader>
-              <CardTitle>Mavjud Kinolar</CardTitle>
+              <CardTitle>{getCategoryTitle(selectedCategory)} - Mavjud Kinolar ({filteredMovies.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 md:space-y-4">
-                {movies.map((movie) => (
+                {filteredMovies.map((movie) => (
                   <div key={movie.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
                     <div className="space-y-1 flex-1">
                       <h4 className="font-semibold text-sm md:text-base">{movie.title}</h4>

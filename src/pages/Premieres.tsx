@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Movie } from "@/components/MovieCard";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useMovies } from "@/store/movies";
 
 // Import movie posters
 import poster1 from "@/assets/poster1.jpg";
@@ -18,43 +19,18 @@ const Premieres = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { movies } = useMovies();
 
-  // Sample premiere movies
-  const movies: Movie[] = [
-    {
-      id: "1",
-      title: "Yura davri dunyosi: Qayta tug'ilish",
-      poster: poster1,
-      rating: 8.5,
-      year: 2025,
-      quality: ["480p", "720p", "1080p"],
-      category: "premieres",
-      views: 194,
-      isPremiere: true,
-      isNew: true,
-    },
-    {
-      id: "2", 
-      title: "Osiris: Yirtqich missiyasi",
-      poster: poster2,
-      rating: 7.8,
-      year: 2025,
-      quality: ["480p", "720p", "1080p"],
-      category: "premieres",
-      views: 85,
-      isPremiere: true,
-    },
-  ];
+  // using movies from global store
 
   // Filter movies based on search
   const filteredMovies = useMemo(() => {
+    let list = movies.filter(m => m.category === "premieres" || m.isPremiere);
     if (searchQuery.trim()) {
-      return movies.filter(movie =>
-        movie.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      list = list.filter(movie => movie.title.toLowerCase().includes(searchQuery.toLowerCase()));
     }
-    return movies;
-  }, [searchQuery]);
+    return list;
+  }, [searchQuery, movies]);
 
   const handleMovieClick = (movie: Movie) => {
     navigate(`/movie/${movie.id}`);

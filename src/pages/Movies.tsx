@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { MovieGrid } from "@/components/MovieGrid";
 import { Footer } from "@/components/Footer";
 import { Movie } from "@/components/MovieCard";
+import { useMovies } from "@/store/movies";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -18,41 +19,18 @@ const Movies = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { movies } = useMovies();
 
-  // Sample movies
-  const movies: Movie[] = [
-    {
-      id: "5",
-      title: "Urush va Jang 2: Hind kino",
-      poster: poster5,
-      rating: 8.7,
-      year: 2025,
-      quality: ["480p", "720p", "1080p"],
-      category: "movies",
-      views: 143,
-      isNew: true,
-    },
-    {
-      id: "6",
-      title: "Qizil Sonya: Qizilsoch Sonya",
-      poster: poster6,
-      rating: 7.5,
-      year: 2024,
-      quality: ["480p", "720p", "1080p"],
-      category: "movies",
-      views: 38,
-    },
-  ];
+  // using global movies store, filtered by category within render
 
   // Filter movies based on search
   const filteredMovies = useMemo(() => {
+    let list = movies.filter(m => m.category === "movies");
     if (searchQuery.trim()) {
-      return movies.filter(movie =>
-        movie.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      list = list.filter(movie => movie.title.toLowerCase().includes(searchQuery.toLowerCase()));
     }
-    return movies;
-  }, [searchQuery]);
+    return list;
+  }, [searchQuery, movies]);
 
   const handleMovieClick = (movie: Movie) => {
     navigate(`/movie/${movie.id}`);

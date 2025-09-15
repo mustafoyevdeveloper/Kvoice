@@ -16,6 +16,7 @@ import About from "./pages/About";
 import Trailers from "./pages/Trailers";
 import TrailerPlayer from "./pages/TrailerPlayer";
 import NotFound from "./pages/NotFound";
+import { MoviesProvider } from "./store/movies";
 
 const queryClient = new QueryClient();
 
@@ -24,8 +25,9 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
+      <MoviesProvider>
+        <BrowserRouter>
+          <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/premieres" element={<Premieres />} />
           <Route path="/movies" element={<Movies />} />
@@ -41,7 +43,8 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
+      </MoviesProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

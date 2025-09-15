@@ -4,6 +4,7 @@ import { Hero } from "@/components/Hero";
 import { MovieGrid } from "@/components/MovieGrid";
 import { Footer } from "@/components/Footer";
 import { Movie } from "@/components/MovieCard";
+import { useMovies } from "@/store/movies";
 import { useToast } from "@/hooks/use-toast";
 
 // Import movie posters
@@ -18,84 +19,22 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const { movies } = useMovies();
 
-  // Sample movie data based on asilmedia.org structure
-  const movies: Movie[] = [
-    {
-      id: "1",
-      title: "Yura davri dunyosi: Qayta tug'ilish",
-      poster: poster1,
-      rating: 8.5,
-      year: 2025,
-      quality: ["480p", "720p", "1080p"],
-      category: "premieres",
-      views: 194,
-      isPremiere: true,
-      isNew: true,
-    },
-    {
-      id: "2", 
-      title: "Osiris: Yirtqich missiyasi",
-      poster: poster2,
-      rating: 7.8,
-      year: 2025,
-      quality: ["480p", "720p", "1080p"],
-      category: "premieres",
-      views: 85,
-      isPremiere: true,
-    },
-    {
-      id: "3",
-      title: "Esh yovuz o'liklarga qarshi",
-      poster: poster3,
-      rating: 8.2,
-      year: 2015,
-      quality: ["480p", "1080p"],
-      category: "series",
-      views: 19,
-    },
-    {
-      id: "4",
-      title: "Tinchlikparvar DC seriali",
-      poster: poster4,
-      rating: 9.1,
-      year: 2022,
-      quality: ["480p", "720p", "1080p"],
-      category: "series",
-      views: 57,
-    },
-    {
-      id: "5",
-      title: "Urush va Jang 2: Hind kino",
-      poster: poster5,
-      rating: 8.7,
-      year: 2025,
-      quality: ["480p", "720p", "1080p"],
-      category: "movies",
-      views: 143,
-      isNew: true,
-    },
-    {
-      id: "6",
-      title: "Qizil Sonya: Qizilsoch Sonya",
-      poster: poster6,
-      rating: 7.5,
-      year: 2024,
-      quality: ["480p", "720p", "1080p"],
-      category: "movies",
-      views: 38,
-    },
-  ];
+  // movies now comes from global store
 
   // Featured movie for hero section
-  const featuredMovie = {
-    title: "Yura davri dunyosi: Qayta tug'ilish",
-    description: "Eng yangi va ajoyib premyera filmi. Dramatik va hayajonli voqealar bilan to'la muhim kino.",
-    poster: poster1,
-    rating: 8.5,
-    year: 2025,
-    quality: ["480p", "720p", "1080p"],
-  };
+  const featuredFromStore = movies.find(m => m.isPremiere) || movies[0];
+  const featuredMovie = featuredFromStore
+    ? {
+        title: featuredFromStore.title,
+        description: "Eng yangi va ajoyib premyera filmi.",
+        poster: featuredFromStore.poster,
+        rating: featuredFromStore.rating,
+        year: featuredFromStore.year,
+        quality: featuredFromStore.quality,
+      }
+    : undefined as any;
 
   // Filter movies based on category and search
   const filteredMovies = useMemo(() => {

@@ -37,7 +37,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-            <h3 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-4 animate-fade-in">
+            <h3 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-4">
               {siteSettings.siteIcon} {siteSettings.siteName}
             </h3>
             <p className="text-muted-foreground mb-4 text-sm md:text-base leading-relaxed">

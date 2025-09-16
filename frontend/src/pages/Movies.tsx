@@ -3,6 +3,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { MovieGrid } from "@/components/MovieGrid";
 import { useMovies } from "@/store/movies";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, X } from "lucide-react";
 
 export const Movies = () => {
   const { movies } = useMovies();
@@ -25,6 +27,15 @@ export const Movies = () => {
     }
   }, []);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+
   // Filter movies for movies category
   const moviesList = movies.filter(movie => 
     movie.category === "movies" || movie.category === "movie"
@@ -44,6 +55,10 @@ export const Movies = () => {
     setSelectedCategory(category);
   };
 
+  const handleClearSearch = () => {
+    setSearchQuery("");
+  };
+
   const handleMovieClick = (movie: any) => {
     window.location.href = `/movie/${movie.id}`;
   };
@@ -57,15 +72,50 @@ export const Movies = () => {
       />
       
       <main className="container mx-auto px-4 py-8">
+        {/* Search Results Header */}
+        {searchQuery && (
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearSearch}
+                className="flex items-center space-x-2 text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Orqaga qaytish</span>
+              </Button>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Qidiruv natijasi: "{searchQuery}"
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {filteredMovies.length} ta natija topildi
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearSearch}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {/* Section Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 animate-fade-in">
-            {siteSettings.sectionTitles.movies}
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground animate-fade-in-up">
-            {siteSettings.sectionDescriptions.movies}
-          </p>
-        </div>
+        {!searchQuery && (
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 animate-fade-in">
+              {siteSettings.sectionTitles.movies}
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground animate-fade-in-up">
+              {siteSettings.sectionDescriptions.movies}
+            </p>
+          </div>
+        )}
 
         {/* Movies Grid */}
         {filteredMovies.length > 0 ? (

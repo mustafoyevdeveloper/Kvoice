@@ -46,6 +46,8 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
   const [isBuffering, setIsBuffering] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [isMouseOverControls, setIsMouseOverControls] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // Get similar movies based on admin-entered IDs
   const getSimilarMovies = () => {
@@ -143,7 +145,54 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isPlaying, isFullscreen, isMuted]);
+  }, [isPlaying, isFullscreen, isMuted, volume]);
+
+  // Mouse wheel for volume control - only when hovering over controls
+  useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      // Only handle wheel events when hovering over video player
+      if (!containerRef.current?.contains(event.target as Node)) {
+        return;
+      }
+
+      // Only handle wheel events when mouse is over controls area
+      const target = event.target as Element;
+      const isOverControls = target.closest('.video-controls') || 
+                            target.closest('.video-controls *');
+      
+      if (!isOverControls) {
+        return; // Allow normal page scroll
+      }
+
+      // Prevent default scroll behavior and stop propagation
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const delta = event.deltaY;
+      const volumeChange = delta > 0 ? -0.1 : 0.1; // Scroll down = decrease, scroll up = increase
+      const newVolume = Math.max(0, Math.min(1, volume + volumeChange));
+      
+      if (videoRef.current) {
+        videoRef.current.volume = newVolume;
+        setVolume(newVolume);
+        setIsMuted(newVolume === 0);
+        setShowControls(true);
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      // Use capture phase to prevent other handlers
+      container.addEventListener('wheel', handleWheel, { 
+        passive: false, 
+        capture: true 
+      });
+      return () => container.removeEventListener('wheel', handleWheel, { 
+        capture: true 
+      });
+    }
+  }, [volume]);
 
   const togglePlayPause = () => {
     if (videoRef.current) {
@@ -156,6 +205,7 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
       setIsPlaying(!isPlaying);
     }
   };
+
 
   const handleTimeUpdate = () => {
     if (videoRef.current) {
@@ -275,13 +325,55 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
       )}
 
       {/* Video Player */}
-      <div 
-        ref={containerRef}
-        className={`relative bg-black rounded-lg overflow-hidden cursor-pointer ${isFullscreen ? 'fixed inset-0 z-50' : 'aspect-video'}`}
-        onMouseMove={() => setShowControls(true)}
-        onMouseLeave={() => isPlaying && setShowControls(false)}
-        onTouchStart={() => setShowControls(true)}
-        onClick={(e) => {
+        <div 
+          ref={containerRef}
+          className={`video-player-container relative bg-black rounded-lg overflow-hidden cursor-pointer ${isFullscreen ? 'fixed inset-0 z-50' : 'aspect-video'}`}
+          onMouseMove={(e) => {
+            if (isFullscreen) {
+              // In fullscreen, only show controls when mouse is over the bottom area
+              const rect = e.currentTarget.getBoundingClientRect();
+              const mouseY = e.clientY - rect.top;
+              const isOverBottomArea = mouseY > rect.height * 0.7; // Bottom 30% of the screen
+              setIsMouseOverControls(isOverBottomArea);
+              setShowControls(isOverBottomArea);
+              setShowTooltip(isOverBottomArea);
+            } else {
+              setShowControls(true);
+              setShowTooltip(true);
+            }
+          }}
+          onMouseLeave={() => {
+            if (isFullscreen) {
+              setIsMouseOverControls(false);
+              setShowControls(false);
+              setShowTooltip(false);
+            } else if (isPlaying) {
+              setShowControls(false);
+              setShowTooltip(false);
+            }
+          }}
+          onTouchStart={() => setShowControls(true)}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            // Don't trigger if clicking on controls
+            const target = e.target as Element;
+            const isControlElement = target.closest('.video-controls') || 
+                                   target.closest('button') || 
+                                   target.closest('[role="button"]') ||
+                                   target.closest('.settings-dropdown') ||
+                                   target.closest('[data-radix-collection-item]');
+            
+            // Don't trigger if mouse is over controls area in fullscreen
+            if (isFullscreen && isMouseOverControls) {
+              return;
+            }
+            
+            if (!isControlElement) {
+              toggleFullscreen();
+              setShowControls(true);
+            }
+          }}
+          onClick={(e) => {
           // Don't trigger if clicking on controls or buttons
           const target = e.target as Element;
           const isControlElement = target.closest('.video-controls') || 
@@ -294,8 +386,18 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
             togglePlayPause();
           }
         }}
-      >
-        {/* Video Element */}
+        >
+          {/* Tooltip */}
+          {showTooltip && (
+            <div className="absolute top-4 left-4 bg-black/80 text-white px-3 py-2 rounded-lg text-sm z-10 hidden md:block">
+              {isFullscreen 
+                ? "Qaytish uchun mishkaning o'ng tugmasini bosing" 
+                : "To'liq ekran rejimiga o'tish uchun mishkaning o'ng tugmasini bosing"
+              }
+            </div>
+          )}
+
+          {/* Video Element */}
         <video
           ref={videoRef}
           className="w-full h-full cursor-pointer"
@@ -321,6 +423,11 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
                                    target.closest('button') || 
                                    target.closest('[role="button"]') ||
                                    target.closest('.settings-dropdown');
+            
+            // Don't trigger if mouse is over controls area in fullscreen
+            if (isFullscreen && isMouseOverControls) {
+              return;
+            }
             
             if (!isControlElement) {
               togglePlayPause();
@@ -361,13 +468,28 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
           </div>
         )}
 
-        {/* Video Controls */}
-        <div 
-          className={`video-controls absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 md:p-4 transition-opacity duration-300 ${
-            showControls ? 'opacity-100' : 'opacity-0'
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
+         {/* Video Controls */}
+         <div 
+           className={`video-controls absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 md:p-4 transition-opacity duration-300 ${
+             showControls ? 'opacity-100' : 'opacity-0'
+           }`}
+           onClick={(e) => {
+             e.stopPropagation();
+             (e.nativeEvent as Event).stopImmediatePropagation();
+           }}
+           onMouseEnter={() => {
+             if (isFullscreen) {
+               setIsMouseOverControls(true);
+               setShowControls(true);
+             }
+           }}
+           onMouseLeave={() => {
+             if (isFullscreen) {
+               setIsMouseOverControls(false);
+               setShowControls(false);
+             }
+           }}
+         >
           {/* Progress Bar */}
           <div className="mb-2 md:mb-4">
             <Slider

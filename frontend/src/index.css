@@ -2,6 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Video Player Scroll Prevention */
+.video-player-container {
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+}
+
+/* Hide browser fullscreen exit message */
+.video-player-container:-webkit-full-screen {
+  -webkit-user-select: none;
+}
+
+.video-player-container:-moz-full-screen {
+  -moz-user-select: none;
+}
+
+.video-player-container:fullscreen {
+  user-select: none;
+}
+
+/* Hide browser fullscreen UI */
+.video-player-container:-webkit-full-screen::-webkit-media-controls {
+  display: none !important;
+}
+
+.video-player-container:-webkit-full-screen::-webkit-media-controls-panel {
+  display: none !important;
+}
+
+.video-player-container:-webkit-full-screen::-webkit-media-controls-play-button {
+  display: none !important;
+}
+
+.video-player-container:-webkit-full-screen::-webkit-media-controls-timeline {
+  display: none !important;
+}
+
+.video-player-container:-webkit-full-screen::-webkit-media-controls-current-time-display {
+  display: none !important;
+}
+
+.video-player-container:-webkit-full-screen::-webkit-media-controls-time-remaining-display {
+  display: none !important;
+}
+
+.video-player-container:-webkit-full-screen::-webkit-media-controls-mute-button {
+  display: none !important;
+}
+
+.video-player-container:-webkit-full-screen::-webkit-media-controls-volume-slider {
+  display: none !important;
+}
+
+.video-player-container:-webkit-full-screen::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
@@ -222,6 +278,17 @@ All colors MUST be HSL.
     opacity: 0.8;
   }
 
+  /* Touch feedback */
+  .touch-feedback {
+    transition: all 0.1s ease-out;
+  }
+
+  .touch-feedback:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+
+
   /* Mobile navigation improvements */
   @media (max-width: 768px) {
     .mobile-nav {
@@ -258,6 +325,7 @@ All colors MUST be HSL.
     width: 300px;
     height: 300px;
   }
+
 
   /* Optimize for reduced motion */
   @media (prefers-reduced-motion: reduce) {
@@ -362,4 +430,20 @@ All colors MUST be HSL.
       border: 1px solid currentColor;
     }
   }
+
+  /* Video player wheel event handling */
+  .video-player-container {
+    touch-action: pan-x pan-y;
+    overscroll-behavior: contain;
+  }
+
+  .video-player-container:focus-within {
+    overscroll-behavior: none;
+  }
+
+  /* Prevent page scroll when hovering over video player */
+  .video-player-container:hover {
+    overscroll-behavior: none;
+  }
+
 }

@@ -25,6 +25,15 @@ export const Series = () => {
     }
   }, []);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+
   // Filter movies for series category
   const seriesList = movies.filter(movie => 
     movie.category === "series"

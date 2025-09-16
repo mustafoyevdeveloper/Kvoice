@@ -130,21 +130,32 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                 placeholder="Qidiruv..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`pl-10 w-48 md:w-64 border-border/50 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50 transition-all duration-300 ${
+                className={`pl-10 pr-12 w-48 md:w-64 border-border/50 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50 transition-all duration-300 ${
                   isHomePage && !isScrolled 
                     ? 'bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70' 
                     : 'bg-input/50'
                 }`}
               />
+              <Button
+                type="submit"
+                size="sm"
+                className={`absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 transition-all duration-300 hover:scale-105 ${
+                  isHomePage && !isScrolled 
+                    ? 'text-white hover:text-white shadow-lg' 
+                    : 'text-primary hover:text-primary-foreground'
+                }`}
+              >
+                <Search className="h-3.5 w-3.5" />
+              </Button>
             </div>
           </form>
         </div>
 
         {/* Mobile Navigation */}
-        <div className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        <div className={`md:hidden transition-all duration-500 ease-in-out overflow-hidden ${
+          isMenuOpen ? 'max-h-96 opacity-100 translate-y-0 animate-slide-down' : 'max-h-0 opacity-0 -translate-y-4 animate-slide-up'
         }`}>
-          <nav className="py-4 border-t border-primary/20">
+          <nav className="py-4 border-t border-primary/20 bg-background/95 backdrop-blur-md">
             <div className="flex flex-col space-y-2">
               {categories.map((category, index) => {
                 const Icon = category.icon;
@@ -153,12 +164,17 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                     key={category.id}
                     variant={location.pathname === category.path ? "secondary" : "ghost"}
                     size="sm"
-                    className={`justify-start hover:bg-primary-glow/20 touch-feedback btn-interactive animate-slide-in-left transition-colors duration-300 ${
+                    className={`justify-start hover:bg-primary-glow/20 touch-feedback btn-interactive transition-all duration-300 ${
+                      isMenuOpen ? 'animate-slide-in-left opacity-100' : 'opacity-0'
+                    } ${
                       location.pathname === category.path 
                         ? "bg-secondary text-secondary-foreground" 
                         : isScrolled ? "text-primary-foreground" : isHomePage ? "text-white" : "text-primary"
                     }`}
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    style={{ 
+                      animationDelay: isMenuOpen ? `${index * 0.1}s` : '0s',
+                      transitionDelay: isMenuOpen ? `${index * 0.05}s` : '0s'
+                    }}
                     onClick={() => {
                       navigate(category.path);
                       setIsMenuOpen(false);

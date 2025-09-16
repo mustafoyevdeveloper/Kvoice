@@ -25,6 +25,15 @@ export const New = () => {
     }
   }, []);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+
   // Filter movies for new category
   const newMovies = movies.filter(movie => 
     movie.isNew

@@ -95,7 +95,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
         <div className="max-w-4xl mx-auto">
           {/* Movie Info */}
           <div className="mb-4 md:mb-6">
-            <Badge variant="default" className="mb-3 md:mb-4 bg-primary text-primary-foreground animate-scale-in">
+            <Badge variant="default" className="mb-3 md:mb-4 bg-primary text-primary-foreground">
               Eng so'nggi 2025 Tarjima Kinolar
             </Badge>
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-foreground mb-3 md:mb-4 animate-fade-in-up leading-tight">

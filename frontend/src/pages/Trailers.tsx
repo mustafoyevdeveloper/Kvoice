@@ -25,6 +25,15 @@ export const Trailers = () => {
     }
   }, []);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+
   // Filter movies for trailers category
   const trailersList = movies.filter(movie => 
     movie.category === "trailers" || movie.category === "trailer"

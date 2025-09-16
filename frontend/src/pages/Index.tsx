@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { MovieGrid } from "@/components/MovieGrid";
@@ -6,6 +6,8 @@ import { Footer } from "@/components/Footer";
 import { Movie } from "@/components/MovieCard";
 import { useMovies } from "@/store/movies";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, X } from "lucide-react";
 
 // Import movie posters
 import poster1 from "@/assets/poster1.jpg";
@@ -20,6 +22,15 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const { movies } = useMovies();
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  }, []);
 
   // movies now comes from global store
 
@@ -94,6 +105,11 @@ const Index = () => {
     }
   };
 
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header
@@ -108,6 +124,39 @@ const Index = () => {
       )}
 
       <main className="container mx-auto px-4 py-8">
+        {/* Search Results Header */}
+        {searchQuery && (
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearSearch}
+                className="flex items-center space-x-2 text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Orqaga qaytish</span>
+              </Button>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Qidiruv natijasi: "{searchQuery}"
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {filteredMovies.length} ta natija topildi
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearSearch}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {/* Category subtitle */}
         {selectedCategory === "premieres" && !searchQuery && (
           <div className="mb-8 text-center">

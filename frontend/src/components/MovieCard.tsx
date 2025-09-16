@@ -14,6 +14,12 @@ export interface Movie {
   isNew?: boolean;
   isPremiere?: boolean;
   url?: string;
+  description?: string;
+  language?: string;
+  videoUrl?: string;
+  duration?: string;
+  genres?: string[];
+  similarContentIds?: string[];
 }
 
 interface MovieCardProps {
@@ -59,7 +65,7 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
         {/* Quality badges - Vertical layout */}
         <div className="absolute top-1 md:top-2 left-1 md:left-2 flex flex-col gap-1">
           {movie.quality.map((q) => (
-            <span key={q} className={`${getQualityBadgeClass(q)} animate-fade-in`}>
+            <span key={q} className={`${getQualityBadgeClass(q)}`}>
               {q}
             </span>
           ))}
@@ -68,12 +74,12 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
         {/* New/Premiere badges */}
         <div className="absolute top-1 md:top-2 right-1 md:right-2 flex flex-col gap-1">
           {movie.isNew && (
-            <Badge variant="destructive" className="text-xs animate-bounce-gentle">
+            <Badge variant="destructive" className="text-xs">
               Yangi
             </Badge>
           )}
           {movie.isPremiere && (
-            <Badge variant="default" className="text-xs bg-primary animate-glow-pulse">
+            <Badge variant="default" className="text-xs bg-primary">
               Premyera
             </Badge>
           )}

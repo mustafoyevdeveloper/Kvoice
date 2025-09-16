@@ -100,10 +100,56 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSettings]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input field
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      switch (event.code) {
+        case 'Space':
+          event.preventDefault();
+          togglePlayPause();
+          setShowControls(true);
+          break;
+        case 'ArrowLeft':
+          event.preventDefault();
+          skip(-10);
+          setShowControls(true);
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          skip(10);
+          setShowControls(true);
+          break;
+        case 'KeyF':
+          event.preventDefault();
+          toggleFullscreen();
+          break;
+        case 'KeyM':
+          event.preventDefault();
+          toggleMute();
+          break;
+        case 'Escape':
+          if (isFullscreen) {
+            event.preventDefault();
+            toggleFullscreen();
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isPlaying, isFullscreen, isMuted]);
+
   const togglePlayPause = () => {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
+        setIsBuffering(false); // Pause qilinganida buffering'ni to'xtatish
       } else {
         videoRef.current.play();
       }
@@ -149,7 +195,9 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
 
   const skip = (seconds: number) => {
     if (videoRef.current) {
-      videoRef.current.currentTime += seconds;
+      const newTime = videoRef.current.currentTime + seconds;
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
     }
   };
 
@@ -229,21 +277,55 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
       {/* Video Player */}
       <div 
         ref={containerRef}
-        className={`relative bg-black rounded-lg overflow-hidden ${isFullscreen ? 'fixed inset-0 z-50' : 'aspect-video'}`}
+        className={`relative bg-black rounded-lg overflow-hidden cursor-pointer ${isFullscreen ? 'fixed inset-0 z-50' : 'aspect-video'}`}
         onMouseMove={() => setShowControls(true)}
         onMouseLeave={() => isPlaying && setShowControls(false)}
         onTouchStart={() => setShowControls(true)}
+        onClick={(e) => {
+          // Don't trigger if clicking on controls or buttons
+          const target = e.target as Element;
+          const isControlElement = target.closest('.video-controls') || 
+                                 target.closest('button') || 
+                                 target.closest('[role="button"]') ||
+                                 target.closest('.settings-dropdown') ||
+                                 target.closest('[data-radix-collection-item]');
+          
+          if (!isControlElement) {
+            togglePlayPause();
+          }
+        }}
       >
         {/* Video Element */}
         <video
           ref={videoRef}
-          className="w-full h-full"
+          className="w-full h-full cursor-pointer"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
+          onPlay={() => {
+            setIsPlaying(true);
+            setIsBuffering(false);
+          }}
+          onPause={() => {
+            setIsPlaying(false);
+            setIsBuffering(false);
+          }}
           onWaiting={() => setIsBuffering(true)}
           onCanPlay={() => setIsBuffering(false)}
+          onLoadStart={() => setIsBuffering(true)}
+          onError={() => setIsBuffering(false)}
+          onClick={(e) => {
+            e.stopPropagation();
+            // Don't trigger if clicking on controls
+            const target = e.target as Element;
+            const isControlElement = target.closest('.video-controls') || 
+                                   target.closest('button') || 
+                                   target.closest('[role="button"]') ||
+                                   target.closest('.settings-dropdown');
+            
+            if (!isControlElement) {
+              togglePlayPause();
+            }
+          }}
           poster={movie.poster}
         >
           <source src={`/api/video/${movie.id}?quality=${selectedQuality}`} type="video/mp4" />
@@ -259,11 +341,20 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
 
         {/* Play Button Overlay */}
         {!isPlaying && !isBuffering && (
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div 
+            className="absolute inset-0 flex items-center justify-center cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              togglePlayPause();
+            }}
+          >
             <Button 
               size="lg" 
               className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full h-16 w-16 md:h-20 md:w-20 btn-interactive touch-feedback animate-scale-in"
-              onClick={togglePlayPause}
+              onClick={(e) => {
+                e.stopPropagation();
+                togglePlayPause();
+              }}
             >
               <Play className="h-6 w-6 md:h-8 md:w-8 ml-1" />
             </Button>
@@ -272,9 +363,10 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
 
         {/* Video Controls */}
         <div 
-          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 md:p-4 transition-opacity duration-300 ${
+          className={`video-controls absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 md:p-4 transition-opacity duration-300 ${
             showControls ? 'opacity-100' : 'opacity-0'
           }`}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Progress Bar */}
           <div className="mb-2 md:mb-4">
@@ -283,113 +375,43 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
               max={duration || 100}
               step={1}
               onValueChange={handleSeek}
-              className="w-full"
+              className="w-full h-1 md:h-2"
             />
             <div className="flex justify-between text-xs text-white/70 mt-1">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
+              <span className="text-xs">{formatTime(currentTime)}</span>
+              <span className="text-xs">{formatTime(duration)}</span>
             </div>
           </div>
 
           {/* Control Buttons */}
           <div className="flex items-center justify-between">
+            {/* Left Controls - Settings Only */}
             <div className="flex items-center space-x-1 md:space-x-2">
-              {/* Play/Pause */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20 touch-feedback btn-interactive"
-                onClick={togglePlayPause}
-              >
-                {isPlaying ? <Pause className="h-4 w-4 md:h-5 md:w-5" /> : <Play className="h-4 w-4 md:h-5 md:w-5" />}
-              </Button>
-
-              {/* Skip Buttons - Always visible */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20 touch-feedback btn-interactive"
-                onClick={() => skip(-10)}
-              >
-                <SkipBack className="h-3 w-3 md:h-4 md:w-4" />
-                <span className="text-xs ml-1 hidden sm:inline">10s</span>
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20 touch-feedback btn-interactive"
-                onClick={() => skip(10)}
-              >
-                <span className="text-xs mr-1 hidden sm:inline">10s</span>
-                <SkipForward className="h-3 w-3 md:h-4 md:w-4" />
-              </Button>
-
-              {/* Volume - Always visible */}
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/20 touch-feedback btn-interactive"
-                  onClick={toggleMute}
-                >
-                  {isMuted || volume === 0 ? 
-                    <VolumeX className="h-4 w-4" /> : 
-                    <Volume2 className="h-4 w-4" />
-                  }
-                </Button>
-                <div className="w-16 md:w-20">
-                  <Slider
-                    value={[isMuted ? 0 : volume]}
-                    max={1}
-                    step={0.1}
-                    onValueChange={handleVolumeChange}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-1 md:space-x-2">
-              {/* Quality Selector */}
-              <Select value={selectedQuality} onValueChange={changeQuality}>
-                <SelectTrigger className="w-16 md:w-20 h-6 md:h-8 bg-transparent border-white/30 text-white text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {movie.quality.map((quality) => (
-                    <SelectItem key={quality} value={quality}>
-                      {quality}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
               {/* Settings Menu */}
               <div className="relative settings-dropdown">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-white/20 touch-feedback btn-interactive"
+                  className="text-white hover:bg-white/20 touch-feedback btn-interactive h-6 w-6 md:h-8 md:w-8 p-0"
                   onClick={() => setShowSettings(!showSettings)}
                 >
-                  <Settings className="h-4 w-4" />
+                  <Settings className="h-3 w-3 md:h-4 md:w-4" />
                 </Button>
 
-                {/* Settings Dropdown */}
+                {/* Settings Dropdown - Mobile Optimized */}
                 {showSettings && (
-                  <div className="absolute bottom-12 right-0 bg-black/90 backdrop-blur-sm rounded-lg p-4 min-w-48 border border-white/20 z-50">
-                    <div className="space-y-4">
-                      {/* Playback Speed */}
+                  <div className="absolute bottom-10 md:bottom-12 left-0 bg-black/95 backdrop-blur-sm rounded-lg p-3 md:p-4 min-w-40 md:min-w-48 border border-white/20 z-50">
+                    <div className="space-y-3 md:space-y-4">
+                      {/* Playback Speed - Mobile Optimized */}
                       <div>
-                        <h4 className="text-white text-sm font-medium mb-2">Tezlik</h4>
-                        <div className="space-y-2">
+                        <h4 className="text-white text-xs md:text-sm font-medium mb-2">Tezlik</h4>
+                        <div className="grid grid-cols-3 gap-1 md:space-y-2 md:grid-cols-1">
                           {[0.5, 0.75, 1, 1.25, 1.5, 2].map((speed) => (
                             <Button
                               key={speed}
                               variant={playbackSpeed === speed ? "default" : "ghost"}
                               size="sm"
-                              className="w-full justify-start text-white hover:bg-white/20"
+                              className="w-full justify-center text-white hover:bg-white/20 text-xs h-6 md:h-8"
                               onClick={() => changePlaybackSpeed(speed)}
                             >
                               {speed}x
@@ -402,17 +424,88 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Center Controls - Playback - Now in absolute center */}
+            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center space-x-2 md:space-x-4">
+              {/* Previous Track */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive h-8 w-8 md:h-10 md:w-10 p-0 bg-black/50 rounded-full"
+                onClick={() => {
+                  skip(-10);
+                  // Show visual feedback
+                  setShowControls(true);
+                }}
+                title="10 soniya orqaga"
+              >
+                <SkipBack className="h-4 w-4 md:h-5 md:w-5" />
+              </Button>
+
+              {/* Play/Pause */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive h-12 w-12 md:h-14 md:w-14 p-0 bg-black/50 rounded-full"
+                onClick={togglePlayPause}
+                title={isPlaying ? "To'xtatish" : "O'ynatish"}
+              >
+                {isPlaying ? <Pause className="h-5 w-5 md:h-6 md:w-6" /> : <Play className="h-5 w-5 md:h-6 md:w-6" />}
+              </Button>
+
+              {/* Next Track */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive h-8 w-8 md:h-10 md:w-10 p-0 bg-black/50 rounded-full"
+                onClick={() => {
+                  skip(10);
+                  // Show visual feedback
+                  setShowControls(true);
+                }}
+                title="10 soniya oldinga"
+              >
+                <SkipForward className="h-4 w-4 md:h-5 md:w-5" />
+              </Button>
+            </div>
+
+            {/* Right Controls - Volume and Fullscreen */}
+            <div className="flex items-center space-x-1 md:space-x-2">
+              {/* Volume */}
+              <div className="flex items-center space-x-1 md:space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20 touch-feedback btn-interactive h-6 w-6 md:h-8 md:w-8 p-0"
+                  onClick={toggleMute}
+                >
+                  {isMuted || volume === 0 ? 
+                    <VolumeX className="h-3 w-3 md:h-4 md:w-4" /> : 
+                    <Volume2 className="h-3 w-3 md:h-4 md:w-4" />
+                  }
+                </Button>
+                <div className="w-12 md:w-16 lg:w-20">
+                  <Slider
+                    value={[isMuted ? 0 : volume]}
+                    max={1}
+                    step={0.1}
+                    onValueChange={handleVolumeChange}
+                    className="w-full"
+                  />
+                </div>
+              </div>
 
               {/* Fullscreen */}
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20 touch-feedback btn-interactive"
+                className="text-white hover:bg-white/20 touch-feedback btn-interactive h-6 w-6 md:h-8 md:w-8 p-0"
                 onClick={toggleFullscreen}
               >
                 {isFullscreen ? 
-                  <Minimize className="h-4 w-4" /> : 
-                  <Maximize className="h-4 w-4" />
+                  <Minimize className="h-3 w-3 md:h-4 md:w-4" /> : 
+                  <Maximize className="h-3 w-3 md:h-4 md:w-4" />
                 }
               </Button>
             </div>

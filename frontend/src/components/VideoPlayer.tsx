@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Movie } from "./MovieCard";
 import { useToast } from "@/hooks/use-toast";
+import { useMovies } from "@/store/movies";
 
 interface VideoPlayerProps {
   movie: Movie;
@@ -30,6 +31,7 @@ interface VideoPlayerProps {
 
 export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
   const { toast } = useToast();
+  const { movies } = useMovies();
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -44,6 +46,33 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
   const [isBuffering, setIsBuffering] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+
+  // Get similar movies based on admin-entered IDs
+  const getSimilarMovies = () => {
+    if (!movie.similarContentIds || movie.similarContentIds.length === 0) {
+      // If no similar content IDs, return random movies from same category
+      return movies
+        .filter(m => m.id !== movie.id && m.category === movie.category)
+        .slice(0, 3);
+    }
+    
+    // Find movies by admin-entered IDs
+    const similarMovies = movie.similarContentIds
+      .map(id => movies.find(m => m.id === id))
+      .filter(Boolean) as Movie[];
+    
+    // If not enough similar movies found, add random movies from same category
+    if (similarMovies.length < 3) {
+      const additionalMovies = movies
+        .filter(m => m.id !== movie.id && m.category === movie.category && !similarMovies.some(sm => sm.id === m.id))
+        .slice(0, 3 - similarMovies.length);
+      return [...similarMovies, ...additionalMovies].slice(0, 3);
+    }
+    
+    return similarMovies.slice(0, 3);
+  };
+
+  const similarMovies = getSimilarMovies();
 
   // Auto-hide controls
   useEffect(() => {
@@ -430,22 +459,31 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
                 <div>
                   <h3 className="font-semibold mb-2">Tavsif</h3>
                   <p className="text-muted-foreground">
-                    Bu ajoyib kino sizga unutilmas taassurotlar beradi. Zo'r syujet va professional aktyorlar ishlagan bu asarda siz hayotning turli jihatlarini ko'rasiz.
+                    {movie.description || "Bu ajoyib kino sizga unutilmas taassurotlar beradi. Zo'r syujet va professional aktyorlar ishlagan bu asarda siz hayotning turli jihatlarini ko'rasiz."}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <span className="text-sm text-muted-foreground">Janr</span>
-                    <p className="font-medium">Dramatik, Fantastik</p>
+                    <p className="font-medium">
+                      {movie.genres && movie.genres.length > 0 
+                        ? movie.genres.join(", ") 
+                        : "Dramatik, Fantastik"
+                      }
+                    </p>
                   </div>
                   <div>
                     <span className="text-sm text-muted-foreground">Davomiyligi</span>
-                    <p className="font-medium">2s 15min</p>
+                    <p className="font-medium">
+                      {movie.duration || "2s 15min"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-sm text-muted-foreground">Til</span>
-                    <p className="font-medium">O'zbek tilida</p>
+                    <p className="font-medium">
+                      {movie.language || "O'zbek tilida"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-sm text-muted-foreground">Ko'rishlar</span>
@@ -463,14 +501,19 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
             <CardContent className="p-6">
               <h3 className="font-semibold mb-4">Sifat Tanlash</h3>
               <div className="space-y-2">
-                {movie.quality.map((quality) => (
+                {movie.quality
+                  .sort((a, b) => {
+                    const qualityOrder = ["360p", "480p", "720p", "1080p", "1440p", "4K"];
+                    return qualityOrder.indexOf(a) - qualityOrder.indexOf(b);
+                  })
+                  .map((quality) => (
                   <Button
                     key={quality}
                     variant={selectedQuality === quality ? "default" : "outline"}
                     className="w-full justify-start"
                     onClick={() => setSelectedQuality(quality)}
                   >
-                    {quality} - {quality === "480p" ? "Standart" : quality === "720p" ? "HD" : "Full HD"}
+                    {quality} - {quality === "4K" ? "Ultra HD" : quality === "1440p" ? "2K" : quality === "1080p" ? "Full HD" : quality === "720p" ? "HD" : quality === "480p" ? "Standart" : "SD"}
                   </Button>
                 ))}
               </div>
@@ -482,12 +525,24 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
             <CardContent className="p-6">
               <h3 className="font-semibold mb-4">O'xshash Kinolar</h3>
               <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex space-x-3">
-                    <div className="w-16 h-24 bg-muted rounded"></div>
+                {similarMovies.map((similarMovie) => (
+                  <div 
+                    key={similarMovie.id} 
+                    className="flex space-x-3 cursor-pointer hover:bg-muted/50 p-2 rounded transition-colors"
+                    onClick={() => window.location.href = `/movie/${similarMovie.id}`}
+                  >
+                    <div className="w-16 h-24 bg-muted rounded overflow-hidden">
+                      <img 
+                        src={similarMovie.poster} 
+                        alt={similarMovie.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div className="flex-1 space-y-1">
-                      <h4 className="text-sm font-medium">Kino Nomi {i}</h4>
-                      <p className="text-xs text-muted-foreground">2024 • 8.{i}</p>
+                      <h4 className="text-sm font-medium">{similarMovie.title}</h4>
+                      <p className="text-xs text-muted-foreground">
+                        {similarMovie.year} • {similarMovie.rating}
+                      </p>
                     </div>
                   </div>
                 ))}

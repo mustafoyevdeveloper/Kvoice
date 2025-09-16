@@ -1,69 +1,86 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
-import { MovieGrid } from "@/components/MovieGrid";
 import { Footer } from "@/components/Footer";
-import { Movie } from "@/components/MovieCard";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { MovieGrid } from "@/components/MovieGrid";
 import { useMovies } from "@/store/movies";
 
-// Import movie posters
-import poster1 from "@/assets/poster1.jpg";
-import poster2 from "@/assets/poster2.jpg";
-import poster3 from "@/assets/poster3.jpg";
-import poster4 from "@/assets/poster4.jpg";
-import poster5 from "@/assets/poster5.jpg";
-import poster6 from "@/assets/poster6.jpg";
-
-const Premieres = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const { toast } = useToast();
-  const navigate = useNavigate();
+export const Premieres = () => {
   const { movies } = useMovies();
-
-  // using movies from global store
-
-  // Filter movies based on search
-  const filteredMovies = useMemo(() => {
-    let list = movies.filter(m => m.category === "premieres" || m.isPremiere);
-    if (searchQuery.trim()) {
-      list = list.filter(movie => movie.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("premieres");
+  const [siteSettings, setSiteSettings] = useState({
+    sectionTitles: {
+      premieres: "PREMYERALAR"
+    },
+    sectionDescriptions: {
+      premieres: "Issiq'ida tomosha qilib oling! Hammasi bizda!"
     }
-    return list;
-  }, [searchQuery, movies]);
+  });
 
-  const handleMovieClick = (movie: Movie) => {
-    navigate(`/premiere/${movie.id}`);
-  };
+  useEffect(() => {
+    const saved = localStorage.getItem('moviemedia_site_settings');
+    if (saved) {
+      const settings = JSON.parse(saved);
+      setSiteSettings(settings);
+    }
+  }, []);
 
-  const handleCategorySelect = (category: string) => {
-    navigate(category === "all" ? "/" : `/${category}`);
-  };
+  // Filter movies for premieres
+  const premieresMovies = movies.filter(movie => 
+    movie.isPremiere || movie.category === "premieres"
+  );
+
+  // Filter by search query
+  const filteredMovies = premieresMovies.filter(movie =>
+    !searchQuery.trim() || 
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
 
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+  };
+
+  const handleMovieClick = (movie: any) => {
+    window.location.href = `/premiere/${movie.id}`;
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <Header
+      <Header 
         onSearch={handleSearch}
         onCategorySelect={handleCategorySelect}
-        selectedCategory="premieres"
+        selectedCategory={selectedCategory}
       />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 text-center">
-          <p className="text-primary text-lg font-medium mb-2">
-            Issig'ida tomosha qilib oling! Hammasi bizda!
+        {/* Section Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 animate-fade-in">
+            {siteSettings.sectionTitles.premieres}
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground animate-fade-in-up">
+            {siteSettings.sectionDescriptions.premieres}
           </p>
         </div>
 
-        <MovieGrid
-          movies={filteredMovies}
-          title="PREMYERALAR"
-          onMovieClick={handleMovieClick}
-        />
+        {/* Movies Grid */}
+        {filteredMovies.length > 0 ? (
+          <MovieGrid 
+            movies={filteredMovies} 
+            title=""
+            onMovieClick={handleMovieClick}
+          />
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">
+              {searchQuery ? "Qidiruv natijasi topilmadi" : "Hech qanday premyera topilmadi"}
+            </p>
+          </div>
+        )}
       </main>
 
       <Footer />

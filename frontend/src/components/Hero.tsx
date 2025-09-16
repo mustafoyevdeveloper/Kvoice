@@ -1,7 +1,10 @@
-import { Play, Info, Star } from "lucide-react";
+import { Play, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import heroBg from "@/assets/hero-bg.jpg";
+import { useState, useEffect } from "react";
+import { useMovies } from "@/store/movies";
+import { useNavigate } from "react-router-dom";
 
 interface HeroProps {
   featuredMovie?: {
@@ -15,6 +18,57 @@ interface HeroProps {
 }
 
 export const Hero = ({ featuredMovie }: HeroProps) => {
+  const navigate = useNavigate();
+  const { movies } = useMovies();
+  const [siteSettings, setSiteSettings] = useState({
+    heroTitle: "Eng yaxshi kinolar va seriallar",
+    heroSubtitle: "O'zbek tilida eng yangi va mashhur kinolar"
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem('moviemedia_site_settings');
+    if (saved) {
+      const settings = JSON.parse(saved);
+      setSiteSettings(settings);
+    }
+  }, []);
+
+  // Get the latest added content (most recent by ID or by order in array)
+  const getLatestContent = () => {
+    if (!movies || movies.length === 0) return null;
+    
+    // Sort by ID to get the latest (assuming newer IDs are higher)
+    const sortedMovies = [...movies].sort((a, b) => {
+      // Extract numbers from ID for comparison
+      const aNum = parseInt(a.id.replace(/\D/g, '')) || 0;
+      const bNum = parseInt(b.id.replace(/\D/g, '')) || 0;
+      return bNum - aNum;
+    });
+    
+    return sortedMovies[0];
+  };
+
+  const handlePlayClick = () => {
+    const latestContent = getLatestContent();
+    if (latestContent) {
+      // Navigate to appropriate player based on content type
+      if (latestContent.isPremiere) {
+        navigate(`/premiere/${latestContent.id}`);
+      } else if (latestContent.category === 'movies') {
+        navigate(`/movie/${latestContent.id}`);
+      } else if (latestContent.category === 'series') {
+        navigate(`/series/${latestContent.id}`);
+      } else if (latestContent.category === 'trailers') {
+        navigate(`/trailer/${latestContent.id}`);
+      } else if (latestContent.isNew) {
+        navigate(`/new/${latestContent.id}`);
+      } else {
+        // Default to movie player
+        navigate(`/movie/${latestContent.id}`);
+      }
+    }
+  };
+
   // Safety check to prevent errors
   if (!featuredMovie) {
     return null;
@@ -74,28 +128,21 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center animate-fade-in-up">
             <Button 
               size="lg" 
-              className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 md:px-8 animate-glow-pulse btn-interactive touch-feedback w-full sm:w-auto"
+              onClick={handlePlayClick}
+              className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 md:px-8 animate-glow-pulse btn-interactive touch-feedback w-full sm:w-auto min-w-[250px] md:min-w-[300px] lg:min-w-[350px]"
             >
               <Play className="h-4 w-4 md:h-5 md:w-5 mr-2" />
               Tomosha qilish
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-primary/30 text-primary hover:bg-primary/10 px-6 md:px-8 btn-interactive touch-feedback w-full sm:w-auto"
-            >
-              <Info className="h-4 w-4 md:h-5 md:w-5 mr-2" />
-              Batafsil ma'lumot
             </Button>
           </div>
 
           {/* Description */}
           <div className="mt-6 md:mt-8 text-center animate-fade-in-up">
             <p className="text-primary font-medium mb-1 md:mb-2 text-sm md:text-base">
-              Issiq'ida tomosha qilib oling! Hammasi bizda!
+              {siteSettings.heroTitle}
             </p>
             <p className="text-xs md:text-sm text-muted-foreground">
-              barchasi faqat bizda!
+              {siteSettings.heroSubtitle}
             </p>
           </div>
         </div>

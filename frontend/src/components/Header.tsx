@@ -15,8 +15,27 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [siteSettings, setSiteSettings] = useState({
+    siteName: "MovieMedia",
+    siteIcon: "🎬",
+    sectionNames: {
+      premieres: "Premyeralar",
+      movies: "Kinolar",
+      series: "Seriallar",
+      trailers: "Treylerlar",
+      new: "Yangi"
+    }
+  });
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('moviemedia_site_settings');
+    if (saved) {
+      const settings = JSON.parse(saved);
+      setSiteSettings(settings);
+    }
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,11 +54,11 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
 
   const categories = [
     { id: "all", label: "Barchasi", icon: Home, path: "/" },
-    { id: "premieres", label: "Premyeralar", icon: Star, path: "/premieres" },
-    { id: "movies", label: "Kinolar", icon: Film, path: "/movies" },
-    { id: "series", label: "Seriallar", icon: Tv, path: "/series" },
-    { id: "trailers", label: "Treylerlar", icon: Play, path: "/trailers" },
-    { id: "new", label: "Yangi", icon: Calendar, path: "/new" },
+    { id: "premieres", label: siteSettings.sectionNames.premieres, icon: Star, path: "/premieres" },
+    { id: "movies", label: siteSettings.sectionNames.movies, icon: Film, path: "/movies" },
+    { id: "series", label: siteSettings.sectionNames.series, icon: Tv, path: "/series" },
+    { id: "trailers", label: siteSettings.sectionNames.trailers, icon: Play, path: "/trailers" },
+    { id: "new", label: siteSettings.sectionNames.new, icon: Calendar, path: "/new" },
   ];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -72,7 +91,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
             <div className={`text-lg md:text-xl font-bold animate-fade-in transition-colors duration-300 ${
               isScrolled ? 'text-primary-foreground' : isHomePage ? 'text-white' : 'text-primary'
             }`}>
-              MovieMedia
+              {siteSettings.siteIcon} {siteSettings.siteName}
             </div>
           </div>
 

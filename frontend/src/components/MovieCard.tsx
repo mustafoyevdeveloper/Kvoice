@@ -13,6 +13,7 @@ export interface Movie {
   views: number;
   isNew?: boolean;
   isPremiere?: boolean;
+  url?: string;
 }
 
 interface MovieCardProps {

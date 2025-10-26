@@ -199,6 +199,6 @@ Bu loyiha MIT litsenziyasi ostida tarqatilmoqda. Batafsil ma'lumot uchun `LICENS
 - **shadcn/ui** - Zamonaviy komponentlar
 - **Lucide Icons** - Chiroyli ikonkalar
 
----
+_________________________________________________________________________
 
-**MoviMedia** - O'zbek kinolarining eng yaxshi platformasi! 🎬✨# KVoice
+**MoviMedia** - O'zbek kinolarining eng yaxshi platformasi! 🎬✨# MovieMeda

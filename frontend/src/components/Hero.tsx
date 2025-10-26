@@ -5,6 +5,7 @@ import heroBg from "@/assets/hero-bg.jpg";
 import { useState, useEffect } from "react";
 import { useMovies } from "@/store/movies";
 import { useNavigate } from "react-router-dom";
+import useSettingsStore from "@/store/settings";
 
 interface HeroProps {
   featuredMovie?: {
@@ -20,18 +21,9 @@ interface HeroProps {
 export const Hero = ({ featuredMovie }: HeroProps) => {
   const navigate = useNavigate();
   const { movies } = useMovies();
-  const [siteSettings, setSiteSettings] = useState({
-    heroTitle: "Eng yaxshi kinolar va seriallar",
-    heroSubtitle: "O'zbek tilida eng yangi va mashhur kinolar"
-  });
-
-  useEffect(() => {
-    const saved = localStorage.getItem('moviemedia_site_settings');
-    if (saved) {
-      const settings = JSON.parse(saved);
-      setSiteSettings(settings);
-    }
-  }, []);
+  
+  // Site settings are now loaded from backend
+  const { settings } = useSettingsStore();
 
   // Get the latest added content (most recent by ID or by order in array)
   const getLatestContent = () => {
@@ -139,10 +131,10 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
           {/* Description */}
           <div className="mt-6 md:mt-8 text-center animate-fade-in-up">
             <p className="text-primary font-medium mb-1 md:mb-2 text-sm md:text-base">
-              {siteSettings.heroTitle}
+              {settings?.heroTitle || "Eng yaxshi kinolar va seriallar"}
             </p>
             <p className="text-xs md:text-sm text-muted-foreground">
-              {siteSettings.heroSubtitle}
+              {settings?.heroSubtitle || "O'zbek tilida eng yangi va mashhur kinolar"}
             </p>
           </div>
         </div>

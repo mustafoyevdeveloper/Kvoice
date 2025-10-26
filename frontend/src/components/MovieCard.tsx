@@ -9,17 +9,23 @@ export interface Movie {
   rating: number;
   year: number;
   quality: string[];
+  videoQuality?: string[];
   category: string;
   views: number;
   isNew?: boolean;
+  isNewContent?: boolean;
   isPremiere?: boolean;
   url?: string;
   description?: string;
   language?: string;
   videoUrl?: string;
+  videoFile?: string;
+  videoDuration?: string;
   duration?: string;
   genres?: string[];
   similarContentIds?: string[];
+  trailerUrl?: string;
+  posterUrl?: string;
 }
 
 interface MovieCardProps {
@@ -64,7 +70,7 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
 
         {/* Quality badges - Vertical layout */}
         <div className="absolute top-1 md:top-2 left-1 md:left-2 flex flex-col gap-1">
-          {movie.quality.map((q) => (
+          {(movie.videoQuality || movie.quality || []).map((q) => (
             <span key={q} className={`${getQualityBadgeClass(q)}`}>
               {q}
             </span>
@@ -73,7 +79,7 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
 
         {/* New/Premiere badges */}
         <div className="absolute top-1 md:top-2 right-1 md:right-2 flex flex-col gap-1">
-          {movie.isNew && (
+          {(movie.isNew || movie.isNewContent) && (
             <Badge variant="destructive" className="text-xs">
               Yangi
             </Badge>

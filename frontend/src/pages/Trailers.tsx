@@ -17,13 +17,7 @@ export const Trailers = () => {
     }
   });
 
-  useEffect(() => {
-    const saved = localStorage.getItem('moviemedia_site_settings');
-    if (saved) {
-      const settings = JSON.parse(saved);
-      setSiteSettings(settings);
-    }
-  }, []);
+  // Site settings are now loaded from backend, no localStorage needed
 
   // Scroll to top when component mounts
   useEffect(() => {

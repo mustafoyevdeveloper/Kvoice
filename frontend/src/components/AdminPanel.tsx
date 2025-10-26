@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   Plus, 
   Edit, 
@@ -26,7 +26,11 @@ import {
   Image,
   CheckCircle,
   AlertCircle,
-  TrendingUp
+  TrendingUp,
+  RefreshCw,
+  Database,
+  HardDrive,
+  Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,32 +40,36 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useMovies } from "@/store/movies";
-import { Movie } from "./MovieCard";
+import useAdminStore from "@/store/admin";
+import useAuthStore from "@/store/auth";
+import useAnalyticsStore from "@/store/analytics";
+import useSettingsStore from "@/store/settings";
 
 interface MovieFormData {
   title: string;
-    description: string;
+  description: string;
   year: number;
-    language: string;
-    rating: number;
-    videoFile: File | null;
-    videoUrl: string;
-    posterFile: File | null;
-    posterUrl: string;
-  quality: string[];
-    duration: string;
-    genres: string[];
-    similarContentIds: string[];
+  language: string;
+  rating: number;
+  videoFile: File | null;
+  videoUrl: string;
+  videoDuration: string;
+  videoQuality: string[];
+  posterFile: File | null;
+  posterUrl: string;
+  poster: string;
+  genres: string[];
+  similarContentIds: string[];
   category: string;
-  isNew?: boolean;
-  isPremiere?: boolean;
-  }
+  isNewContent: boolean;
+  isPremiere: boolean;
+  trailerUrl: string;
+}
 
 interface ContentCategory {
   id: string;
@@ -72,68 +80,152 @@ interface ContentCategory {
 
 export const AdminPanel = () => {
   const { toast } = useToast();
-  const { movies, addMovie, updateMovie, deleteMovie } = useMovies();
+  const { user } = useAuthStore();
+  const { 
+    dashboard, 
+    content, 
+    users: adminUsers, 
+    analytics, 
+    uploadStats,
+    isLoading,
+    error,
+    pagination,
+    getDashboard,
+    getContent,
+    getUsers,
+    getAnalytics,
+    getUploadStats,
+    updateContentStatus,
+    updateUser,
+    deleteUser,
+    uploadVideo,
+    uploadPoster,
+    uploadImages,
+    deleteFile,
+    createMovie,
+    updateMovie,
+    deleteMovie
+  } = useAdminStore();
+  const { trackView, trackRating, trackSearch } = useAnalyticsStore();
+  const { 
+    settings, 
+    isLoading: settingsLoading, 
+    error: settingsError,
+    getSettings, 
+    updateSettings, 
+    updateSection,
+    resetSettings 
+  } = useSettingsStore();
   const [selectedTab, setSelectedTab] = useState("movies");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
+  const [editingMovie, setEditingMovie] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
   const [autoSwitch, setAutoSwitch] = useState(false);
+  const [selectedContentType, setSelectedContentType] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedRole, setSelectedRole] = useState('all');
+  const [selectedUserStatus, setSelectedUserStatus] = useState('all');
   
-  // Site settings state
-  const [siteSettings, setSiteSettings] = useState(() => {
-    const saved = localStorage.getItem('moviemedia_site_settings');
-    return saved ? JSON.parse(saved) : {
-      siteName: "MovieMedia",
-      siteDescription: "Eng yangi kinolar va seriallar",
-      siteIcon: "",
-      contactEmail: "contact@moviemedia.org",
-      contactPhone: "+998 90 123 45 67",
-      socialMedia: {
-        facebook: "https://facebook.com/moviemedia",
-        instagram: "https://instagram.com/moviemedia",
-        telegram: "https://t.me/moviemedia",
-        youtube: "https://youtube.com/moviemedia"
-      },
-      sectionNames: {
-        premieres: "Premyeralar",
-        movies: "Kinolar",
-        series: "Seriallar",
-        trailers: "Treylerlar",
-        new: "Yangi"
-      },
-      sectionTitles: {
-        premieres: "PREMYERALAR",
-        movies: "KINOLAR", 
-        series: "SERIALLAR",
-        trailers: "TREYLERLAR",
-        new: "YANGI KINOLAR"
-      },
-      sectionDescriptions: {
-        premieres: "Issiq'ida tomosha qilib oling! Hammasi bizda!",
-        movies: "Eng yaxshi kinolar to'plami",
-        series: "Mashhur seriallar va multfilmlar",
-        trailers: "Eng so'nggi treylerlar",
-        new: "Yangi qo'shilgan kinolar"
-      },
-      heroTitle: "Eng yaxshi kinolar va seriallar",
-      heroSubtitle: "O'zbek tilida eng yangi va mashhur kinolar",
-      aboutTitle: "Biz haqimizda",
-      aboutDescription: "MovieMedia - kinolar va seriallar olamiga xush kelibsiz",
-      privacyTitle: "Maxfiylik siyosati",
-      privacyDescription: "Sizning shaxsiy ma'lumotlaringiz biz uchun muhim",
-      termsTitle: "Foydalanish shartlari",
-      termsDescription: "Saytdan foydalanish shartlari va qoidalari"
-    };
+  // Site settings state - now loaded from backend
+  const [siteSettings, setSiteSettings] = useState({
+    siteName: "MovieMedia",
+    siteDescription: "Eng yangi kinolar va seriallar",
+    siteIcon: "",
+    contactEmail: "contact@moviemedia.org",
+    contactPhone: "+998 90 123 45 67",
+    socialMedia: {
+      facebook: "https://facebook.com/moviemedia",
+      instagram: "https://instagram.com/moviemedia",
+      telegram: "https://t.me/moviemedia",
+      youtube: "https://youtube.com/moviemedia"
+    },
+    sectionNames: {
+      premieres: "Premyeralar",
+      movies: "Kinolar",
+      series: "Seriallar",
+      trailers: "Treylerlar",
+      new: "Yangi"
+    },
+    sectionTitles: {
+      premieres: "PREMYERALAR",
+      movies: "KINOLAR", 
+      series: "SERIALLAR",
+      trailers: "TREYLERLAR",
+      new: "YANGI KINOLAR"
+    },
+    sectionDescriptions: {
+      premieres: "Issiq'ida tomosha qilib oling! Hammasi bizda!",
+      movies: "Eng yaxshi kinolar to'plami",
+      series: "Mashhur seriallar va multfilmlar",
+      trailers: "Eng so'nggi treylerlar",
+      new: "Yangi qo'shilgan kinolar"
+    },
+    heroTitle: "Eng yaxshi kinolar va seriallar",
+    heroSubtitle: "O'zbek tilida eng yangi va mashhur kinolar",
+    aboutTitle: "Biz haqimizda",
+    aboutDescription: "MovieMedia - kinolar va seriallar olamiga xush kelibsiz",
+    privacyTitle: "Maxfiylik siyosati",
+    privacyDescription: "Sizning shaxsiy ma'lumotlaringiz biz uchun muhim",
+    termsTitle: "Foydalanish shartlari",
+    termsDescription: "Saytdan foydalanish shartlari va qoidalari"
   });
+
+  // Update site settings when backend settings change
+  useEffect(() => {
+    if (settings) {
+      setSiteSettings({
+        siteName: settings.siteName || "MovieMedia",
+        siteDescription: settings.siteDescription || "Eng yangi kinolar va seriallar",
+        siteIcon: settings.siteIcon || "",
+        contactEmail: settings.contactEmail || "contact@moviemedia.org",
+        contactPhone: settings.contactPhone || "+998 90 123 45 67",
+        socialMedia: settings.socialMedia || {
+          facebook: "https://facebook.com/moviemedia",
+          instagram: "https://instagram.com/moviemedia",
+          telegram: "https://t.me/moviemedia",
+          youtube: "https://youtube.com/moviemedia"
+        },
+        sectionNames: settings.sectionNames || {
+          premieres: "Premyeralar",
+          movies: "Kinolar",
+          series: "Seriallar",
+          trailers: "Treylerlar",
+          new: "Yangi"
+        },
+        sectionTitles: settings.sectionTitles || {
+          premieres: "PREMYERALAR",
+          movies: "KINOLAR", 
+          series: "SERIALLAR",
+          trailers: "TREYLERLAR",
+          new: "YANGI KINOLAR"
+        },
+        sectionDescriptions: settings.sectionDescriptions || {
+          premieres: "Issiq'ida tomosha qilib oling! Hammasi bizda!",
+          movies: "Eng yaxshi kinolar to'plami",
+          series: "Mashhur seriallar va multfilmlar",
+          trailers: "Eng so'nggi treylerlar",
+          new: "Yangi qo'shilgan kinolar"
+        },
+        heroTitle: settings.heroTitle || "Eng yaxshi kinolar va seriallar",
+        heroSubtitle: settings.heroSubtitle || "O'zbek tilida eng yangi va mashhur kinolar",
+        aboutTitle: settings.aboutTitle || "Biz haqimizda",
+        aboutDescription: settings.aboutDescription || "MovieMedia - kinolar va seriallar olamiga xush kelibsiz",
+        privacyTitle: settings.privacyTitle || "Maxfiylik siyosati",
+        privacyDescription: settings.privacyDescription || "Sizning shaxsiy ma'lumotlaringiz biz uchun muhim",
+        termsTitle: settings.termsTitle || "Foydalanish shartlari",
+        termsDescription: settings.termsDescription || "Saytdan foydalanish shartlari va qoidalari"
+      });
+    }
+  }, [settings]);
   
-  const videoFileRef = useRef<HTMLInputElement>(null);
-  const posterFileRef = useRef<HTMLInputElement>(null);
-  const autoSwitchInterval = useRef<NodeJS.Timeout | null>(null);
+  const videoFileRef = useRef(null);
+  const posterFileRef = useRef(null);
+  const autoSwitchInterval = useRef(null);
   
   // Auto switch chart type
   const startAutoSwitch = () => {
@@ -153,6 +245,25 @@ export const AdminPanel = () => {
     }
   };
   
+  // Initialize data on mount
+  useEffect(() => {
+    // Ensure token is set for development
+    if (!localStorage.getItem('token')) {
+      localStorage.setItem('token', 'mock-admin-token-12345');
+    }
+    
+    getDashboard();
+    getContent();
+    getUsers();
+    getAnalytics();
+    getUploadStats();
+    getSettings();
+  }, []);
+
+
+
+
+
   // Cleanup on unmount
   React.useEffect(() => {
     return () => {
@@ -162,7 +273,7 @@ export const AdminPanel = () => {
     };
   }, []);
   
-  const [formData, setFormData] = useState<MovieFormData>({
+  const [formData, setFormData] = useState({
     title: "",
     description: "",
     year: new Date().getFullYear(),
@@ -170,15 +281,17 @@ export const AdminPanel = () => {
     rating: 8.0,
     videoFile: null,
     videoUrl: "",
+    videoDuration: "",
+    videoQuality: ["480p", "720p", "1080p"],
     posterFile: null,
     posterUrl: "",
-    quality: ["480p", "720p", "1080p"],
-    duration: "",
-    genres: [],
+    poster: "",
+    genres: ["Drama"], // Default genre
     similarContentIds: [],
     category: "movies",
-    isNew: false,
-    isPremiere: false
+    isNewContent: false,
+    isPremiere: false,
+    trailerUrl: ""
   });
 
   // Content categories
@@ -212,109 +325,34 @@ export const AdminPanel = () => {
   // Available qualities
   const availableQualities = ["360p", "480p", "720p", "1080p", "1440p", "4K"];
 
-  const [users, setUsers] = useState(() => {
-    // Load users from localStorage or use default
-    const savedUsers = localStorage.getItem('moviemedia_users');
-    if (savedUsers) {
-      return JSON.parse(savedUsers);
-    }
-    return [
-      { 
-        id: "1", 
-        name: "Admin User", 
-        email: "admin@movimedia.uz", 
-        role: "admin", 
-        lastLogin: "2025-01-14",
-        loginCount: 1,
-        firstLogin: "2025-01-14",
-        isOnline: false
-      },
-      { 
-        id: "2", 
-        name: "Editor User", 
-        email: "editor@movimedia.uz", 
-        role: "editor", 
-        lastLogin: "2025-01-13",
-        loginCount: 1,
-        firstLogin: "2025-01-13",
-        isOnline: false
-      },
-    ];
-  });
+  const [localUsers, setLocalUsers] = useState([]);
 
   // Track current user
-  const [currentUser, setCurrentUser] = useState(() => {
-    const savedUser = localStorage.getItem('moviemedia_current_user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // User login tracking functions
+  // User login tracking functions - removed localStorage usage
   const trackUserLogin = (userData: { name: string; email: string; role?: string }) => {
-    const now = new Date().toISOString().split('T')[0];
-    const existingUser = users.find(user => user.email === userData.email);
-    
-    if (existingUser) {
-      // Update existing user
-      const updatedUser = {
-        ...existingUser,
-        lastLogin: now,
-        loginCount: existingUser.loginCount + 1,
-        isOnline: true
-      };
-      
-      const updatedUsers = users.map(user => 
-        user.id === existingUser.id ? updatedUser : user
-      );
-      
-      setUsers(updatedUsers);
-      setCurrentUser(updatedUser);
-      localStorage.setItem('moviemedia_users', JSON.stringify(updatedUsers));
-      localStorage.setItem('moviemedia_current_user', JSON.stringify(updatedUser));
-    } else {
-      // Create new user
-      const newUser = {
-        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role || 'user',
-        lastLogin: now,
-        firstLogin: now,
-        loginCount: 1,
-        isOnline: true
-      };
-      
-      const updatedUsers = [...users, newUser];
-      setUsers(updatedUsers);
-      setCurrentUser(newUser);
-      localStorage.setItem('moviemedia_users', JSON.stringify(updatedUsers));
-      localStorage.setItem('moviemedia_current_user', JSON.stringify(newUser));
-    }
+    // This function is now handled by the backend
+    console.log('User login tracked:', userData);
   };
 
   const trackUserLogout = () => {
-    if (currentUser) {
-      const updatedUsers = users.map(user => 
-        user.id === currentUser.id ? { ...user, isOnline: false } : user
-      );
-      setUsers(updatedUsers);
-      setCurrentUser(null);
-      localStorage.setItem('moviemedia_users', JSON.stringify(updatedUsers));
-      localStorage.removeItem('moviemedia_current_user');
-    }
+    // This function is now handled by the backend
+    console.log('User logout tracked');
   };
 
   const stats = {
-    totalMovies: movies.length,
-    totalViews: movies.reduce((sum, movie) => sum + movie.views, 0),
-    totalUsers: users.length,
+    totalMovies: content.length,
+    totalViews: content.reduce((sum, movie) => sum + (movie.views || 0), 0),
+    totalUsers: adminUsers.length,
     todayViews: Math.floor(Math.random() * 2000) + 500, // Random today views (500-2499)
-    onlineUsers: users.filter(user => user.isOnline).length,
-    totalLogins: users.reduce((sum, user) => sum + user.loginCount, 0),
-    newUsersToday: users.filter(user => {
+    onlineUsers: adminUsers.filter(user => user.isOnline).length,
+    totalLogins: adminUsers.reduce((sum, user) => sum + (user.loginCount || 0), 0),
+    newUsersToday: adminUsers.filter(user => {
       const today = new Date().toISOString().split('T')[0];
       return user.firstLogin === today;
     }).length,
-    averageLoginsPerUser: users.length > 0 ? Math.round(users.reduce((sum, user) => sum + user.loginCount, 0) / users.length) : 0
+    averageLoginsPerUser: adminUsers.length > 0 ? Math.round(adminUsers.reduce((sum, user) => sum + (user.loginCount || 0), 0) / adminUsers.length) : 0
   };
 
   // Utility functions
@@ -430,15 +468,17 @@ export const AdminPanel = () => {
       rating: 8.0,
       videoFile: null,
       videoUrl: "",
+      videoDuration: "",
+      videoQuality: ["480p", "720p", "1080p"],
       posterFile: null,
       posterUrl: "",
-      quality: ["480p", "720p", "1080p"],
-      duration: "",
-      genres: [],
+      poster: "",
+      genres: ["Drama"], // Default genre
       similarContentIds: [],
       category: selectedCategory === "all" ? "movies" : selectedCategory,
-      isNew: selectedCategory === "new",
-      isPremiere: selectedCategory === "premieres"
+      isNewContent: selectedCategory === "new",
+      isPremiere: selectedCategory === "premieres",
+      trailerUrl: ""
     });
   };
 
@@ -449,7 +489,7 @@ export const AdminPanel = () => {
   };
 
   // Open edit dialog
-  const handleOpenEditDialog = (movie: Movie) => {
+  const handleOpenEditDialog = (movie) => {
     setEditingMovie(movie);
     setFormData({
       title: movie.title,
@@ -459,15 +499,17 @@ export const AdminPanel = () => {
       rating: movie.rating,
       videoFile: null,
       videoUrl: movie.videoUrl || "",
+      videoDuration: movie.videoDuration || "",
+      videoQuality: movie.videoQuality || movie.quality || [],
       posterFile: null,
-      posterUrl: movie.poster,
-      quality: movie.quality || [],
-      duration: movie.duration || "",
-      genres: movie.genres || [],
+      posterUrl: movie.posterUrl || "",
+      poster: movie.poster || "",
+      genres: movie.genres || ["Drama"],
       similarContentIds: movie.similarContentIds || [],
       category: movie.category,
-      isNew: movie.isNew || false,
-      isPremiere: movie.isPremiere || false
+      isNewContent: movie.isNewContent || false,
+      isPremiere: movie.isPremiere || false,
+      trailerUrl: movie.trailerUrl || ""
     });
     setIsEditDialogOpen(true);
   };
@@ -484,8 +526,8 @@ export const AdminPanel = () => {
           const quality = await detectVideoQuality(file);
           setFormData(prev => ({ 
             ...prev, 
-            duration, 
-            quality: quality.length > 0 ? quality : prev.quality 
+            videoDuration: duration, 
+            videoQuality: quality.length > 0 ? quality : prev.videoQuality 
           }));
           
           toast({
@@ -517,7 +559,7 @@ export const AdminPanel = () => {
         
         try {
           const url = await simulateFileUpload(file);
-          setFormData(prev => ({ ...prev, posterUrl: url }));
+          setFormData(prev => ({ ...prev, posterUrl: url, poster: url }));
           
           toast({
             title: "Poster yuklandi",
@@ -545,11 +587,11 @@ export const AdminPanel = () => {
   };
 
   const handlePosterUrlChange = (url: string) => {
-    setFormData(prev => ({ ...prev, posterUrl: url, posterFile: null }));
+    setFormData(prev => ({ ...prev, posterUrl: url, poster: url, posterFile: null }));
   };
 
   // Handle form submission
-  const handleSubmit = React.useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = React.useCallback(async (e) => {
     e.preventDefault();
     
     if (!formData.title.trim()) {
@@ -557,13 +599,28 @@ export const AdminPanel = () => {
       return;
     }
 
-    if (!formData.videoFile && !formData.videoUrl) {
+    if (!formData.description.trim()) {
+      toast({ title: "Xatolik", description: "Tavsif kiritilishi shart!", variant: "destructive" });
+      return;
+    }
+
+    if (!formData.videoFile && !formData.videoUrl.trim()) {
       toast({ title: "Xatolik", description: "Video fayl yoki YouTube link kiritilishi shart!", variant: "destructive" });
       return;
     }
 
-    if (!formData.posterFile && !formData.posterUrl) {
-      toast({ title: "Xatolik", description: "Poster rasm yoki URL kiritilishi shart!", variant: "destructive" });
+    if (!formData.posterFile && !formData.posterUrl.trim()) {
+      toast({ title: "Xatolik", description: "Poster rasm kiritilishi shart!", variant: "destructive" });
+      return;
+    }
+
+    if (formData.genres.length === 0) {
+      toast({ title: "Xatolik", description: "Kamida bitta janr tanlanishi shart!", variant: "destructive" });
+      return;
+    }
+
+    if (formData.videoQuality.length === 0) {
+      toast({ title: "Xatolik", description: "Kamida bitta video sifat tanlanishi shart!", variant: "destructive" });
       return;
     }
 
@@ -573,60 +630,88 @@ export const AdminPanel = () => {
 
       // Upload files if needed
       if (formData.videoFile) {
-        finalVideoUrl = await simulateFileUpload(formData.videoFile);
+        const videoResult = await uploadVideo(formData.videoFile);
+        if (videoResult.success) {
+          finalVideoUrl = videoResult.data.url;
+        } else {
+          throw new Error(videoResult.error);
+        }
       }
       if (formData.posterFile) {
-        finalPosterUrl = await simulateFileUpload(formData.posterFile);
+        const posterResult = await uploadPoster(formData.posterFile);
+        if (posterResult.success) {
+          finalPosterUrl = posterResult.data.url;
+        } else {
+          throw new Error(posterResult.error);
+        }
       }
 
-      const generatedUrl = generateContentUrl(formData.category);
-      console.log('Generated URL:', generatedUrl);
-      
       const movieData = {
-        id: editingMovie?.id || generateUniqueId(),
         title: formData.title,
-        poster: finalPosterUrl,
-        rating: formData.rating,
-        year: formData.year,
-        quality: formData.quality,
-        category: formData.category,
-        views: Math.floor(Math.random() * 1000) + 100, // Auto-generated views (100-1099)
-        isNew: formData.isNew,
-        isPremiere: formData.isPremiere,
-        url: generatedUrl, // Auto-generated URL
-        // Additional fields for future use
         description: formData.description,
+        year: formData.year,
         language: formData.language,
-        duration: formData.duration || "2:30:45", // Auto-generated duration if not detected
+        rating: formData.rating,
+        category: formData.category,
+        videoFile: formData.videoFile ? finalVideoUrl : null,
+        videoUrl: formData.videoUrl || null,
+        videoDuration: formData.videoDuration,
+        videoQuality: formData.videoQuality,
+        poster: finalPosterUrl || formData.posterUrl || formData.poster,
+        posterUrl: formData.posterUrl,
         genres: formData.genres,
         similarContentIds: formData.similarContentIds,
-        videoUrl: finalVideoUrl
+        isNewContent: formData.isNewContent,
+        isPremiere: formData.isPremiere,
+        trailerUrl: formData.trailerUrl,
+        // Additional fields for future use
+        cast: [],
+        director: [],
+        writer: [],
+        producer: [],
+        country: [],
+        releaseDate: new Date(),
+        ageRating: "PG-13",
+        tags: [],
+        seoTitle: formData.title,
+        seoDescription: formData.description,
+        seoKeywords: formData.genres
       };
       
+      console.log('Form data before processing:', formData);
       console.log('Movie data with URL:', movieData);
 
-    if (editingMovie) {
-      // Update existing movie
-        updateMovie(editingMovie.id, movieData);
-      toast({ title: "Muvaffaqiyat", description: "Kino muvaffaqiyatli yangilandi!" });
-      setIsEditDialogOpen(false);
-      setEditingMovie(null);
-    } else {
-      // Add new movie
-        addMovie(movieData);
-      toast({ title: "Muvaffaqiyat", description: "Yangi kino muvaffaqiyatli qo'shildi!" });
-      setIsAddDialogOpen(false);
-    }
-    
-    resetFormData();
+      if (editingMovie) {
+        // Update existing movie
+        const result = await updateMovie(editingMovie.id, movieData);
+        if (result.success) {
+          toast({ title: "Muvaffaqiyat", description: "Kino muvaffaqiyatli yangilandi!" });
+          setIsEditDialogOpen(false);
+          setEditingMovie(null);
+        } else {
+          throw new Error(result.error);
+        }
+      } else {
+        // Add new movie
+        const result = await createMovie(movieData);
+        if (result.success) {
+          toast({ title: "Muvaffaqiyat", description: "Yangi kino qo'shildi!" });
+          setIsAddDialogOpen(false);
+        } else {
+          throw new Error(result.error);
+        }
+      }
+      
+      resetFormData();
     } catch (error) {
-      toast({
-        title: "Xatolik",
-        description: "Fayl yuklashda xatolik yuz berdi",
-        variant: "destructive"
+      console.error('Error saving movie:', error);
+      toast({ 
+        title: "Xatolik", 
+        description: error.message || "Kino saqlanmadi", 
+        variant: "destructive" 
       });
     }
-  }, [formData, editingMovie, addMovie, updateMovie, toast, generateUniqueId, simulateFileUpload]);
+  }, [formData, editingMovie, updateMovie, createMovie, uploadVideo, uploadPoster, toast]);
 
   // Handle delete movie
   const handleDeleteMovie = (id: string) => {
@@ -639,12 +724,12 @@ export const AdminPanel = () => {
     if (checked) {
       setFormData(prev => ({
         ...prev,
-        quality: [...prev.quality, quality]
+        videoQuality: [...prev.videoQuality, quality]
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        quality: prev.quality.filter(q => q !== quality)
+        videoQuality: prev.videoQuality.filter(q => q !== quality)
       }));
     }
   }, []);
@@ -674,7 +759,7 @@ export const AdminPanel = () => {
   }, []);
 
   // Filter movies by selected category and search
-  const filteredMovies = movies.filter(movie => {
+  const filteredMovies = content.filter(movie => {
     // Category filter
     let categoryMatch = true;
     if (selectedCategory === "all") categoryMatch = true;
@@ -682,7 +767,7 @@ export const AdminPanel = () => {
     else if (selectedCategory === "movies") categoryMatch = movie.category === "movies";
     else if (selectedCategory === "series") categoryMatch = movie.category === "series";
     else if (selectedCategory === "trailers") categoryMatch = movie.category === "trailers";
-    else if (selectedCategory === "new") categoryMatch = movie.isNew;
+    else if (selectedCategory === "new") categoryMatch = movie.isNewContent;
     
     // Search filter
     const searchMatch = !searchQuery.trim() || 
@@ -903,19 +988,19 @@ export const AdminPanel = () => {
         </div>
 
         {/* Video Info Display */}
-        {(formData.duration || formData.quality.length > 0) && (
+        {(formData.videoDuration || formData.videoQuality.length > 0) && (
           <div className="bg-muted/50 p-4 rounded-lg">
             <h4 className="font-medium mb-2">Video Ma'lumotlari</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
-              {formData.duration && (
+              {formData.videoDuration && (
                 <div className="flex items-center space-x-2">
                   <Clock className="h-4 w-4" />
-                  <span>Davomiyligi: {formData.duration}</span>
+                  <span>Davomiyligi: {formData.videoDuration}</span>
                 </div>
               )}
               <div className="flex items-center space-x-2">
                 <Star className="h-4 w-4" />
-                <span>Sifat: {formData.quality.join(', ')}</span>
+                <span>Sifat: {formData.videoQuality.join(', ')}</span>
               </div>
             </div>
           </div>
@@ -1006,7 +1091,7 @@ export const AdminPanel = () => {
             <div key={quality} className="flex items-center space-x-2">
               <Checkbox
                 id={quality}
-                checked={formData.quality.includes(quality)}
+                checked={formData.videoQuality.includes(quality)}
                 onCheckedChange={(checked) => handleQualityChange(quality, checked as boolean)}
               />
               <Label htmlFor={quality} className="text-sm">{quality}</Label>
@@ -1046,13 +1131,27 @@ export const AdminPanel = () => {
         </p>
       </div>
 
+      {/* Trailer URL */}
+      <div className="space-y-2">
+        <Label htmlFor="trailerUrl">Treyler URL (ixtiyoriy)</Label>
+        <Input
+          id="trailerUrl"
+          value={formData.trailerUrl}
+          onChange={(e) => setFormData(prev => ({ ...prev, trailerUrl: e.target.value }))}
+          placeholder="https://youtube.com/watch?v=..."
+        />
+        <p className="text-xs text-muted-foreground">
+          Kino treylerining YouTube linki
+        </p>
+      </div>
+
       {/* Status Flags */}
       <div className="flex items-center space-x-6">
         <div className="flex items-center space-x-2">
           <Checkbox
             id="isNew"
-            checked={formData.isNew}
-            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isNew: checked as boolean }))}
+            checked={formData.isNewContent}
+            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isNewContent: checked as boolean }))}
           />
           <Label htmlFor="isNew">Yangi</Label>
         </div>
@@ -1193,23 +1292,23 @@ export const AdminPanel = () => {
           {/* Category Filter Tabs */}
           <div className="grid grid-cols-3 gap-2 w-full sm:flex sm:flex-wrap">
             {["all", "premieres", "movies", "series", "trailers", "new"].map((category) => {
-              const count = category === "all" ? movies.length : 
-                           category === "premieres" ? movies.filter(m => m.category === "premieres" || m.isPremiere).length :
-                           category === "movies" ? movies.filter(m => m.category === "movies").length :
-                           category === "series" ? movies.filter(m => m.category === "series").length :
-                           category === "trailers" ? movies.filter(m => m.category === "trailers").length :
-                           category === "new" ? movies.filter(m => m.isNew).length : 0;
+              const count = category === "all" ? content.length : 
+                           category === "premieres" ? content.filter(m => m.category === "premieres" || m.isPremiere).length :
+                           category === "movies" ? content.filter(m => m.category === "movies").length :
+                           category === "series" ? content.filter(m => m.category === "series").length :
+                           category === "trailers" ? content.filter(m => m.category === "trailers").length :
+                           category === "new" ? content.filter(m => m.isNewContent).length : 0;
               
               return (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category)}
                   className="animate-slide-in-left sm:flex-1 sm:min-w-0"
                 >
                   {getCategoryTitle(category)} ({count})
-              </Button>
+                </Button>
               );
             })}
           </div>
@@ -1299,7 +1398,7 @@ export const AdminPanel = () => {
           <Card>
             <CardContent className="p-0">
               <div className="space-y-3 md:space-y-4 p-4 md:p-6">
-                {users.map((user) => (
+                {adminUsers.map((user) => (
                   <div key={user.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center gap-2">
@@ -1350,9 +1449,7 @@ export const AdminPanel = () => {
                             <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
                             <AlertDialogAction 
                               onClick={() => {
-                                const updatedUsers = users.filter(u => u.id !== user.id);
-                                setUsers(updatedUsers);
-                                localStorage.setItem('moviemedia_users', JSON.stringify(updatedUsers));
+                                deleteUser(user.id);
                                 toast({ title: "Muvaffaqiyat", description: "Foydalanuvchi muvaffaqiyatli o'chirildi!" });
                               }}
                               className="bg-red-500 hover:bg-red-600"
@@ -1457,7 +1554,7 @@ export const AdminPanel = () => {
                         const isLast = index === 6;
                         
                         return (
-                          <div key={index} className="flex flex-col items-center gap-1 flex-1 relative">
+                          <div key={item.day} className="flex flex-col items-center gap-1 flex-1 relative">
                             {chartType === 'bar' ? (
                               // Bar Chart
                               <div 
@@ -1525,7 +1622,7 @@ export const AdminPanel = () => {
                 <CardTitle>Mashhur Kinolar</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {movies.sort((a, b) => b.views - a.views).slice(0, 3).map((movie, index) => (
+                {content.sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3).map((movie, index) => (
                   <div key={movie.id} className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <Badge variant="outline">{index + 1}</Badge>
@@ -1965,13 +2062,30 @@ export const AdminPanel = () => {
             <CardContent className="pt-6">
               <Button 
                 className="w-full"
-                onClick={() => {
-                  localStorage.setItem('moviemedia_site_settings', JSON.stringify(siteSettings));
-                  toast({ title: "Muvaffaqiyat", description: "Sozlamalar muvaffaqiyatli saqlandi!" });
+                onClick={async () => {
+                  try {
+                    const result = await updateSettings(siteSettings);
+                    if (result.success) {
+                      toast({ title: "Muvaffaqiyat", description: "Sozlamalar muvaffaqiyatli saqlandi!" });
+                    } else {
+                      toast({ 
+                        title: "Xatolik", 
+                        description: result.error || "Sozlamalar saqlanmadi", 
+                        variant: "destructive" 
+                      });
+                    }
+                  } catch (error) {
+                    toast({ 
+                      title: "Xatolik", 
+                      description: "Sozlamalar saqlanmadi", 
+                      variant: "destructive" 
+                    });
+                  }
                 }}
+                disabled={settingsLoading}
               >
                 <Save className="h-4 w-4 mr-2" />
-                Barcha Sozlamalarni Saqlash
+                {settingsLoading ? "Saqlanmoqda..." : "Barcha Sozlamalarni Saqlash"}
               </Button>
             </CardContent>
           </Card>
@@ -1983,6 +2097,9 @@ export const AdminPanel = () => {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Yangi {getCategoryItemName(selectedCategory)} Qo'shish</DialogTitle>
+            <DialogDescription>
+              Yangi kino qo'shish uchun barcha majburiy maydonlarni to'ldiring
+            </DialogDescription>
           </DialogHeader>
           {MovieForm}
         </DialogContent>
@@ -1993,6 +2110,9 @@ export const AdminPanel = () => {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Kontentni Tahrirlash</DialogTitle>
+            <DialogDescription>
+              Kino ma'lumotlarini tahrirlash uchun kerakli maydonlarni o'zgartiring
+            </DialogDescription>
           </DialogHeader>
           {MovieForm}
         </DialogContent>

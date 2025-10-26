@@ -63,6 +63,19 @@ const Admin = () => {
             <CardContent>
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
+                  <label htmlFor="username" className="text-sm font-medium">
+                    Foydalanuvchi nomi
+                  </label>
+                  <Input
+                    id="username"
+                    type="text"
+                    value="admin"
+                    readOnly
+                    className="bg-muted"
+                    autoComplete="username"
+                  />
+                </div>
+                <div className="space-y-2">
                   <label htmlFor="password" className="text-sm font-medium">
                     Parol
                   </label>
@@ -74,6 +87,7 @@ const Admin = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Parolni kiriting..."
                       className="pr-10"
+                      autoComplete="current-password"
                       required
                     />
                     <Button
@@ -142,11 +156,6 @@ const Admin = () => {
       />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Admin Panel</h1>
-          <p className="text-muted-foreground">Saytni to'liq boshqarish va nazorat qilish</p>
-        </div>
-
         <AdminPanel />
       </main>
 

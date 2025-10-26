@@ -5,6 +5,7 @@ import { MovieGrid } from "@/components/MovieGrid";
 import { useMovies } from "@/store/movies";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, X } from "lucide-react";
+import useSettingsStore from "@/store/settings";
 
 export const Movies = () => {
   const { movies } = useMovies();
@@ -19,13 +20,8 @@ export const Movies = () => {
     }
   });
 
-  useEffect(() => {
-    const saved = localStorage.getItem('moviemedia_site_settings');
-    if (saved) {
-      const settings = JSON.parse(saved);
-      setSiteSettings(settings);
-    }
-  }, []);
+  // Site settings are now loaded from backend
+  const { settings } = useSettingsStore();
 
   // Scroll to top when component mounts
   useEffect(() => {

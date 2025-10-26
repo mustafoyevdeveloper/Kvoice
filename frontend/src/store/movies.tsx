@@ -17,37 +17,10 @@ type MoviesContextValue = {
 
 const MoviesContext = createContext<MoviesContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "mm_movies_v2";
-
-const seedMovies: Movie[] = [
-  // PREMIERES (6 ta)
-];
-
 export const MoviesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [movies, setMovies] = useState<Movie[]>([]);
 
-  useEffect(() => {
-    // Clear old localStorage data
-    localStorage.removeItem('mm_movies');
-    
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        const parsed: Movie[] = JSON.parse(raw);
-        setMovies(parsed);
-      } catch {
-        setMovies(seedMovies);
-      }
-    } else {
-      setMovies(seedMovies);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (movies.length) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(movies));
-    }
-  }, [movies]);
+  // Movies are now loaded from backend API, no localStorage needed
 
   const addMovie = (movie: Omit<Movie, "id">) => {
     const id = crypto.randomUUID();

@@ -21,6 +21,7 @@ import SeriesPlayer from "./pages/SeriesPlayer";
 import NewPlayer from "./pages/NewPlayer";
 import NotFound from "./pages/NotFound";
 import { MoviesProvider } from "./store/movies";
+import useSettingsStore from "./store/settings";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,17 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Settings initializer component
+const SettingsInitializer = () => {
+  const { initialize } = useSettingsStore();
+  
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+  
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -47,6 +59,7 @@ const App = () => (
       <Sonner />
       <MoviesProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <SettingsInitializer />
           <ScrollToTop />
           <Routes>
           <Route path="/" element={<Index />} />

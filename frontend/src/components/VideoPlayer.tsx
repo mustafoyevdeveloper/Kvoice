@@ -42,7 +42,7 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
-  const [selectedQuality, setSelectedQuality] = useState(movie.quality[movie.quality.length - 1]);
+  const [selectedQuality, setSelectedQuality] = useState((movie.videoQuality || movie.quality || [])[(movie.videoQuality || movie.quality || []).length - 1]);
   const [isBuffering, setIsBuffering] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -691,7 +691,7 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
                   <div>
                     <span className="text-sm text-muted-foreground">Davomiyligi</span>
                     <p className="font-medium">
-                      {movie.duration || "2s 15min"}
+                      {movie.videoDuration || movie.duration || "2s 15min"}
                     </p>
                   </div>
                   <div>
@@ -716,7 +716,7 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
             <CardContent className="p-6">
               <h3 className="font-semibold mb-4">Sifat Tanlash</h3>
               <div className="space-y-2">
-                {movie.quality
+                {(movie.videoQuality || movie.quality || [])
                   .sort((a, b) => {
                     const qualityOrder = ["360p", "480p", "720p", "1080p", "1440p", "4K"];
                     return qualityOrder.indexOf(a) - qualityOrder.indexOf(b);

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, Menu, X, Home, Film, Tv, Star, Calendar, Settings, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate, useLocation } from "react-router-dom";
+import useSettingsStore from "@/store/settings";
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -15,27 +16,11 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [siteSettings, setSiteSettings] = useState({
-    siteName: "MovieMedia",
-    siteIcon: "🎬",
-    sectionNames: {
-      premieres: "Premyeralar",
-      movies: "Kinolar",
-      series: "Seriallar",
-      trailers: "Treylerlar",
-      new: "Yangi"
-    }
-  });
+  const { settings } = useSettingsStore();
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const saved = localStorage.getItem('moviemedia_site_settings');
-    if (saved) {
-      const settings = JSON.parse(saved);
-      setSiteSettings(settings);
-    }
-  }, []);
+  // Site settings are now loaded from backend, no localStorage needed
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,14 +37,15 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isHomePage]);
 
-  const categories = [
+  // Categories array - settings loaded bo'lgandan keyin ishlatiladi
+  const categories = useMemo(() => [
     { id: "all", label: "Barchasi", icon: Home, path: "/" },
-    { id: "premieres", label: siteSettings.sectionNames.premieres, icon: Star, path: "/premieres" },
-    { id: "movies", label: siteSettings.sectionNames.movies, icon: Film, path: "/movies" },
-    { id: "series", label: siteSettings.sectionNames.series, icon: Tv, path: "/series" },
-    { id: "trailers", label: siteSettings.sectionNames.trailers, icon: Play, path: "/trailers" },
-    { id: "new", label: siteSettings.sectionNames.new, icon: Calendar, path: "/new" },
-  ];
+    { id: "premieres", label: settings?.sectionNames?.premieres || "Premyeralar", icon: Star, path: "/premieres" },
+    { id: "movies", label: settings?.sectionNames?.movies || "Kinolar", icon: Film, path: "/movies" },
+    { id: "series", label: settings?.sectionNames?.series || "Seriallar", icon: Tv, path: "/series" },
+    { id: "trailers", label: settings?.sectionNames?.trailers || "Treylerlar", icon: Play, path: "/trailers" },
+    { id: "new", label: settings?.sectionNames?.new || "Yangi", icon: Calendar, path: "/new" },
+  ], [settings]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +77,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
             <div className={`text-lg md:text-xl font-bold animate-fade-in transition-colors duration-300 ${
               isScrolled ? 'text-primary-foreground' : isHomePage ? 'text-white' : 'text-primary'
             }`}>
-              {siteSettings.siteIcon} {siteSettings.siteName}
+              {settings?.siteName || "MovieMedia"}
             </div>
           </div>
 

@@ -15,6 +15,7 @@
     "react-router-dom": "^6.28.0",
     "@tanstack/react-query": "^5.62.13",
     "zustand": "^5.0.2",
+    "next-themes": "^0.4.4",
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.4",
     "lucide-react": "^0.468.0",

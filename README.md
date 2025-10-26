@@ -201,4 +201,4 @@ Bu loyiha MIT litsenziyasi ostida tarqatilmoqda. Batafsil ma'lumot uchun `LICENS
 
 ---
 
-**MoviMedia** - O'zbek kinolarining eng yaxshi platformasi! 🎬✨
+**MoviMedia** - O'zbek kinolarining eng yaxshi platformasi! 🎬✨# KVoice

@@ -81,7 +81,9 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                   }}
                 />
               </div>
-              <div className="text-xl md:text-3xl font-bold animate-fade-in transition-all duration-300 ease-in-out text-primary">
+              <div className={`text-xl md:text-3xl font-bold animate-fade-in transition-all duration-300 ease-in-out ${
+                isScrolled ? 'text-black' : 'text-primary'
+              }`}>
                 {settings?.siteName || "Kvoice"}
               </div>
             </div>

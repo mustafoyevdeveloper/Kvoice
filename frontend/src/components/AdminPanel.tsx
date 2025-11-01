@@ -763,11 +763,18 @@ export const AdminPanel = () => {
   const filteredMovies = content.filter(movie => {
     // Category filter
     let categoryMatch = true;
-    if (selectedCategory === "all") categoryMatch = true;
-    else if (selectedCategory === "movies") categoryMatch = movie.category === "movies";
-    else if (selectedCategory === "series") categoryMatch = movie.category === "series";
+    if (selectedCategory === "all") {
+      // "Barchasi" bo'limida - kino va seriallar ham qidiriladi
+      categoryMatch = true;
+    } else if (selectedCategory === "movies") {
+      // "Kinolar" bo'limida - faqat kinolar qidiriladi
+      categoryMatch = movie.category === "movies";
+    } else if (selectedCategory === "series") {
+      // "Seriallar" bo'limida - faqat seriallar qidiriladi
+      categoryMatch = movie.category === "series";
+    }
     
-    // Search filter
+    // Search filter - nom bo'yicha qidirish
     const searchMatch = !searchQuery.trim() || 
       movie.title.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -1188,7 +1195,13 @@ export const AdminPanel = () => {
           <div className="relative flex-1 xl:flex-none">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Kino yoki serial qidirish..."
+              placeholder={
+                selectedCategory === "all" 
+                  ? "Kino yoki serial qidirish..." 
+                  : selectedCategory === "movies" 
+                  ? "Kino qidirish..." 
+                  : "Serial qidirish..."
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 w-full xl:w-96"

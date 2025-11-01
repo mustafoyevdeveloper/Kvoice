@@ -44,14 +44,14 @@ const Admin = () => {
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <Header
           onSearch={handleSearch}
           onCategorySelect={handleCategorySelect}
           selectedCategory="admin"
         />
         
-        <div className="flex items-center justify-center min-h-[80vh] px-4">
+        <div className="flex items-center justify-center flex-1 px-4">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
               <div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
@@ -148,14 +148,14 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header
         onSearch={handleSearch}
         onCategorySelect={handleCategorySelect}
         selectedCategory="admin"
       />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 flex-1">
         <AdminPanel />
       </main>
 

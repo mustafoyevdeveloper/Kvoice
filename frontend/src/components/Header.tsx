@@ -63,25 +63,25 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
           <div className="flex items-center space-x-2 md:space-x-4">
             <div className="flex items-center space-x-2 md:space-x-3">
               {/* Site Logo */}
-              <div className={`flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full border transition-all duration-300 ease-in-out ${
+              <div className={`flex items-center justify-center h-12 w-12 md:h-[3.75rem] md:w-[3.75rem] rounded-full border transition-all duration-300 ease-in-out ${
                 isScrolled ? 'bg-primary/20 border-primary/30' : 'bg-primary/0 border-primary/5'
               }`}>
                 <img 
                   src="/favicon.png" 
                   alt="Kvoice Logo" 
-                  className="h-6 w-6 md:h-7 md:w-7 object-contain"
+                  className="h-9 w-9 md:h-[2.625rem] md:w-[2.625rem] object-contain"
                   onError={(e) => {
                     // Agar logo yuklanmasa, fallback icon ko'rsatish
                     const target = e.currentTarget;
                     target.style.display = 'none';
                     const parent = target.parentElement;
                     if (parent) {
-                      parent.innerHTML = '<span class="text-primary font-bold text-sm md:text-base">K</span>';
+                      parent.innerHTML = '<span class="text-primary font-bold text-base md:text-lg">K</span>';
                     }
                   }}
                 />
               </div>
-              <div className="text-lg md:text-xl font-bold animate-fade-in transition-all duration-300 ease-in-out text-primary">
+              <div className="text-xl md:text-3xl font-bold animate-fade-in transition-all duration-300 ease-in-out text-primary">
                 {settings?.siteName || "Kvoice"}
               </div>
             </div>
@@ -114,15 +114,15 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
           {/* Search */}
           <form onSubmit={handleSearch} className="flex items-center space-x-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-all duration-300 ease-in-out z-10 pointer-events-none text-primary" style={{ zIndex: 10 }} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-all duration-300 ease-in-out z-10 pointer-events-none text-white-foreground" style={{ zIndex: 10 }} />
               <Input
                 type="text"
                 placeholder="Qidiruv..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`pl-10 pr-12 w-78 md:w-64 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50 transition-all duration-300 ease-in-out border-white/100 ${
+                className={`pl-10 pr-12 w-78 md:w-64 text-foreground placeholder:text-white-foreground focus:ring-2 focus:ring-primary/100 transition-all duration-300 ease-in-out border-white/100 ${
                   isHomePage && !isScrolled 
-                    ? 'bg-white/10 backdrop-blur-sm text-white placeholder:text-white/70' 
+                    ? 'bg-white/10 backdrop-blur-sm text-white placeholder:text-white/100' 
                     : 'bg-input/50'
                 }`}
               />

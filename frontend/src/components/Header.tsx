@@ -135,7 +135,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
         {/* Mobile Navigation - Horizontal Category Bar */}
         <div className="md:hidden relative z-50">
           <nav className={`py-2 border-t transition-all duration-300 ease-in-out ${
-            isScrolled ? 'border-primary/30 bg-primary/95 backdrop-blur-md' : 'border-primary/20 bg-background/95 backdrop-blur-md'
+            isScrolled ? 'border-black bg-primary/95 backdrop-blur-md' : 'border-primary/20 bg-background/95 backdrop-blur-md'
           }`}>
             <div className="flex items-center justify-between w-full">
               {categories.map((category, index) => {

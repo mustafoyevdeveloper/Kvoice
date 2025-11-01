@@ -104,10 +104,10 @@ All colors MUST be HSL.
     --glow-shadow: 0 0 20px hsl(var(--primary) / 0.3);
     --card-shadow: 0 4px 20px hsl(0 0% 4% / 0.4);
     
-    /* Quality badge colors */
-    --quality-480: 45 93% 47%;
-    --quality-720: 168 74% 42%;
-    --quality-1080: 271 81% 56%;
+    /* Quality badge colors - qizil ranglar */
+    --quality-480: 0 70% 45%;
+    --quality-720: 0 84% 50%;
+    --quality-1080: 0 90% 55%;
     
     /* Animation */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

@@ -50,14 +50,15 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
   };
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 mobile-nav ${
-      isScrolled 
-        ? 'bg-primary/95 backdrop-blur-md border-b border-primary/20' 
-        : isHomePage 
-          ? 'bg-transparent' 
-          : 'bg-transparent'
-    }`}>
-      <div className="container mx-auto px-4">
+    <>
+      <header className={`sticky top-0 z-50 transition-all duration-300 mobile-nav ${
+        isScrolled 
+          ? 'bg-primary/95 backdrop-blur-md border-b border-primary/20' 
+          : isHomePage 
+            ? 'bg-transparent' 
+            : 'bg-transparent'
+      }`}>
+        <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2 md:space-x-4">
@@ -65,7 +66,11 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
               variant="ghost"
               size="icon"
               className={`md:hidden hover:bg-primary-glow/20 touch-feedback btn-interactive transition-colors duration-300 ${
-                isScrolled ? 'text-primary-foreground' : isHomePage ? 'text-white' : 'text-primary'
+                isScrolled 
+                  ? 'text-primary-foreground bg-primary/20' 
+                  : isHomePage 
+                    ? 'text-white' 
+                    : 'text-primary'
               }`}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
@@ -154,11 +159,13 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
         </div>
 
         {/* Mobile Navigation */}
-        <div className={`md:hidden transition-all duration-500 ease-in-out overflow-hidden ${
+        <div className={`md:hidden relative z-50 transition-all duration-500 ease-in-out overflow-hidden ${
           isMenuOpen ? 'max-h-96 opacity-100 translate-y-0 animate-slide-down' : 'max-h-0 opacity-0 -translate-y-4 animate-slide-up'
         }`}>
-          <nav className="py-4 border-t border-primary/20 bg-background/95 backdrop-blur-md">
-            <div className="flex flex-col space-y-2">
+          <nav className={`py-4 border-t ${
+            isScrolled ? 'border-primary/30 bg-primary/95 backdrop-blur-md' : 'border-primary/20 bg-background/95 backdrop-blur-md'
+          }`}>
+            <div className="flex flex-col space-y-2" onClick={(e) => e.stopPropagation()}>
               {categories.map((category, index) => {
                 const Icon = category.icon;
                 return (
@@ -171,7 +178,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                     } ${
                       location.pathname === category.path 
                         ? "bg-secondary text-secondary-foreground" 
-                        : isScrolled ? "text-primary-foreground" : isHomePage ? "text-white" : "text-primary"
+                        : isScrolled ? "text-primary-foreground" : isHomePage ? "text-white" : "text-foreground"
                     }`}
                     style={{ 
                       animationDelay: isMenuOpen ? `${index * 0.1}s` : '0s',
@@ -191,6 +198,16 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
           </nav>
         </div>
       </div>
-    </header>
+      </header>
+      
+      {/* Mobile Navigation Overlay - Menu yopish uchun */}
+      {isMenuOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          style={{ top: '56px' }}
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
+    </>
   );
 };

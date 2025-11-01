@@ -114,7 +114,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
             <Button 
               size="lg" 
               onClick={handlePlayClick}
-              className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 md:px-8 animate-glow-pulse btn-interactive touch-feedback w-full sm:w-auto min-w-[250px] md:min-w-[300px] lg:min-w-[350px]"
+              className="bg-red/60 hover:bg-red-glow/60 text-white-foreground px-6 md:px-8 animate-glow-pulse btn-interactive touch-feedback w-full sm:w-auto min-w-[250px] md:min-w-[300px] lg:min-w-[350px]"
             >
               <Play className="h-4 w-4 md:h-5 md:w-5 mr-2" />
               Tomosha qilish

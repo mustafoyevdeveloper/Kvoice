@@ -1188,42 +1188,13 @@ export const AdminPanel = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Search and Add Buttons */}
+      {/* Header */}
       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4">
         <h2 className="text-2xl font-bold">Kinolar va Seriallar Boshqaruvi</h2>
-        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-          <div className="relative flex-1 xl:flex-none">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={
-                selectedCategory === "all" 
-                  ? "Kino yoki serial qidirish..." 
-                  : selectedCategory === "movies" 
-                  ? "Kino qidirish..." 
-                  : "Serial qidirish..."
-              }
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-full xl:w-96"
-            />
-          </div>
-          {selectedCategory === "movies" && (
-            <Button onClick={() => handleOpenAddDialog("movies")} className="bg-primary hover:bg-primary-glow w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />
-              Yangi Kino Qo'shish
-            </Button>
-          )}
-          {selectedCategory === "series" && (
-            <Button onClick={() => handleOpenAddDialog("series")} className="bg-primary hover:bg-primary-glow w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />
-              Yangi Serial Qo'shish
-            </Button>
-          )}
-        </div>
       </div>
 
       <div className="space-y-4 md:space-y-6">
-        {/* Category Filter Tabs */}
+        {/* Category Filter Tabs - Mobile'da birinchi */}
         <div className="flex gap-2 flex-wrap">
           {["all", "movies", "series"].map((category) => {
             const count = category === "all" ? content.length : 
@@ -1242,6 +1213,37 @@ export const AdminPanel = () => {
               </Button>
             );
           })}
+        </div>
+
+        {/* Search and Add Button - Mobile'da ikkinchi va uchinchi */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+          <div className="relative flex-1 w-full md:w-auto md:flex-none">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={
+                selectedCategory === "all" 
+                  ? "Kino yoki serial qidirish..." 
+                  : selectedCategory === "movies" 
+                  ? "Kino qidirish..." 
+                  : "Serial qidirish..."
+              }
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 w-full md:w-96"
+            />
+          </div>
+          {selectedCategory === "movies" && (
+            <Button onClick={() => handleOpenAddDialog("movies")} className="bg-primary hover:bg-primary-glow w-full md:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Yangi Kino Qo'shish
+            </Button>
+          )}
+          {selectedCategory === "series" && (
+            <Button onClick={() => handleOpenAddDialog("series")} className="bg-primary hover:bg-primary-glow w-full md:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Yangi Serial Qo'shish
+            </Button>
+          )}
         </div>
 
         {/* Content Section Header */}

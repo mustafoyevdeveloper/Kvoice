@@ -1207,7 +1207,7 @@ export const AdminPanel = () => {
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
-                className="flex-1 animate-slide-in-left"
+                className="flex-1 animate-slide-in-left h-10 md:h-12"
               >
                 {getCategoryTitle(category)} ({count})
               </Button>

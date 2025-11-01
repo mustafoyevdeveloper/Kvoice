@@ -40,11 +40,8 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
   // Categories array - settings loaded bo'lgandan keyin ishlatiladi
   const categories = useMemo(() => [
     { id: "all", label: "Barchasi", icon: Home, path: "/" },
-    { id: "premieres", label: settings?.sectionNames?.premieres || "Premyeralar", icon: Star, path: "/premieres" },
-    { id: "movies", label: settings?.sectionNames?.movies || "Kinolar", icon: Film, path: "/movies" },
     { id: "series", label: settings?.sectionNames?.series || "Seriallar", icon: Tv, path: "/series" },
-    { id: "trailers", label: settings?.sectionNames?.trailers || "Treylerlar", icon: Play, path: "/trailers" },
-    { id: "new", label: settings?.sectionNames?.new || "Yangi", icon: Calendar, path: "/new" },
+    { id: "movies", label: settings?.sectionNames?.movies || "Kinolar", icon: Film, path: "/movies" },
   ], [settings]);
 
   const handleSearch = (e: React.FormEvent) => {

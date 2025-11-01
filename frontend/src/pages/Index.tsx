@@ -35,7 +35,7 @@ const Index = () => {
   // movies now comes from global store
 
   // Featured movie for hero section
-  const featuredFromStore = movies.find(m => m.isPremiere) || movies[0];
+  const featuredFromStore = movies.find(m => m.category === 'movies') || movies.find(m => m.category === 'series') || movies[0];
   const featuredMovie = featuredFromStore
     ? {
         title: featuredFromStore.title,
@@ -76,16 +76,12 @@ const Index = () => {
   // Get category title
   const getCategoryTitle = (category: string) => {
     switch (category) {
-      case "premieres":
-        return "PREMYERALAR";
       case "movies":
-        return "TARJIMA KINOLAR 2025";
+        return "KINOLAR";
       case "series":
         return "SERIALLAR";
-      case "new":
-        return "YANGI QOSHILGANLAR";
       default:
-        return searchQuery ? `"${searchQuery}" UCHUN QIDIRUV NATIJALARI` : "BARCHA KINOLAR";
+        return searchQuery ? `"${searchQuery}" UCHUN QIDIRUV NATIJALARI` : "BARCHA KINOLAR VA SERIALLAR";
     }
   };
 
@@ -157,14 +153,6 @@ const Index = () => {
           </div>
         )}
 
-        {/* Category subtitle */}
-        {selectedCategory === "premieres" && !searchQuery && (
-          <div className="mb-8 text-center">
-            <p className="text-primary text-lg font-medium mb-2">
-              Issig'ida tomosha qilib oling! Hammasi bizda!
-            </p>
-          </div>
-        )}
 
         <MovieGrid
           movies={filteredMovies}
@@ -176,14 +164,14 @@ const Index = () => {
         {selectedCategory === "all" && !searchQuery && (
           <>
             <MovieGrid
-              movies={movies.filter(m => m.isPremiere)}
-              title="PREMYERALAR"
+              movies={movies.filter(m => m.category === "movies")}
+              title="KINOLAR"
               onMovieClick={handleMovieClick}
             />
             
             <MovieGrid
-              movies={movies.filter(m => m.category === "movies")}
-              title="TARJIMA KINOLAR 2025"
+              movies={movies.filter(m => m.category === "series")}
+              title="SERIALLAR"
               onMovieClick={handleMovieClick}
             />
           </>

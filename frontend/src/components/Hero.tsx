@@ -1,7 +1,6 @@
 import { Play, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import heroBg from "@/assets/hero-bg.jpg";
 import { useState, useEffect } from "react";
 import { useMovies } from "@/store/movies";
 import { useNavigate } from "react-router-dom";
@@ -44,16 +43,10 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
     const latestContent = getLatestContent();
     if (latestContent) {
       // Navigate to appropriate player based on content type
-      if (latestContent.isPremiere) {
-        navigate(`/premiere/${latestContent.id}`);
-      } else if (latestContent.category === 'movies') {
+      if (latestContent.category === 'movies') {
         navigate(`/movie/${latestContent.id}`);
       } else if (latestContent.category === 'series') {
         navigate(`/series/${latestContent.id}`);
-      } else if (latestContent.category === 'trailers') {
-        navigate(`/trailer/${latestContent.id}`);
-      } else if (latestContent.isNew) {
-        navigate(`/new/${latestContent.id}`);
       } else {
         // Default to movie player
         navigate(`/movie/${latestContent.id}`);
@@ -72,13 +65,13 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-bg"
         style={{ 
-          backgroundImage: `url(${heroBg})`,
+          backgroundImage: 'url(/Heroimg.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
         }}
       >
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
       </div>
 
@@ -88,7 +81,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
           {/* Movie Info */}
           <div className="mb-4 md:mb-6">
             <Badge variant="default" className="mb-3 md:mb-4 bg-primary text-primary-foreground">
-              Eng so'nggi 2025 Tarjima Kinolar
+              Eng so'nggi Koreya Kinolar va Seriallari
             </Badge>
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-foreground mb-3 md:mb-4 animate-fade-in-up leading-tight">
               {featuredMovie.title}

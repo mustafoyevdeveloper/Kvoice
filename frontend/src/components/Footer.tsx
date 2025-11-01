@@ -77,11 +77,8 @@ export const Footer = () => {
             <h4 className="font-semibold text-foreground mb-3 md:mb-4 text-sm md:text-base">Tezkor havolalar</h4>
             <ul className="space-y-2 text-xs md:text-sm">
               <li><Link to="/" className="text-muted-foreground hover:text-primary transition-colors duration-200">Bosh sahifa</Link></li>
-              <li><Link to="/premieres" className="text-muted-foreground hover:text-primary transition-colors duration-200">{settings?.sectionNames?.premieres || "Premyeralar"}</Link></li>
               <li><Link to="/movies" className="text-muted-foreground hover:text-primary transition-colors duration-200">{settings?.sectionNames?.movies || "Kinolar"}</Link></li>
               <li><Link to="/series" className="text-muted-foreground hover:text-primary transition-colors duration-200">{settings?.sectionNames?.series || "Seriallar"}</Link></li>
-              <li><Link to="/trailers" className="text-muted-foreground hover:text-primary transition-colors duration-200">{settings?.sectionNames?.trailers || "Treylerlar"}</Link></li>
-              <li><Link to="/new" className="text-muted-foreground hover:text-primary transition-colors duration-200">{settings?.sectionNames?.new || "Yangi"}</Link></li>
             </ul>
           </div>
 
@@ -110,11 +107,6 @@ export const Footer = () => {
           <p className="text-xs text-muted-foreground mb-3 md:mb-0">
             © 2025 Kvoice. Barcha huquqlar himoyalangan.
           </p>
-          <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs">
-            <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors duration-200">Maxfiylik</Link>
-            <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors duration-200">Shartlar</Link>
-            <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors duration-200">Biz haqimizda</Link>
-          </div>
         </div>
 
       </div>

@@ -120,9 +120,9 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                 placeholder="Qidiruv..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`pl-10 pr-12 w-48 md:w-64 border-border/50 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50 transition-all duration-300 ease-in-out ${
+                className={`pl-10 pr-12 w-78 md:w-64 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50 transition-all duration-300 ease-in-out border-white/100 ${
                   isHomePage && !isScrolled 
-                    ? 'bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70' 
+                    ? 'bg-white/10 backdrop-blur-sm text-white placeholder:text-white/70' 
                     : 'bg-input/50'
                 }`}
               />

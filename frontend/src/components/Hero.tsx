@@ -80,29 +80,29 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
         <div className="max-w-4xl mx-auto">
           {/* Movie Info */}
           <div className="mb-4 md:mb-6">
-            <Badge variant="default" className="mb-3 md:mb-4 bg-primary/10 p-2 rounded-md w-fit mx-auto text-primary-foreground">
+            <Badge variant="default" className="mb-3 md:mb-4 bg-black/15 p-2 rounded-md w-fit mx-auto text-primary-foreground">
               Eng so'nggi Koreya Kinolar va Seriallari
             </Badge>
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-foreground mb-3 md:mb-4 animate-fade-in-up leading-tight">
               {featuredMovie.title}
             </h1>
-            <p className="text-sm md:text-lg lg:text-xl text-white-foreground max-w-2xl mx-auto mb-4 md:mb-6 animate-slide-up px-4">
+            <p className="text-sm md:text-lg lg:text-xl text-yellow-400 max-w-2xl mx-auto mb-4 md:mb-6 animate-slide-up px-4">
               {featuredMovie.description}
             </p>
           </div>
 
           {/* Movie Details */}
-          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-6 md:mb-8 text-xs md:text-sm text-muted-foreground animate-fade-in-up">
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-6 md:mb-8 text-xs md:text-sm text-white animate-fade-in-up">
             <div className="flex items-center space-x-1">
               <Star className="h-3 w-3 md:h-4 md:w-4 text-yellow-400 fill-current" />
-              <span className="font-medium">{featuredMovie.rating}</span>
+              <span className="font-medium text-white-400">{featuredMovie.rating}</span>
             </div>
-            <span className="hidden md:inline">•</span>
-            <span>{featuredMovie.year}</span>
-            <span className="hidden md:inline">•</span>
+            <span className="hidden md:inline text-white">•</span>
+            <span className="text-white">{featuredMovie.year}</span>
+            <span className="hidden md:inline text-white">•</span>
             <div className="flex gap-1 md:gap-2">
               {featuredMovie.quality.map((q) => (
-                <Badge key={q} variant="outline" className="border-primary/30 text-primary text-xs">
+                <Badge key={q} variant="outline" className="border-red-800 text-white text-xs">
                   {q}
                 </Badge>
               ))}
@@ -126,7 +126,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
             <p className="text-white font-medium mb-1 md:mb-2 text-sm md:text-base">
               {settings?.heroTitle || "Eng yaxshi kinolar va seriallar"}
             </p>
-            <p className="text-xs md:text-sm bg-primary/10 p-2 rounded-md w-fit mx-auto text-white-foreground">
+            <p className="text-xs md:text-sm bg-black/15 p-2 rounded-md w-fit mx-auto text-white-foreground">
               {settings?.heroSubtitle || "O'zbek tilida eng yangi va mashhur kinolar"}
             </p>
           </div>

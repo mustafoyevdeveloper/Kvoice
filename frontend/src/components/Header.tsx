@@ -82,7 +82,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                 />
               </div>
               <div className={`text-xl md:text-3xl font-bold animate-fade-in transition-all duration-300 ease-in-out ${
-                isScrolled ? 'text-black' : 'text-primary'
+                isScrolled ? 'text-white' : 'text-primary'
               }`}>
                 {settings?.siteName || "Kvoice"}
               </div>
@@ -135,7 +135,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
         {/* Mobile Navigation - Horizontal Category Bar */}
         <div className="md:hidden relative z-50">
           <nav className={`py-2 border-t transition-all duration-300 ease-in-out ${
-            isScrolled ? 'border-black bg-primary/95 backdrop-blur-md' : 'border-primary/20 bg-background/95 backdrop-blur-md'
+            isScrolled ? 'border-primary/30 bg-primary/95 backdrop-blur-md' : 'border-primary/20 bg-background/95 backdrop-blur-md'
           }`}>
             <div className="flex items-center justify-between w-full">
               {categories.map((category, index) => {

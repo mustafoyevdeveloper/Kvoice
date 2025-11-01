@@ -120,19 +120,12 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                 placeholder="Qidiruv..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`pl-10 pr-12 w-78 md:w-64 text-foreground placeholder:text-white-foreground focus:ring-2 focus:ring-primary/100 transition-all duration-300 ease-in-out border-white/100 ${
+                className={`pl-10 pr-4 w-78 md:w-64 text-foreground placeholder:text-white-foreground focus:ring-2 focus:ring-primary/100 transition-all duration-300 ease-in-out border-white/100 ${
                   isHomePage && !isScrolled 
                     ? 'bg-white/10 backdrop-blur-sm text-white placeholder:text-white/100' 
                     : 'bg-input/50'
                 }`}
               />
-              <Button
-                type="submit"
-                size="sm"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 transition-all duration-300 hover:scale-105 text-primary hover:text-primary-foreground"
-              >
-                <Search className="h-3.5 w-3.5" />
-              </Button>
             </div>
           </form>
         </div>

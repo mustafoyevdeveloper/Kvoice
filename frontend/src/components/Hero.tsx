@@ -80,7 +80,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
         <div className="max-w-4xl mx-auto">
           {/* Movie Info */}
           <div className="mb-4 md:mb-6">
-            <Badge variant="default" className="mb-3 md:mb-4 bg-primary/10 p-2 rounded-md w-fit mx-auto text-primary-foreground">
+            <Badge variant="default" className="mb-3 md:mb-4 bg-black/15 p-2 rounded-md w-fit mx-auto text-primary-foreground">
               Eng so'nggi Koreya Kinolar va Seriallari
             </Badge>
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-foreground mb-3 md:mb-4 animate-fade-in-up leading-tight">
@@ -92,7 +92,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
           </div>
 
           {/* Movie Details */}
-          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-6 md:mb-8 text-xs md:text-sm text-muted-foreground animate-fade-in-up">
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-6 md:mb-8 text-xs md:text-sm text-white animate-fade-in-up">
             <div className="flex items-center space-x-1">
               <Star className="h-3 w-3 md:h-4 md:w-4 text-yellow-400 fill-current" />
               <span className="font-medium">{featuredMovie.rating}</span>
@@ -102,7 +102,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
             <span className="hidden md:inline">•</span>
             <div className="flex gap-1 md:gap-2">
               {featuredMovie.quality.map((q) => (
-                <Badge key={q} variant="outline" className="border-primary/30 text-white text-xs">
+                <Badge key={q} variant="outline" className="border-black/30 text-white text-xs">
                   {q}
                 </Badge>
               ))}
@@ -123,10 +123,10 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
 
           {/* Description */}
           <div className="mt-6 md:mt-8 text-center animate-fade-in-up">
-            <p className="text-white font-medium mb-1 md:mb-2 text-sm md:text-base">
+            <p className="text-white font-medium mb-1 md:mb-2 text-sm bg-black/15 p-2 rounded-md w-fit mx-auto md:text-base">
               {settings?.heroTitle || "Eng yaxshi kinolar va seriallar"}
             </p>
-            <p className="text-xs md:text-sm bg-primary/10 p-2 rounded-md w-fit mx-auto text-white-foreground">
+            <p className="text-xs md:text-sm bg-black/15 p-2 rounded-md w-fit mx-auto text-white-foreground">
               {settings?.heroSubtitle || "O'zbek tilida eng yangi va mashhur kinolar"}
             </p>
           </div>

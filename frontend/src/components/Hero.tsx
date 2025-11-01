@@ -102,7 +102,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
             <span className="hidden md:inline">•</span>
             <div className="flex gap-1 md:gap-2">
               {featuredMovie.quality.map((q) => (
-                <Badge key={q} variant="outline" className="border-primary/30 text-primary text-xs">
+                <Badge key={q} variant="outline" className="border-primary/30 text-white text-xs">
                   {q}
                 </Badge>
               ))}

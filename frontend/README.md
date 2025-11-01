@@ -1,8 +1,8 @@
-# MovieMedia - O'zbek Kino Streaming Sayti
+# Kvoice - O'zbek Kino Streaming Sayti
 
 ## Loyiha haqida
 
-MovieMedia - o'zbek tilidagi eng yangi va sifatli kinolar, seriallar va premyeralar uchun professional streaming platformasi.
+Kvoice - o'zbek tilidagi eng yangi va sifatli kinolar, seriallar va premyeralar uchun professional streaming platformasi.
 
 ## Texnologiyalar
 

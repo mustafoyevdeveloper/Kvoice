@@ -1,4 +1,4 @@
-# MovieMedia Backend Deployment Guide
+# Kvoice Backend Deployment Guide
 
 ## Quick Start
 

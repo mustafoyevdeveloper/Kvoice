@@ -133,7 +133,7 @@ export const AdminPanel = () => {
   
   // Site settings state - now loaded from backend
   const [siteSettings, setSiteSettings] = useState({
-    siteName: "MovieMedia",
+    siteName: "Kvoice",
     siteDescription: "Eng yangi kinolar va seriallar",
     siteIcon: "",
     contactEmail: "contact@moviemedia.org",
@@ -160,15 +160,15 @@ export const AdminPanel = () => {
     },
     sectionDescriptions: {
       premieres: "Issiq'ida tomosha qilib oling! Hammasi bizda!",
-      movies: "Eng yaxshi kinolar to'plami",
-      series: "Mashhur seriallar va multfilmlar",
-      trailers: "Eng so'nggi treylerlar",
-      new: "Yangi qo'shilgan kinolar"
+      movies: "Eng mashhur Koreya kinolari to'plami",
+      series: "Mashhur K-dramalar va Koreya seriallari",
+      trailers: "Eng so'nggi Koreya kinolar treylerlari",
+      new: "Yangi qo'shilgan Koreya kinolari va seriallari"
     },
-    heroTitle: "Eng yaxshi kinolar va seriallar",
-    heroSubtitle: "O'zbek tilida eng yangi va mashhur kinolar",
+    heroTitle: "Koreya kinolari va seriallari",
+    heroSubtitle: "Eng mashhur K-dramalar va Koreya filmlarini O'zbek tilida tomosha qiling",
     aboutTitle: "Biz haqimizda",
-    aboutDescription: "MovieMedia - kinolar va seriallar olamiga xush kelibsiz",
+    aboutDescription: "Kvoice - Koreya kinolari va seriallari olamiga xush kelibsiz! Bizning platformamizda eng mashhur K-dramalar, Koreya filmlari va seriallarini O'zbek tilida tomosha qiling. HD va 4K sifatda barcha kontentlar mavjud.",
     privacyTitle: "Maxfiylik siyosati",
     privacyDescription: "Sizning shaxsiy ma'lumotlaringiz biz uchun muhim",
     termsTitle: "Foydalanish shartlari",
@@ -179,8 +179,8 @@ export const AdminPanel = () => {
   useEffect(() => {
     if (settings) {
       setSiteSettings({
-        siteName: settings.siteName || "MovieMedia",
-        siteDescription: settings.siteDescription || "Eng yangi kinolar va seriallar",
+        siteName: settings.siteName || "Kvoice",
+        siteDescription: settings.siteDescription || "Koreya kinolari va seriallarini O'zbek tilida tomosha qiling",
         siteIcon: settings.siteIcon || "",
         contactEmail: settings.contactEmail || "contact@moviemedia.org",
         contactPhone: settings.contactPhone || "+998 90 123 45 67",
@@ -206,15 +206,15 @@ export const AdminPanel = () => {
         },
         sectionDescriptions: settings.sectionDescriptions || {
           premieres: "Issiq'ida tomosha qilib oling! Hammasi bizda!",
-          movies: "Eng yaxshi kinolar to'plami",
-          series: "Mashhur seriallar va multfilmlar",
-          trailers: "Eng so'nggi treylerlar",
-          new: "Yangi qo'shilgan kinolar"
+          movies: "Eng mashhur Koreya kinolari to'plami",
+          series: "Mashhur K-dramalar va Koreya seriallari",
+          trailers: "Eng so'nggi Koreya kinolar treylerlari",
+          new: "Yangi qo'shilgan Koreya kinolari va seriallari"
         },
-        heroTitle: settings.heroTitle || "Eng yaxshi kinolar va seriallar",
-        heroSubtitle: settings.heroSubtitle || "O'zbek tilida eng yangi va mashhur kinolar",
+        heroTitle: settings.heroTitle || "Koreya kinolari va seriallari",
+        heroSubtitle: settings.heroSubtitle || "Eng mashhur K-dramalar va Koreya filmlarini O'zbek tilida tomosha qiling",
         aboutTitle: settings.aboutTitle || "Biz haqimizda",
-        aboutDescription: settings.aboutDescription || "MovieMedia - kinolar va seriallar olamiga xush kelibsiz",
+        aboutDescription: settings.aboutDescription || "Kvoice - Koreya kinolari va seriallari olamiga xush kelibsiz! Bizning platformamizda eng mashhur K-dramalar, Koreya filmlari va seriallarini O'zbek tilida tomosha qiling. HD va 4K sifatda barcha kontentlar mavjud.",
         privacyTitle: settings.privacyTitle || "Maxfiylik siyosati",
         privacyDescription: settings.privacyDescription || "Sizning shaxsiy ma'lumotlaringiz biz uchun muhim",
         termsTitle: settings.termsTitle || "Foydalanish shartlari",

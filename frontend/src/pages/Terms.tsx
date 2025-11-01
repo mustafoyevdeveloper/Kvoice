@@ -23,7 +23,7 @@ const Terms = () => {
             </h1>
           </div>
           <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-            MovieMedia platformasidan foydalanish shartlari va qoidalari.
+            Kvoice platformasidan foydalanish shartlari va qoidalari.
           </p>
           <Badge variant="secondary" className="mt-4">
             Oxirgi yangilanish: 2025-yil 14-yanvar
@@ -43,7 +43,7 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                Ushbu shartlar MovieMedia platformasidan foydalanishni tartibga soladi. 
+                Ushbu shartlar Kvoice platformasidan foydalanishni tartibga soladi. 
                 Platformadan foydalanish orqali siz ushbu shartlarni qabul qilganingizni bildiradi.
               </p>
               <div className="bg-muted/50 p-4 rounded-lg">
@@ -65,7 +65,7 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                MovieMedia quyidagi xizmatlarni taqdim etadi:
+                Kvoice quyidagi xizmatlarni taqdim etadi:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -184,7 +184,7 @@ const Terms = () => {
                 <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                   <div>
                     <h4 className="font-semibold text-sm">Platforma Dizayni</h4>
-                    <p className="text-xs text-muted-foreground">MovieMedia kompaniyasiga tegishli</p>
+                    <p className="text-xs text-muted-foreground">Kvoice kompaniyasiga tegishli</p>
                   </div>
                   <Badge variant="default">Himoyalangan</Badge>
                 </div>
@@ -208,7 +208,7 @@ const Terms = () => {
               <div className="bg-muted/50 p-4 rounded-lg">
                 <h4 className="font-semibold mb-2 text-destructive">Diqqat:</h4>
                 <p className="text-sm text-muted-foreground">
-                  MovieMedia quyidagi holatlar uchun javobgar emas:
+                  Kvoice quyidagi holatlar uchun javobgar emas:
                 </p>
               </div>
               <ul className="space-y-2 text-sm md:text-base">

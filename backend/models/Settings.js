@@ -7,14 +7,14 @@ const settingsSchema = new mongoose.Schema({
     required: [true, 'Site name is required'],
     trim: true,
     maxlength: [100, 'Site name cannot exceed 100 characters'],
-    default: 'MovieMedia'
+    default: 'Kvoice'
   },
   siteDescription: {
     type: String,
     required: [true, 'Site description is required'],
     trim: true,
     maxlength: [500, 'Site description cannot exceed 500 characters'],
-    default: 'Eng yangi kinolar va seriallar'
+    default: 'Koreya kinolari va seriallarini O\'zbek tilida tomosha qiling'
   },
   siteIcon: {
     type: String,
@@ -188,25 +188,25 @@ const settingsSchema = new mongoose.Schema({
       type: String,
       trim: true,
       maxlength: [200, 'Description cannot exceed 200 characters'],
-      default: 'Eng yaxshi kinolar to\'plami'
+      default: 'Eng mashhur Koreya kinolari to\'plami'
     },
     series: {
       type: String,
       trim: true,
       maxlength: [200, 'Description cannot exceed 200 characters'],
-      default: 'Mashhur seriallar va multfilmlar'
+      default: 'Mashhur K-dramalar va Koreya seriallari'
     },
     trailers: {
       type: String,
       trim: true,
       maxlength: [200, 'Description cannot exceed 200 characters'],
-      default: 'Eng so\'nggi treylerlar'
+      default: 'Eng so\'nggi Koreya kinolar treylerlari'
     },
     new: {
       type: String,
       trim: true,
       maxlength: [200, 'Description cannot exceed 200 characters'],
-      default: 'Yangi qo\'shilgan kinolar'
+      default: 'Yangi qo\'shilgan Koreya kinolari va seriallari'
     }
   },
   
@@ -215,13 +215,13 @@ const settingsSchema = new mongoose.Schema({
     type: String,
     trim: true,
     maxlength: [100, 'Hero title cannot exceed 100 characters'],
-    default: 'Eng yaxshi kinolar va seriallar'
+    default: 'Koreya kinolari va seriallari'
   },
   heroSubtitle: {
     type: String,
     trim: true,
     maxlength: [200, 'Hero subtitle cannot exceed 200 characters'],
-    default: 'O\'zbek tilida eng yangi va mashhur kinolar'
+    default: 'Eng mashhur K-dramalar va Koreya filmlarini O\'zbek tilida tomosha qiling'
   },
   heroBackgroundImage: {
     type: String,
@@ -239,7 +239,7 @@ const settingsSchema = new mongoose.Schema({
     type: String,
     trim: true,
     maxlength: [2000, 'About description cannot exceed 2000 characters'],
-    default: 'MovieMedia - kinolar va seriallar olamiga xush kelibsiz'
+    default: 'Kvoice - Koreya kinolari va seriallari olamiga xush kelibsiz! Bizning platformamizda eng mashhur K-dramalar, Koreya filmlari va seriallarini O\'zbek tilida tomosha qiling. HD va 4K sifatda barcha kontentlar mavjud.'
   },
   aboutImage: {
     type: String,

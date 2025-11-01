@@ -104,7 +104,7 @@ app.use('/api/settings', settingsRoutes);
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'MovieMedia API Server',
+    message: 'Kvoice API Server',
     version: '1.0.0',
     endpoints: {
       auth: '/api/auth',

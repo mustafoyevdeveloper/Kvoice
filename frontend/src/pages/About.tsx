@@ -37,7 +37,7 @@ const About = () => {
             </h1>
           </div>
           <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-            O'zbek kinosini dunyoga tanitish va har bir kino sevuvchiga eng yaxshi tajribani taqdim etish maqsadida yaratilgan platforma.
+            Koreya kinolari va seriallarini O'zbek tilida tomosha qilish uchun yaratilgan platforma. Eng mashhur K-dramalar va Koreya filmlarini toping.
           </p>
         </div>
 
@@ -55,20 +55,20 @@ const About = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">
-                  O'zbek kinosini dunyoga tanitish va har bir kino sevuvchiga eng yaxshi tajribani taqdim etish.
+                  Koreya kinolari va seriallarini O'zbek auditoriyasiga taqdim etish va eng yaxshi tomosha tajribasini yaratish.
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-sm">O'zbek tilidagi eng yaxshi kinolarni to'plash</p>
+                    <p className="text-sm">Eng mashhur K-dramalar va Koreya filmlarini to'plash</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-sm">Yuqori sifatli video xizmatini taqdim etish</p>
+                    <p className="text-sm">O'zbek tilida professional tarjima bilan taqdim etish</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-sm">Kino madaniyatini rivojlantirish</p>
+                    <p className="text-sm">Koreya madaniyatini O'zbekistonda targ'ib qilish</p>
                   </div>
                 </div>
               </CardContent>
@@ -83,7 +83,7 @@ const About = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">
-                  Markaziy Osiyoning eng yirik kino platformasiga aylanish va global miqyosda tanilish.
+                  O'zbekistonda Koreya kontentlarini tomosha qilish bo'yicha yetakchi platformaga aylanish va K-wave madaniyatini targ'ib qilish.
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
@@ -92,11 +92,11 @@ const About = () => {
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-sm">10,000+ kino kolleksiyasi</p>
+                    <p className="text-sm">5,000+ Koreya kinolari va seriallari</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-sm">Global miqyosda tanilish</p>
+                    <p className="text-sm">Koreya kontentlarida yetakchi platforma</p>
                   </div>
                 </div>
               </CardContent>
@@ -118,7 +118,7 @@ const About = () => {
                 <div className="text-center p-4 bg-primary/5 rounded-lg">
                   <Film className="h-8 w-8 text-primary mx-auto mb-2" />
                   <div className="text-2xl md:text-3xl font-bold text-primary">1,200+</div>
-                  <p className="text-xs md:text-sm text-muted-foreground">Kino</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Koreya kinolari</p>
                 </div>
                 <div className="text-center p-4 bg-primary/5 rounded-lg">
                   <Star className="h-8 w-8 text-primary mx-auto mb-2" />
@@ -137,7 +137,7 @@ const About = () => {
           {/* Features */}
           <Card className="border-primary/20">
             <CardHeader>
-              <CardTitle className="text-center">Nima Uchun MovieMedia?</CardTitle>
+              <CardTitle className="text-center">Nima Uchun Kvoice?</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -283,7 +283,7 @@ const About = () => {
                   <div className="bg-muted/50 p-4 rounded-lg">
                     <h4 className="font-semibold text-sm mb-2">Bizning Maqsadimiz</h4>
                     <p className="text-xs text-muted-foreground">
-                      O'zbek kinosini dunyoga tanitish va har bir kino sevuvchiga eng yaxshi tajribani taqdim etish.
+                      Koreya kinolari va seriallarini O'zbek auditoriyasiga taqdim etish va K-wave madaniyatini targ'ib qilish.
                     </p>
                   </div>
                 </div>

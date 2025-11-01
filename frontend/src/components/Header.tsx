@@ -77,7 +77,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
             <div className={`text-lg md:text-xl font-bold animate-fade-in transition-colors duration-300 ${
               isScrolled ? 'text-primary-foreground' : isHomePage ? 'text-white' : 'text-primary'
             }`}>
-              {settings?.siteName || "MovieMedia"}
+              {settings?.siteName || "Kvoice"}
             </div>
           </div>
 

@@ -1,6 +1,6 @@
-# MovieMedia Backend API
+# Kvoice Backend API
 
-A comprehensive backend API for the MovieMedia streaming platform built with Node.js, Express, and MongoDB.
+A comprehensive backend API for the Kvoice streaming platform built with Node.js, Express, and MongoDB.
 
 ## Features
 

@@ -2,7 +2,7 @@
   "name": "movimedia-backend",
   "version": "1.0.0",
   "type": "module",
-  "description": "MovieMedia Backend API",
+  "description": "Kvoice Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

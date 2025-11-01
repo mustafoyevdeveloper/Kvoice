@@ -15,10 +15,10 @@ export const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <h3 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-4">
-              {settings?.siteName || "MovieMedia"}
+              {settings?.siteName || "Kvoice"}
             </h3>
             <p className="text-muted-foreground mb-4 text-sm md:text-base leading-relaxed">
-              {settings?.siteDescription || "O'zbek tilidagi eng yangi va sifatli kinolar, seriallar va premyeralar."}
+              {settings?.siteDescription || "Koreya kinolari va seriallarini O'zbek tilida tomosha qiling. Eng mashhur K-dramalar va Koreya filmlari."}
             </p>
             <div className="flex space-x-2">
               {settings?.socialMedia?.facebook && (
@@ -108,7 +108,7 @@ export const Footer = () => {
         {/* Bottom */}
         <div className="border-t border-border/30 pt-4 md:pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-xs text-muted-foreground mb-3 md:mb-0">
-            © 2025 MovieMedia. Barcha huquqlar himoyalangan.
+            © 2025 Kvoice. Barcha huquqlar himoyalangan.
           </p>
           <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs">
             <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors duration-200">Maxfiylik</Link>

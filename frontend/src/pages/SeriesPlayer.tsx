@@ -29,32 +29,32 @@ const SeriesPlayer = () => {
 
   if (!movie) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <Header
           onSearch={handleSearch}
           onCategorySelect={handleCategorySelect}
           selectedCategory="series"
         />
-        <div className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 flex-1">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground mb-4">Serial topilmadi</h1>
             <p className="text-muted-foreground">Siz qidirayotgan serial mavjud emas.</p>
           </div>
-        </div>
+        </main>
         <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header
         onSearch={handleSearch}
         onCategorySelect={handleCategorySelect}
         selectedCategory="series"
       />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 flex-1">
         <VideoPlayer movie={movie} onBack={() => navigate(-1)} />
       </main>
 

@@ -60,14 +60,14 @@ export const Movies = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header 
         onSearch={handleSearch}
         onCategorySelect={handleCategorySelect}
         selectedCategory={selectedCategory}
       />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 flex-1">
         {/* Search Results Header */}
         {searchQuery && (
           <div className="mb-6 flex items-center justify-between">

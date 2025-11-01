@@ -34,7 +34,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -116,7 +115,6 @@ export const AdminPanel = () => {
     updateSection,
     resetSettings 
   } = useSettingsStore();
-  const [selectedTab, setSelectedTab] = useState("movies");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -483,8 +481,11 @@ export const AdminPanel = () => {
   };
 
   // Open add dialog
-  const handleOpenAddDialog = () => {
+  const handleOpenAddDialog = (category?: string) => {
     resetFormData();
+    if (category) {
+      setFormData(prev => ({ ...prev, category }));
+    }
     setIsAddDialogOpen(true);
   };
 
@@ -763,11 +764,8 @@ export const AdminPanel = () => {
     // Category filter
     let categoryMatch = true;
     if (selectedCategory === "all") categoryMatch = true;
-    else if (selectedCategory === "premieres") categoryMatch = movie.category === "premieres" || movie.isPremiere;
     else if (selectedCategory === "movies") categoryMatch = movie.category === "movies";
     else if (selectedCategory === "series") categoryMatch = movie.category === "series";
-    else if (selectedCategory === "trailers") categoryMatch = movie.category === "trailers";
-    else if (selectedCategory === "new") categoryMatch = movie.isNewContent;
     
     // Search filter
     const searchMatch = !searchQuery.trim() || 
@@ -779,11 +777,8 @@ export const AdminPanel = () => {
   const getCategoryTitle = (category: string) => {
     switch (category) {
       case "all": return "Barchasi";
-      case "premieres": return siteSettings.sectionNames.premieres;
-      case "movies": return siteSettings.sectionNames.movies;
-      case "series": return siteSettings.sectionNames.series;
-      case "trailers": return siteSettings.sectionNames.trailers;
-      case "new": return siteSettings.sectionNames.new;
+      case "movies": return "Kinolar";
+      case "series": return "Seriallar";
       default: return "Barchasi";
     }
   };
@@ -812,13 +807,10 @@ export const AdminPanel = () => {
 
   const getCategoryItemName = (category: string) => {
     switch (category) {
-      case "all": return "Kino";
-      case "premieres": return "Premyera";
+      case "all": return "Kontent";
       case "movies": return "Kino";
       case "series": return "Serial";
-      case "trailers": return "Treyler";
-      case "new": return "Kino";
-      default: return "Kino";
+      default: return "Kontent";
     }
   };
 
@@ -1189,142 +1181,75 @@ export const AdminPanel = () => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Jami Kinolar</CardTitle>
-            <Film className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalMovies}</div>
-            <p className="text-xs text-muted-foreground">
-              +2 oxirgi haftada
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Jami Ko'rishlar</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              +{stats.todayViews} bugun
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Foydalanuvchilar</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              +{stats.newUsersToday} yangi foydalanuvchi
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Online Foydalanuvchilar</CardTitle>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-500">{stats.onlineUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalLogins} jami kirish
-            </p>
-          </CardContent>
-        </Card>
+      {/* Header with Search and Add Buttons */}
+      <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4">
+        <h2 className="text-2xl font-bold">Kinolar va Seriallar Boshqaruvi</h2>
+        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+          <div className="relative flex-1 xl:flex-none">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Kino yoki serial qidirish..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 w-full xl:w-96"
+            />
+          </div>
+          {selectedCategory === "movies" && (
+            <Button onClick={() => handleOpenAddDialog("movies")} className="bg-primary hover:bg-primary-glow w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Yangi Kino Qo'shish
+            </Button>
+          )}
+          {selectedCategory === "series" && (
+            <Button onClick={() => handleOpenAddDialog("series")} className="bg-primary hover:bg-primary-glow w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Yangi Serial Qo'shish
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Main Admin Tabs */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="movies" className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
-            <Film className="h-4 w-4" />
-            <span className="hidden md:inline">Kinolar</span>
-          </TabsTrigger>
-          <TabsTrigger value="users" className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
-            <Users className="h-4 w-4" />
-            <span className="hidden md:inline">Foydalanuvchilar</span>
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
-            <BarChart3 className="h-4 w-4" />
-            <span className="hidden md:inline">Tahlil</span>
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
-            <Settings className="h-4 w-4" />
-            <span className="hidden md:inline">Sozlamalar</span>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="movies" className="space-y-4 md:space-y-6">
-          {/* Header with Search and Add Button */}
-          <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4">
-            <h3 className="text-lg font-semibold">Kinolar Boshqaruvi</h3>
-            <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-              <div className="relative flex-1 xl:flex-none">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Kino qidirish..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-full xl:w-96"
-                />
-              </div>
-              <Button onClick={handleOpenAddDialog} className="bg-primary hover:bg-primary-glow w-full sm:w-auto">
-                <Plus className="h-4 w-4 mr-2" />
-                Yangi Qo'shish
+      <div className="space-y-4 md:space-y-6">
+        {/* Category Filter Tabs */}
+        <div className="flex gap-2 flex-wrap">
+          {["all", "movies", "series"].map((category) => {
+            const count = category === "all" ? content.length : 
+                         category === "movies" ? content.filter(m => m.category === "movies").length :
+                         category === "series" ? content.filter(m => m.category === "series").length : 0;
+            
+            return (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className="animate-slide-in-left"
+              >
+                {getCategoryTitle(category)} ({count})
               </Button>
-            </div>
-          </div>
+            );
+          })}
+        </div>
 
-          {/* Category Filter Tabs */}
-          <div className="grid grid-cols-3 gap-2 w-full sm:flex sm:flex-wrap">
-            {["all", "premieres", "movies", "series", "trailers", "new"].map((category) => {
-              const count = category === "all" ? content.length : 
-                           category === "premieres" ? content.filter(m => m.category === "premieres" || m.isPremiere).length :
-                           category === "movies" ? content.filter(m => m.category === "movies").length :
-                           category === "series" ? content.filter(m => m.category === "series").length :
-                           category === "trailers" ? content.filter(m => m.category === "trailers").length :
-                           category === "new" ? content.filter(m => m.isNewContent).length : 0;
-              
-              return (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className="animate-slide-in-left sm:flex-1 sm:min-w-0"
-                >
-                  {getCategoryTitle(category)} ({count})
-                </Button>
-              );
-            })}
-          </div>
+        {/* Content Section Header */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+          <h3 className="text-lg font-semibold">
+            {getCategoryTitle(selectedCategory)} - Mavjud Kontentlar ({filteredMovies.length})
+          </h3>
+        </div>
 
-          {/* Content Section Header */}
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-            <h3 className="text-lg font-semibold">
-              {getCategoryTitle(selectedCategory)} - Mavjud Kontentlar ({filteredMovies.length})
-            </h3>
+        {/* Movies List */}
+        <Card>
+          <CardContent className="p-0">
+            <div className="space-y-3 md:space-y-4 p-4 md:p-6">
+              {filteredMovies.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">
+                    {searchQuery ? "Qidiruv natijasi topilmadi" : "Hech qanday kontent topilmadi"}
+                  </p>
                 </div>
-
-          {/* Movies List */}
-          <Card>
-            <CardContent className="p-0">
-              <div className="space-y-3 md:space-y-4 p-4 md:p-6">
-                {filteredMovies.map((movie) => (
+              ) : (
+                filteredMovies.map((movie) => (
                   <div key={movie.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center justify-between">
@@ -1384,713 +1309,12 @@ export const AdminPanel = () => {
                       </AlertDialog>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="users" className="space-y-4 md:space-y-6">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-            <h3 className="text-lg font-semibold">Foydalanuvchilar</h3>
-          </div>
-
-          <Card>
-            <CardContent className="p-0">
-              <div className="space-y-3 md:space-y-4 p-4 md:p-6">
-                {adminUsers.map((user) => (
-                  <div key={user.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
-                    <div className="space-y-1 flex-1">
-                      <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-sm md:text-base">{user.name}</h4>
-                        {user.isOnline && (
-                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        )}
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs md:text-sm text-muted-foreground">
-                        <span className="break-all">{user.email}</span>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={user.role === "admin" ? "default" : "secondary"} className="text-xs">
-                            {user.role}
-                          </Badge>
-                          <span className="hidden sm:inline">Oxirgi kirish: {user.lastLogin}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs text-muted-foreground">
-                        <span className="sm:hidden">Oxirgi kirish: {user.lastLogin}</span>
-                        <span>Kirishlar soni: {user.loginCount}</span>
-                        <span>Birinchi kirish: {user.firstLogin}</span>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2 self-end sm:self-auto">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" className="h-8 w-8 p-0">
-                        <Trash2 className="h-3 w-3 md:h-4 md:w-4" />
-                      </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Foydalanuvchini o'chirish</AlertDialogTitle>
-                            <AlertDialogDescription className="space-y-2">
-                              <div className="font-semibold">"{user.name}" ni o'chirishni xohlaysizmi?</div>
-                              <div className="text-sm text-muted-foreground">
-                                <div>Email: {user.email}</div>
-                                <div>Rol: {user.role}</div>
-                                <div>Kirishlar soni: {user.loginCount}</div>
-                                <div>Birinchi kirish: {user.firstLogin}</div>
-                                <div>Oxirgi kirish: {user.lastLogin}</div>
-                                <div>Status: {user.isOnline ? "Online" : "Offline"}</div>
-                              </div>
-                              <div className="text-red-500 font-medium">Bu amal qaytarib bo'lmaydi.</div>
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
-                            <AlertDialogAction 
-                              onClick={() => {
-                                deleteUser(user.id);
-                                toast({ title: "Muvaffaqiyat", description: "Foydalanuvchi muvaffaqiyatli o'chirildi!" });
-                              }}
-                              className="bg-red-500 hover:bg-red-600"
-                            >
-                              O'chirish
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-4 md:space-y-6">
-          <h3 className="text-lg font-semibold">Analitika va Hisobotlar</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Ko'rishlar Statistikasi
-                  </div>
-                  <div className="flex gap-1">
-                    <Button
-                      variant={chartType === 'bar' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setChartType('bar');
-                        stopAutoSwitch();
-                        setAutoSwitch(false);
-                      }}
-                      className="h-8 px-3"
-                    >
-                      <BarChart3 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={chartType === 'line' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setChartType('line');
-                        stopAutoSwitch();
-                        setAutoSwitch(false);
-                      }}
-                      className="h-8 px-3"
-                    >
-                      <TrendingUp className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={autoSwitch ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        if (autoSwitch) {
-                          stopAutoSwitch();
-                          setAutoSwitch(false);
-                        } else {
-                          startAutoSwitch();
-                          setAutoSwitch(true);
-                        }
-                      }}
-                      className="h-8 px-3"
-                    >
-                      <Play className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* Chart Header */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Oxirgi 7 kun</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span>Ko'rishlar</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Chart Container */}
-                  <div className="space-y-3">
-                    <div className="flex items-end justify-between h-32 gap-1 relative">
-                      {[
-                        { day: "Dush", views: 45 },
-                        { day: "Sesh", views: 32 },
-                        { day: "Chor", views: 67 },
-                        { day: "Pay", views: 89 },
-                        { day: "Jum", views: 123 },
-                        { day: "Shan", views: 156 },
-                        { day: "Yak", views: 98 }
-                      ].map((item, index) => {
-                        const height = (item.views / 160) * 100;
-                        const isLast = index === 6;
-                        
-                        return (
-                          <div key={item.day} className="flex flex-col items-center gap-1 flex-1 relative">
-                            {chartType === 'bar' ? (
-                              // Bar Chart
-                              <div 
-                                className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-sm transition-all duration-300 hover:from-blue-600 hover:to-blue-500"
-                                style={{ height: `${height}%` }}
-                              ></div>
-                            ) : (
-                              // Line Chart
-                              <div className="relative w-full h-full">
-                                {/* Line to next point */}
-                                {!isLast && (
-                                  <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 1 }}>
-                                    <line
-                                      x1="50%"
-                                      y1={`${100 - height}%`}
-                                      x2="150%"
-                                      y2={`${100 - ((item.views / 160) * 100)}%`}
-                                      stroke="#10b981"
-                                      strokeWidth="4"
-                                      strokeLinecap="round"
-                                    />
-                                  </svg>
-                                )}
-                                {/* Data point */}
-                                <div 
-                                  className="absolute w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-lg transition-all duration-300 hover:scale-125 hover:bg-green-600"
-                                  style={{ 
-                                    left: '50%', 
-                                    top: `${100 - height}%`, 
-                                    transform: 'translate(-50%, -50%)',
-                                    zIndex: 2
-                                  }}
-                                ></div>
-                              </div>
-                            )}
-                            <span className="text-xs text-muted-foreground">{item.day}</span>
-                            <span className="text-xs font-medium">{item.views}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  
-                  {/* Stats Summary */}
-                  <div className="grid grid-cols-3 gap-4 pt-4 border-t">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-500">612</div>
-                      <div className="text-xs text-muted-foreground">Jami ko'rishlar</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">156</div>
-                      <div className="text-xs text-muted-foreground">Eng ko'p (Shan)</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-400">87</div>
-                      <div className="text-xs text-muted-foreground">O'rtacha</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Mashhur Kinolar</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {content.sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3).map((movie, index) => (
-                  <div key={movie.id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Badge variant="outline">{index + 1}</Badge>
-                      <span className="font-medium">{movie.title}</span>
-                    </div>
-                    <span className="text-muted-foreground">{movie.views} ko'rishlar</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="settings" className="space-y-4 md:space-y-6">
-          <h3 className="text-lg font-semibold">Sayt Sozlamalari</h3>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Asosiy Sozlamalar */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Asosiy Sozlamalar</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="siteName">Sayt Nomi</Label>
-                  <Input 
-                    id="siteName" 
-                    value={siteSettings.siteName}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, siteName: e.target.value }))}
-                  />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="siteDescription">Sayt Tavsifi</Label>
-                  <Textarea 
-                    id="siteDescription" 
-                    value={siteSettings.siteDescription}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, siteDescription: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="siteIcon">Sayt Ikonkasi (Emoji)</Label>
-                  <Input 
-                    id="siteIcon" 
-                    value={siteSettings.siteIcon}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, siteIcon: e.target.value }))}
-                  />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="contactEmail">Aloqa Email</Label>
-                  <Input 
-                    id="contactEmail" 
-                    type="email"
-                    value={siteSettings.contactEmail}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, contactEmail: e.target.value }))}
-                  />
-              </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contactPhone">Telefon Raqami</Label>
-                  <Input 
-                    id="contactPhone" 
-                    type="tel"
-                    value={siteSettings.contactPhone}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, contactPhone: e.target.value }))}
-                    placeholder="+998 90 123 45 67"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Social Media Sozlamalari */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Ijtimoiy Tarmoqlar</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="facebook">Facebook</Label>
-                  <Input 
-                    id="facebook" 
-                    type="url"
-                    value={siteSettings.socialMedia.facebook}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      socialMedia: { ...prev.socialMedia, facebook: e.target.value }
-                    }))}
-                    placeholder="https://facebook.com/moviemedia"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="instagram">Instagram</Label>
-                  <Input 
-                    id="instagram" 
-                    type="url"
-                    value={siteSettings.socialMedia.instagram}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      socialMedia: { ...prev.socialMedia, instagram: e.target.value }
-                    }))}
-                    placeholder="https://instagram.com/moviemedia"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telegram">Telegram</Label>
-                  <Input 
-                    id="telegram" 
-                    type="url"
-                    value={siteSettings.socialMedia.telegram}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      socialMedia: { ...prev.socialMedia, telegram: e.target.value }
-                    }))}
-                    placeholder="https://t.me/moviemedia"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="youtube">YouTube</Label>
-                  <Input 
-                    id="youtube" 
-                    type="url"
-                    value={siteSettings.socialMedia.youtube}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      socialMedia: { ...prev.socialMedia, youtube: e.target.value }
-                    }))}
-                    placeholder="https://youtube.com/moviemedia"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bo'limlar Nomi Sozlamalari */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Bo'limlar Nomi</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="premieres">Premyeralar</Label>
-                  <Input 
-                    id="premieres" 
-                    value={siteSettings.sectionNames.premieres}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionNames: { ...prev.sectionNames, premieres: e.target.value }
-                    }))}
-                    placeholder="Premyeralar"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="movies">Kinolar</Label>
-                  <Input 
-                    id="movies" 
-                    value={siteSettings.sectionNames.movies}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionNames: { ...prev.sectionNames, movies: e.target.value }
-                    }))}
-                    placeholder="Kinolar"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="series">Seriallar</Label>
-                  <Input 
-                    id="series" 
-                    value={siteSettings.sectionNames.series}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionNames: { ...prev.sectionNames, series: e.target.value }
-                    }))}
-                    placeholder="Seriallar"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="trailers">Treylerlar</Label>
-                  <Input 
-                    id="trailers" 
-                    value={siteSettings.sectionNames.trailers}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionNames: { ...prev.sectionNames, trailers: e.target.value }
-                    }))}
-                    placeholder="Treylerlar"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new">Yangi</Label>
-                  <Input 
-                    id="new" 
-                    value={siteSettings.sectionNames.new}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionNames: { ...prev.sectionNames, new: e.target.value }
-                    }))}
-                    placeholder="Yangi"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bo'limlar Sarlavhalari */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Bo'limlar Sarlavhalari</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="premieres-title">Premyeralar Sarlavhasi</Label>
-                  <Input 
-                    id="premieres-title" 
-                    value={siteSettings.sectionTitles.premieres}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionTitles: { ...prev.sectionTitles, premieres: e.target.value }
-                    }))}
-                    placeholder="PREMYERALAR"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="movies-title">Kinolar Sarlavhasi</Label>
-                  <Input 
-                    id="movies-title" 
-                    value={siteSettings.sectionTitles.movies}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionTitles: { ...prev.sectionTitles, movies: e.target.value }
-                    }))}
-                    placeholder="KINOLAR"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="series-title">Seriallar Sarlavhasi</Label>
-                  <Input 
-                    id="series-title" 
-                    value={siteSettings.sectionTitles.series}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionTitles: { ...prev.sectionTitles, series: e.target.value }
-                    }))}
-                    placeholder="SERIALLAR"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="trailers-title">Treylerlar Sarlavhasi</Label>
-                  <Input 
-                    id="trailers-title" 
-                    value={siteSettings.sectionTitles.trailers}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionTitles: { ...prev.sectionTitles, trailers: e.target.value }
-                    }))}
-                    placeholder="TREYLERLAR"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-title">Yangi Sarlavhasi</Label>
-                  <Input 
-                    id="new-title" 
-                    value={siteSettings.sectionTitles.new}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionTitles: { ...prev.sectionTitles, new: e.target.value }
-                    }))}
-                    placeholder="YANGI KINOLAR"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bo'limlar Tavsiflari */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Bo'limlar Tavsiflari</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="premieres-desc">Premyeralar Tavsifi</Label>
-                  <Textarea 
-                    id="premieres-desc" 
-                    value={siteSettings.sectionDescriptions.premieres}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionDescriptions: { ...prev.sectionDescriptions, premieres: e.target.value }
-                    }))}
-                    placeholder="Issiq'ida tomosha qilib oling! Hammasi bizda!"
-                    rows={2}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="movies-desc">Kinolar Tavsifi</Label>
-                  <Textarea 
-                    id="movies-desc" 
-                    value={siteSettings.sectionDescriptions.movies}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionDescriptions: { ...prev.sectionDescriptions, movies: e.target.value }
-                    }))}
-                    placeholder="Eng yaxshi kinolar to'plami"
-                    rows={2}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="series-desc">Seriallar Tavsifi</Label>
-                  <Textarea 
-                    id="series-desc" 
-                    value={siteSettings.sectionDescriptions.series}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionDescriptions: { ...prev.sectionDescriptions, series: e.target.value }
-                    }))}
-                    placeholder="Mashhur seriallar va multfilmlar"
-                    rows={2}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="trailers-desc">Treylerlar Tavsifi</Label>
-                  <Textarea 
-                    id="trailers-desc" 
-                    value={siteSettings.sectionDescriptions.trailers}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionDescriptions: { ...prev.sectionDescriptions, trailers: e.target.value }
-                    }))}
-                    placeholder="Eng so'nggi treylerlar"
-                    rows={2}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-desc">Yangi Tavsifi</Label>
-                  <Textarea 
-                    id="new-desc" 
-                    value={siteSettings.sectionDescriptions.new}
-                    onChange={(e) => setSiteSettings(prev => ({ 
-                      ...prev, 
-                      sectionDescriptions: { ...prev.sectionDescriptions, new: e.target.value }
-                    }))}
-                    placeholder="Yangi qo'shilgan kinolar"
-                    rows={2}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Hero Section Sozlamalari */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Hero Bo'limi</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="heroTitle">Hero Sarlavha</Label>
-                  <Input 
-                    id="heroTitle" 
-                    value={siteSettings.heroTitle}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, heroTitle: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="heroSubtitle">Hero Tavsif</Label>
-                  <Textarea 
-                    id="heroSubtitle" 
-                    value={siteSettings.heroSubtitle}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, heroSubtitle: e.target.value }))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* About Page Sozlamalari */}
-            <Card>
-              <CardHeader>
-                <CardTitle>About Sahifasi</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="aboutTitle">About Sarlavha</Label>
-                  <Input 
-                    id="aboutTitle" 
-                    value={siteSettings.aboutTitle}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, aboutTitle: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="aboutDescription">About Tavsif</Label>
-                  <Textarea 
-                    id="aboutDescription" 
-                    value={siteSettings.aboutDescription}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, aboutDescription: e.target.value }))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Privacy & Terms Sozlamalari */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Maxfiylik va Shartlar</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="privacyTitle">Maxfiylik Sarlavha</Label>
-                  <Input 
-                    id="privacyTitle" 
-                    value={siteSettings.privacyTitle}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, privacyTitle: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="privacyDescription">Maxfiylik Tavsif</Label>
-                  <Textarea 
-                    id="privacyDescription" 
-                    value={siteSettings.privacyDescription}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, privacyDescription: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="termsTitle">Shartlar Sarlavha</Label>
-                  <Input 
-                    id="termsTitle" 
-                    value={siteSettings.termsTitle}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, termsTitle: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="termsDescription">Shartlar Tavsif</Label>
-                  <Textarea 
-                    id="termsDescription" 
-                    value={siteSettings.termsDescription}
-                    onChange={(e) => setSiteSettings(prev => ({ ...prev, termsDescription: e.target.value }))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Saqlash Tugmasi */}
-          <Card>
-            <CardContent className="pt-6">
-              <Button 
-                className="w-full"
-                onClick={async () => {
-                  try {
-                    const result = await updateSettings(siteSettings);
-                    if (result.success) {
-                      toast({ title: "Muvaffaqiyat", description: "Sozlamalar muvaffaqiyatli saqlandi!" });
-                    } else {
-                      toast({ 
-                        title: "Xatolik", 
-                        description: result.error || "Sozlamalar saqlanmadi", 
-                        variant: "destructive" 
-                      });
-                    }
-                  } catch (error) {
-                    toast({ 
-                      title: "Xatolik", 
-                      description: "Sozlamalar saqlanmadi", 
-                      variant: "destructive" 
-                    });
-                  }
-                }}
-                disabled={settingsLoading}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {settingsLoading ? "Saqlanmoqda..." : "Barcha Sozlamalarni Saqlash"}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Add Movie Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

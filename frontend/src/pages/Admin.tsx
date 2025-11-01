@@ -10,7 +10,7 @@ import { Lock, Eye, EyeOff } from "lucide-react";
 
 const Admin = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(true);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");

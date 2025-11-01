@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Menu, X, Home, Film, Tv, Star, Calendar, Settings, Play } from "lucide-react";
+import { Search, Home, Film, Tv, Star, Calendar, Settings, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -13,7 +13,6 @@ interface HeaderProps {
 }
 
 export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePage = false }: HeaderProps) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const { settings } = useSettingsStore();
@@ -51,7 +50,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
 
   return (
     <>
-      <header className={`sticky top-0 z-50 transition-all duration-300 mobile-nav ${
+      <header className={`sticky top-0 z-50 transition-all duration-300 ease-in-out mobile-nav ${
         isScrolled 
           ? 'bg-primary/95 backdrop-blur-md border-b border-primary/20' 
           : isHomePage 
@@ -62,23 +61,11 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
         <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2 md:space-x-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`md:hidden hover:bg-primary-glow/20 touch-feedback btn-interactive transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-primary-foreground bg-primary/20' 
-                  : isHomePage 
-                    ? 'text-white' 
-                    : 'text-primary'
-              }`}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
             <div className="flex items-center space-x-2 md:space-x-3">
               {/* Site Logo */}
-              <div className="flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full bg-primary/0 border border-primary/5">
+              <div className={`flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full border transition-all duration-300 ease-in-out ${
+                isScrolled ? 'bg-primary/20 border-primary/30' : 'bg-primary/0 border-primary/5'
+              }`}>
                 <img 
                   src="/favicon.png" 
                   alt="Kvoice Logo" 
@@ -94,7 +81,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                   }}
                 />
               </div>
-              <div className={`text-lg md:text-xl font-bold animate-fade-in transition-colors duration-300 ${
+              <div className={`text-lg md:text-xl font-bold animate-fade-in transition-all duration-300 ease-in-out ${
                 isScrolled ? 'text-primary-foreground' : isHomePage ? 'text-white' : 'text-primary'
               }`}>
                 {settings?.siteName || "Kvoice"}
@@ -111,7 +98,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                   key={category.id}
                   variant={location.pathname === category.path ? "secondary" : "ghost"}
                   size="sm"
-                  className={`hover:bg-primary-glow/20 btn-interactive animate-slide-in-left transition-colors duration-300 ${
+                  className={`hover:bg-primary-glow/20 btn-interactive animate-slide-in-left transition-all duration-300 ease-in-out ${
                     location.pathname === category.path 
                       ? "bg-secondary text-secondary-foreground" 
                       : isScrolled ? "text-primary-foreground" : isHomePage ? "text-white" : "text-primary"
@@ -129,7 +116,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
           {/* Search */}
           <form onSubmit={handleSearch} className="flex items-center space-x-2">
             <div className="relative">
-              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors duration-300 z-10 pointer-events-none ${
+              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-all duration-300 ease-in-out z-10 pointer-events-none ${
                 isHomePage && !isScrolled ? 'text-white drop-shadow-lg' : 'text-muted-foreground'
               }`} style={{ zIndex: 10 }} />
               <Input
@@ -137,7 +124,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                 placeholder="Qidiruv..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`pl-10 pr-12 w-48 md:w-64 border-border/50 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50 transition-all duration-300 ${
+                className={`pl-10 pr-12 w-48 md:w-64 border-border/50 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50 transition-all duration-300 ease-in-out ${
                   isHomePage && !isScrolled 
                     ? 'bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70' 
                     : 'bg-input/50'
@@ -158,14 +145,12 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
           </form>
         </div>
 
-        {/* Mobile Navigation */}
-        <div className={`md:hidden relative z-50 transition-all duration-500 ease-in-out overflow-hidden ${
-          isMenuOpen ? 'max-h-96 opacity-100 translate-y-0 animate-slide-down' : 'max-h-0 opacity-0 -translate-y-4 animate-slide-up'
-        }`}>
-          <nav className={`py-4 border-t ${
+        {/* Mobile Navigation - Horizontal Category Bar */}
+        <div className="md:hidden relative z-50">
+          <nav className={`py-2 border-t transition-all duration-300 ease-in-out ${
             isScrolled ? 'border-primary/30 bg-primary/95 backdrop-blur-md' : 'border-primary/20 bg-background/95 backdrop-blur-md'
           }`}>
-            <div className="flex flex-col space-y-2" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between w-full">
               {categories.map((category, index) => {
                 const Icon = category.icon;
                 return (
@@ -173,20 +158,15 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                     key={category.id}
                     variant={location.pathname === category.path ? "secondary" : "ghost"}
                     size="sm"
-                    className={`justify-start hover:bg-primary-glow/20 touch-feedback btn-interactive transition-all duration-300 ${
-                      isMenuOpen ? 'animate-slide-in-left opacity-100' : 'opacity-0'
+                    className={`flex-1 hover:bg-primary-glow/20 touch-feedback btn-interactive transition-all duration-300 ease-in-out whitespace-nowrap ${
+                      index < categories.length - 1 ? 'mr-1' : ''
                     } ${
                       location.pathname === category.path 
                         ? "bg-secondary text-secondary-foreground" 
                         : isScrolled ? "text-primary-foreground" : isHomePage ? "text-white" : "text-foreground"
                     }`}
-                    style={{ 
-                      animationDelay: isMenuOpen ? `${index * 0.1}s` : '0s',
-                      transitionDelay: isMenuOpen ? `${index * 0.05}s` : '0s'
-                    }}
                     onClick={() => {
                       navigate(category.path);
-                      setIsMenuOpen(false);
                     }}
                   >
                     <Icon className="h-4 w-4 mr-2" />
@@ -199,15 +179,6 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
         </div>
       </div>
       </header>
-      
-      {/* Mobile Navigation Overlay - Menu yopish uchun */}
-      {isMenuOpen && (
-        <div 
-          className="md:hidden fixed inset-0 bg-black/50 z-40"
-          style={{ top: '56px' }}
-          onClick={() => setIsMenuOpen(false)}
-        />
-      )}
     </>
   );
 };

@@ -81,9 +81,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                   }}
                 />
               </div>
-              <div className={`text-lg md:text-xl font-bold animate-fade-in transition-all duration-300 ease-in-out ${
-                isScrolled ? 'text-primary-foreground' : isHomePage ? 'text-white' : 'text-primary'
-              }`}>
+              <div className="text-lg md:text-xl font-bold animate-fade-in transition-all duration-300 ease-in-out text-primary">
                 {settings?.siteName || "Kvoice"}
               </div>
             </div>
@@ -116,9 +114,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
           {/* Search */}
           <form onSubmit={handleSearch} className="flex items-center space-x-2">
             <div className="relative">
-              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-all duration-300 ease-in-out z-10 pointer-events-none ${
-                isHomePage && !isScrolled ? 'text-white drop-shadow-lg' : 'text-muted-foreground'
-              }`} style={{ zIndex: 10 }} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-all duration-300 ease-in-out z-10 pointer-events-none text-primary" style={{ zIndex: 10 }} />
               <Input
                 type="text"
                 placeholder="Qidiruv..."
@@ -133,11 +129,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
               <Button
                 type="submit"
                 size="sm"
-                className={`absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 transition-all duration-300 hover:scale-105 ${
-                  isHomePage && !isScrolled 
-                    ? 'text-white hover:text-white shadow-lg' 
-                    : 'text-primary hover:text-primary-foreground'
-                }`}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 transition-all duration-300 hover:scale-105 text-primary hover:text-primary-foreground"
               >
                 <Search className="h-3.5 w-3.5" />
               </Button>

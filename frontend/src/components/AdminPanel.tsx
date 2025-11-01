@@ -1229,7 +1229,7 @@ export const AdminPanel = () => {
               }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-full md:w-96"
+              className="pl-10 w-full md:w-[28.1rem]"
             />
           </div>
           {selectedCategory === "movies" && (

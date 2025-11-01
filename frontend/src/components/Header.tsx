@@ -76,17 +76,22 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
             </Button>
             <div className="flex items-center space-x-2 md:space-x-3">
               {/* Site Logo */}
-              <img 
-                src="/favicon.png" 
-                alt="Kvoice Logo" 
-                className={`h-8 w-8 md:h-10 md:w-10 object-contain animate-fade-in transition-opacity duration-300 ${
-                  isScrolled ? 'opacity-100' : isHomePage ? 'opacity-100' : 'opacity-100'
-                }`}
-                onError={(e) => {
-                  // Agar logo yuklanmasa, fallback icon ko'rsatish
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
+              <div className="flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full bg-primary/0 border border-primary/5">
+                <img 
+                  src="/favicon.png" 
+                  alt="Kvoice Logo" 
+                  className="h-6 w-6 md:h-7 md:w-7 object-contain"
+                  onError={(e) => {
+                    // Agar logo yuklanmasa, fallback icon ko'rsatish
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = '<span class="text-primary font-bold text-sm md:text-base">K</span>';
+                    }
+                  }}
+                />
+              </div>
               <div className={`text-lg md:text-xl font-bold animate-fade-in transition-colors duration-300 ${
                 isScrolled ? 'text-primary-foreground' : isHomePage ? 'text-white' : 'text-primary'
               }`}>

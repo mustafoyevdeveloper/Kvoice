@@ -1195,7 +1195,7 @@ export const AdminPanel = () => {
 
       <div className="space-y-4 md:space-y-6">
         {/* Category Filter Tabs - Mobile'da birinchi */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 w-full">
           {["all", "movies", "series"].map((category) => {
             const count = category === "all" ? content.length : 
                          category === "movies" ? content.filter(m => m.category === "movies").length :
@@ -1207,7 +1207,7 @@ export const AdminPanel = () => {
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
-                className="animate-slide-in-left"
+                className="flex-1 animate-slide-in-left"
               >
                 {getCategoryTitle(category)} ({count})
               </Button>

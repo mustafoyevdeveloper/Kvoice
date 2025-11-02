@@ -48,6 +48,7 @@ import useAdminStore from "@/store/admin";
 import useAuthStore from "@/store/auth";
 import useAnalyticsStore from "@/store/analytics";
 import useSettingsStore from "@/store/settings";
+import { useMovies } from "@/store/movies";
 
 interface MovieFormData {
   title: string;
@@ -109,6 +110,7 @@ export const AdminPanel = () => {
     updateSection,
     resetSettings 
   } = useSettingsStore();
+  const { loadMovies } = useMovies();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -214,6 +216,12 @@ export const AdminPanel = () => {
       });
     }
   }, [settings]);
+
+  // Load content on mount
+  useEffect(() => {
+    getContent();
+    loadMovies();
+  }, [getContent, loadMovies]);
   
   const posterFileRef = useRef(null);
   const autoSwitchInterval = useRef(null);
@@ -483,7 +491,7 @@ export const AdminPanel = () => {
       rating: movie.rating,
       videoQuality: movie.videoQuality || movie.quality || [],
       posterFile: null,
-      posterUrl: movie.posterUrl || "",
+        posterUrl: movie.posterUrl || movie.poster || "",
       poster: movie.poster || "",
       genres: movie.genres || ["Drama"],
       category: movie.category,
@@ -497,32 +505,53 @@ export const AdminPanel = () => {
   // File upload handlers
   const handlePosterFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      if (file.type.startsWith('image/')) {
-        setFormData(prev => ({ ...prev, posterFile: file, posterUrl: "" }));
-        
-        try {
-          const url = await simulateFileUpload(file);
-          setFormData(prev => ({ ...prev, posterUrl: url, poster: url }));
-          
-          toast({
-            title: "Poster yuklandi",
-            description: "Rasm muvaffaqiyatli yuklandi"
-          });
-        } catch (error) {
-          toast({
-            title: "Xatolik",
-            description: "Rasm yuklashda xatolik yuz berdi",
-            variant: "destructive"
-          });
-        }
-      } else {
-        toast({
-          title: "Noto'g'ri fayl formati",
-          description: "Faqat rasm fayllar qabul qilinadi",
-          variant: "destructive"
-        });
-      }
+    if (!file) {
+      toast({
+        title: "Noto'g'ri fayl formati",
+        description: "Faqat rasm fayllar qabul qilinadi",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validation: max 500KB, PNG/WebP/JPG only
+    const maxSize = 500 * 1024; // 500KB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Xatolik",
+        description: "Faqat PNG, WebP yoki JPG formatidagi rasmlar ruxsat etiladi!",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (file.size > maxSize) {
+      toast({
+        title: "Xatolik",
+        description: "Rasm hajmi 500KB dan katta bo'lishi mumkin emas!",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setFormData(prev => ({ ...prev, posterFile: file, posterUrl: "" }));
+    
+    try {
+      const url = await simulateFileUpload(file);
+      setFormData(prev => ({ ...prev, posterUrl: url, poster: url }));
+      
+      toast({
+        title: "Poster yuklandi",
+        description: "Rasm muvaffaqiyatli yuklandi"
+      });
+    } catch (error) {
+      toast({
+        title: "Xatolik",
+        description: "Rasm yuklashda xatolik yuz berdi",
+        variant: "destructive"
+      });
     }
   };
 
@@ -565,19 +594,8 @@ export const AdminPanel = () => {
     }
 
     try {
-      let finalPosterUrl = formData.posterUrl;
-
-      // Upload poster file if needed
-      if (formData.posterFile) {
-        const posterResult = await uploadPoster(formData.posterFile);
-        if (posterResult.success) {
-          finalPosterUrl = posterResult.data.url;
-        } else {
-          throw new Error(posterResult.error);
-        }
-      }
-
-      const movieData = {
+      // Movie data - poster file will be sent directly with FormData
+      const movieData: any = {
         title: formData.title,
         description: formData.description,
         year: formData.year,
@@ -585,16 +603,22 @@ export const AdminPanel = () => {
         rating: formData.rating,
         category: formData.category,
         videoQuality: formData.videoQuality,
-        poster: finalPosterUrl || formData.posterUrl || formData.poster,
-        posterUrl: finalPosterUrl || formData.posterUrl,
         genres: formData.genres,
         videoUrl: formData.videoLink,
         videoLink: formData.videoLink,
         // Serial uchun qo'shimcha maydonlar
         totalEpisodes: formData.category === "series" ? formData.totalEpisodes : undefined,
         currentEpisode: formData.category === "series" ? formData.currentEpisode : undefined,
-        quality: formData.videoQuality
+        quality: formData.videoQuality,
+        // Add posterFile if uploaded
+        posterFile: formData.posterFile || undefined
       };
+
+      // Add poster URL only if no file is provided (for URL-based posters)
+      if (!formData.posterFile && formData.posterUrl) {
+        movieData.posterUrl = formData.posterUrl;
+        movieData.poster = formData.posterUrl;
+      }
       
       console.log('Form data before processing:', formData);
       console.log('Movie data:', movieData);
@@ -606,15 +630,19 @@ export const AdminPanel = () => {
           toast({ title: "Muvaffaqiyat", description: "Kontent muvaffaqiyatli yangilandi!" });
           setIsEditDialogOpen(false);
           setEditingMovie(null);
+          // Reload movies list
+          await loadMovies();
         } else {
           throw new Error(result.error);
         }
-      } else {
+      } else { 
         // Add new movie
         const result = await createMovie(movieData);
         if (result.success) {
           toast({ title: "Muvaffaqiyat", description: `Yangi ${formData.category === "series" ? "serial" : "kino"} qo'shildi!` });
           setIsAddDialogOpen(false);
+          // Reload movies list
+          await loadMovies();
         } else {
           throw new Error(result.error);
         }
@@ -629,12 +657,18 @@ export const AdminPanel = () => {
         variant: "destructive" 
       });
     }
-  }, [formData, editingMovie, updateMovie, createMovie, uploadPoster, toast]);
+  }, [formData, editingMovie, updateMovie, createMovie, uploadPoster, loadMovies, toast]);
 
   // Handle delete movie
-  const handleDeleteMovie = (id: string) => {
-    deleteMovie(id);
-    toast({ title: "Muvaffaqiyat", description: "Kino muvaffaqiyatli o'chirildi!" });
+  const handleDeleteMovie = async (id: string) => {
+    const result = await deleteMovie(id);
+    if (result.success) {
+      toast({ title: "Muvaffaqiyat", description: "Kontent muvaffaqiyatli o'chirildi!" });
+      // Reload movies list
+      await loadMovies();
+    } else {
+      toast({ title: "Xatolik", description: result.error || "Kontent o'chirilmadi", variant: "destructive" });
+    }
   };
 
   // Handle quality change
@@ -739,7 +773,7 @@ export const AdminPanel = () => {
   };
 
   // Enhanced Movie form component
-  const MovieForm = React.useMemo(() => (
+  const MovieForm = (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* 1. Nomi */}
       <div className="space-y-2">
@@ -859,7 +893,7 @@ export const AdminPanel = () => {
             <Label>Qurilmadan yuklash</Label>
             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
               <Image className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-2">JPG, PNG formatida rasm yuklang</p>
+              <p className="text-sm text-muted-foreground mb-2">PNG, WebP yoki JPG formatida rasm yuklang (maksimum 500KB)</p>
               <Button
                 type="button"
                 variant="outline"
@@ -872,7 +906,7 @@ export const AdminPanel = () => {
               <input
                 ref={posterFileRef}
                 type="file"
-                accept="image/*"
+                accept="image/png,image/webp,image/jpeg,image/jpg"
                 onChange={handlePosterFileChange}
                 className="hidden"
               />
@@ -985,8 +1019,9 @@ export const AdminPanel = () => {
         </Button>
       </div>
     </form>
-  ), [formData, handleSubmit, handlePosterFileChange, handlePosterUrlChange, handleQualityChange, handleGenreChange, isUploading, uploadProgress, posterFileRef, languages, availableQualities, availableGenres, editingMovie]);
+  );
 
+  // Main component return
   return (
     <div className="space-y-6">
       {/* Header */}

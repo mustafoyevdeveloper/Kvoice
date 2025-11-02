@@ -122,7 +122,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                 placeholder="Qidiruv..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`pl-10 pr-4 w-78 md:w-64 text-foreground placeholder:text-white-foreground focus:ring-2 focus:ring-primary/100 transition-all duration-300 ease-in-out border-white/100 ${
+                className={`pl-10 pr-4 max-w-[200px] md:max-w-none w-78 md:w-64 text-foreground placeholder:text-white-foreground focus:ring-2 focus:ring-primary/100 transition-all duration-300 ease-in-out border-white/100 ${
                   isHomePage && !isScrolled 
                     ? 'bg-white/10 backdrop-blur-sm text-white placeholder:text-white/100' 
                     : 'bg-input/50'

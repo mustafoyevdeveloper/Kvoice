@@ -23,8 +23,9 @@ export const Movies = () => {
   // Site settings are now loaded from backend
   const { settings } = useSettingsStore();
 
-  // Scroll to top when component mounts
+  // Set page title and scroll to top when component mounts
   useEffect(() => {
+    document.title = "Kvoice - kinolar";
     window.scrollTo({
       top: 0,
       left: 0,

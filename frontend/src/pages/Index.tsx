@@ -23,8 +23,9 @@ const Index = () => {
   const { toast } = useToast();
   const { movies } = useMovies();
 
-  // Scroll to top when component mounts
+  // Set page title and scroll to top when component mounts
   useEffect(() => {
+    document.title = "Kvoice - Koreya kinolari va seriallari O'zbek tilida";
     window.scrollTo({
       top: 0,
       left: 0,

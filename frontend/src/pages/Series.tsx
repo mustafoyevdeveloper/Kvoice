@@ -19,8 +19,9 @@ export const Series = () => {
 
   // Site settings are now loaded from backend, no localStorage needed
 
-  // Scroll to top when component mounts
+  // Set page title and scroll to top when component mounts
   useEffect(() => {
+    document.title = "Kvoice - seriallar";
     window.scrollTo({
       top: 0,
       left: 0,

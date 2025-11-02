@@ -55,19 +55,16 @@ interface MovieFormData {
   year: number;
   language: string;
   rating: number;
-  videoFile: File | null;
-  videoUrl: string;
-  videoDuration: string;
   videoQuality: string[];
   posterFile: File | null;
   posterUrl: string;
   poster: string;
   genres: string[];
-  similarContentIds: string[];
   category: string;
-  isNewContent: boolean;
-  isPremiere: boolean;
-  trailerUrl: string;
+  videoLink: string; // Telegram link for video
+  // Serial uchun qo'shimcha maydonlar
+  totalEpisodes?: number; // Nechta qismdan iboratligi
+  currentEpisode?: number; // Nechanchi qism ekanligi
 }
 
 interface ContentCategory {
@@ -221,7 +218,6 @@ export const AdminPanel = () => {
     }
   }, [settings]);
   
-  const videoFileRef = useRef(null);
   const posterFileRef = useRef(null);
   const autoSwitchInterval = useRef(null);
   
@@ -271,25 +267,21 @@ export const AdminPanel = () => {
     };
   }, []);
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<MovieFormData>({
     title: "",
     description: "",
-    year: new Date().getFullYear(),
-    language: "uzbek",
-    rating: 8.0,
-    videoFile: null,
-    videoUrl: "",
-    videoDuration: "",
-    videoQuality: ["480p", "720p", "1080p"],
+    year: 0,
+    language: "",
+    rating: 0,
+    videoQuality: [],
     posterFile: null,
     posterUrl: "",
     poster: "",
-    genres: ["Drama"], // Default genre
-    similarContentIds: [],
+    genres: [],
     category: "movies",
-    isNewContent: false,
-    isPremiere: false,
-    trailerUrl: ""
+    videoLink: "",
+    totalEpisodes: 0,
+    currentEpisode: 0
   });
 
   // Content categories
@@ -461,22 +453,18 @@ export const AdminPanel = () => {
     setFormData({
       title: "",
       description: "",
-      year: new Date().getFullYear(),
-      language: "uzbek",
-      rating: 8.0,
-      videoFile: null,
-      videoUrl: "",
-      videoDuration: "",
-      videoQuality: ["480p", "720p", "1080p"],
+      year: 0,
+      language: "",
+      rating: 0,
+      videoQuality: [],
       posterFile: null,
       posterUrl: "",
       poster: "",
-      genres: ["Drama"], // Default genre
-      similarContentIds: [],
+      genres: [],
       category: selectedCategory === "all" ? "movies" : selectedCategory,
-      isNewContent: selectedCategory === "new",
-      isPremiere: selectedCategory === "premieres",
-      trailerUrl: ""
+      videoLink: "",
+      totalEpisodes: 0,
+      currentEpisode: 0
     });
   };
 
@@ -498,60 +486,20 @@ export const AdminPanel = () => {
       year: movie.year,
       language: movie.language || "uzbek",
       rating: movie.rating,
-      videoFile: null,
-      videoUrl: movie.videoUrl || "",
-      videoDuration: movie.videoDuration || "",
       videoQuality: movie.videoQuality || movie.quality || [],
       posterFile: null,
       posterUrl: movie.posterUrl || "",
       poster: movie.poster || "",
       genres: movie.genres || ["Drama"],
-      similarContentIds: movie.similarContentIds || [],
       category: movie.category,
-      isNewContent: movie.isNewContent || false,
-      isPremiere: movie.isPremiere || false,
-      trailerUrl: movie.trailerUrl || ""
+      videoLink: movie.videoLink || movie.videoUrl || "",
+      totalEpisodes: movie.totalEpisodes || 1,
+      currentEpisode: movie.currentEpisode || 1
     });
     setIsEditDialogOpen(true);
   };
 
   // File upload handlers
-  const handleVideoFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.type.startsWith('video/')) {
-        setFormData(prev => ({ ...prev, videoFile: file, videoUrl: "" }));
-        
-        try {
-          const duration = await detectVideoDuration(file);
-          const quality = await detectVideoQuality(file);
-          setFormData(prev => ({ 
-            ...prev, 
-            videoDuration: duration, 
-            videoQuality: quality.length > 0 ? quality : prev.videoQuality 
-          }));
-          
-          toast({
-            title: "Video fayl yuklandi",
-            description: `Davomiyligi: ${duration}, Sifat: ${quality.join(', ')}`
-          });
-        } catch (error) {
-          toast({
-            title: "Xatolik",
-            description: "Video fayl ma'lumotlarini o'qishda xatolik yuz berdi",
-            variant: "destructive"
-          });
-        }
-      } else {
-        toast({
-          title: "Noto'g'ri fayl formati",
-          description: "Faqat video fayllar qabul qilinadi",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-
   const handlePosterFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -583,10 +531,6 @@ export const AdminPanel = () => {
     }
   };
 
-  const handleVideoUrlChange = (url: string) => {
-    setFormData(prev => ({ ...prev, videoUrl: url, videoFile: null }));
-  };
-
   const handlePosterUrlChange = (url: string) => {
     setFormData(prev => ({ ...prev, posterUrl: url, poster: url, posterFile: null }));
   };
@@ -596,7 +540,7 @@ export const AdminPanel = () => {
     e.preventDefault();
     
     if (!formData.title.trim()) {
-      toast({ title: "Xatolik", description: "Kino nomi kiritilishi shart!", variant: "destructive" });
+      toast({ title: "Xatolik", description: "Nomi kiritilishi shart!", variant: "destructive" });
       return;
     }
 
@@ -605,13 +549,8 @@ export const AdminPanel = () => {
       return;
     }
 
-    if (!formData.videoFile && !formData.videoUrl.trim()) {
-      toast({ title: "Xatolik", description: "Video fayl yoki YouTube link kiritilishi shart!", variant: "destructive" });
-      return;
-    }
-
     if (!formData.posterFile && !formData.posterUrl.trim()) {
-      toast({ title: "Xatolik", description: "Poster rasm kiritilishi shart!", variant: "destructive" });
+      toast({ title: "Xatolik", description: "Preview rasm kiritilishi shart!", variant: "destructive" });
       return;
     }
 
@@ -621,23 +560,19 @@ export const AdminPanel = () => {
     }
 
     if (formData.videoQuality.length === 0) {
-      toast({ title: "Xatolik", description: "Kamida bitta video sifat tanlanishi shart!", variant: "destructive" });
+      toast({ title: "Xatolik", description: "Kamida bitta sifat tanlanishi shart!", variant: "destructive" });
+      return;
+    }
+
+    if (!formData.videoLink.trim()) {
+      toast({ title: "Xatolik", description: "Video ko'rish tugasi uchun link kiritilishi shart!", variant: "destructive" });
       return;
     }
 
     try {
-      let finalVideoUrl = formData.videoUrl;
       let finalPosterUrl = formData.posterUrl;
 
-      // Upload files if needed
-      if (formData.videoFile) {
-        const videoResult = await uploadVideo(formData.videoFile);
-        if (videoResult.success) {
-          finalVideoUrl = videoResult.data.url;
-        } else {
-          throw new Error(videoResult.error);
-        }
-      }
+      // Upload poster file if needed
       if (formData.posterFile) {
         const posterResult = await uploadPoster(formData.posterFile);
         if (posterResult.success) {
@@ -654,39 +589,26 @@ export const AdminPanel = () => {
         language: formData.language,
         rating: formData.rating,
         category: formData.category,
-        videoFile: formData.videoFile ? finalVideoUrl : null,
-        videoUrl: formData.videoUrl || null,
-        videoDuration: formData.videoDuration,
         videoQuality: formData.videoQuality,
         poster: finalPosterUrl || formData.posterUrl || formData.poster,
-        posterUrl: formData.posterUrl,
+        posterUrl: finalPosterUrl || formData.posterUrl,
         genres: formData.genres,
-        similarContentIds: formData.similarContentIds,
-        isNewContent: formData.isNewContent,
-        isPremiere: formData.isPremiere,
-        trailerUrl: formData.trailerUrl,
-        // Additional fields for future use
-        cast: [],
-        director: [],
-        writer: [],
-        producer: [],
-        country: [],
-        releaseDate: new Date(),
-        ageRating: "PG-13",
-        tags: [],
-        seoTitle: formData.title,
-        seoDescription: formData.description,
-        seoKeywords: formData.genres
+        videoUrl: formData.videoLink,
+        videoLink: formData.videoLink,
+        // Serial uchun qo'shimcha maydonlar
+        totalEpisodes: formData.category === "series" ? formData.totalEpisodes : undefined,
+        currentEpisode: formData.category === "series" ? formData.currentEpisode : undefined,
+        quality: formData.videoQuality
       };
       
       console.log('Form data before processing:', formData);
-      console.log('Movie data with URL:', movieData);
+      console.log('Movie data:', movieData);
 
       if (editingMovie) {
         // Update existing movie
         const result = await updateMovie(editingMovie.id, movieData);
         if (result.success) {
-          toast({ title: "Muvaffaqiyat", description: "Kino muvaffaqiyatli yangilandi!" });
+          toast({ title: "Muvaffaqiyat", description: "Kontent muvaffaqiyatli yangilandi!" });
           setIsEditDialogOpen(false);
           setEditingMovie(null);
         } else {
@@ -696,7 +618,7 @@ export const AdminPanel = () => {
         // Add new movie
         const result = await createMovie(movieData);
         if (result.success) {
-          toast({ title: "Muvaffaqiyat", description: "Yangi kino qo'shildi!" });
+          toast({ title: "Muvaffaqiyat", description: `Yangi ${formData.category === "series" ? "serial" : "kino"} qo'shildi!` });
           setIsAddDialogOpen(false);
         } else {
           throw new Error(result.error);
@@ -708,11 +630,11 @@ export const AdminPanel = () => {
       console.error('Error saving movie:', error);
       toast({ 
         title: "Xatolik", 
-        description: error.message || "Kino saqlanmadi", 
+        description: error.message || "Kontent saqlanmadi", 
         variant: "destructive" 
       });
     }
-  }, [formData, editingMovie, updateMovie, createMovie, uploadVideo, uploadPoster, toast]);
+  }, [formData, editingMovie, updateMovie, createMovie, uploadPoster, toast]);
 
   // Handle delete movie
   const handleDeleteMovie = (id: string) => {
@@ -824,195 +746,122 @@ export const AdminPanel = () => {
   // Enhanced Movie form component
   const MovieForm = React.useMemo(() => (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Basic Information */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Asosiy Ma'lumotlar</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="title">Kino Nomi *</Label>
-          <Input
-            id="title"
-            value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            placeholder="Kino nomini kiriting"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="year">Yil *</Label>
-          <Input
-            id="year"
-            type="number"
-            value={formData.year}
-              onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) || 0 }))}
-            placeholder="2025"
-            min="1900"
-            max="2030"
-            required
-          />
-        </div>
-          <div className="space-y-2">
-            <Label htmlFor="language">Til *</Label>
-            <Select
-              value={formData.language}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, language: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Tilni tanlang" />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((lang) => (
-                  <SelectItem key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        <div className="space-y-2">
-          <Label htmlFor="rating">Reyting *</Label>
-          <Input
-            id="rating"
-            type="number"
-            step="0.1"
-            min="0"
-            max="10"
-            value={formData.rating}
-              onChange={(e) => setFormData(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
-            placeholder="8.5"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="category">Kategoriya *</Label>
-          <Select
-            value={formData.category}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Kategoriyani tanlang" />
-            </SelectTrigger>
-            <SelectContent>
-                {contentCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        </div>
-        </div>
+      {/* 1. Nomi */}
+      <div className="space-y-2">
+        <Label htmlFor="title">Nomi *</Label>
+        <Input
+          id="title"
+          value={formData.title}
+          onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+          placeholder="Kino yoki serial nomini kiriting"
+          required
+        />
       </div>
 
-      {/* Description */}
-        <div className="space-y-2">
-        <Label htmlFor="description">Tavsif *</Label>
+      {/* 2. Yili */}
+      <div className="space-y-2">
+        <Label htmlFor="year">Yili *</Label>
+        <Input
+          id="year"
+          type="number"
+          value={formData.year === 0 ? "" : formData.year}
+          onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) || 0 }))}
+          placeholder="2025"
+          min="1900"
+          max="2030"
+          required
+        />
+      </div>
+
+      {/* 3. Tili */}
+      <div className="space-y-2">
+        <Label htmlFor="language">Tili *</Label>
+        <Select
+          value={formData.language}
+          onValueChange={(value) => setFormData(prev => ({ ...prev, language: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Tilni tanlang" />
+          </SelectTrigger>
+          <SelectContent>
+            {languages.map((lang) => (
+              <SelectItem key={lang.value} value={lang.value}>
+                {lang.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* 4. Reytingi */}
+      <div className="space-y-2">
+        <Label htmlFor="rating">Reytingi (1-10 gacha) *</Label>
+        <Input
+          id="rating"
+          type="number"
+          step="0.1"
+          min="1"
+          max="10"
+          value={formData.rating === 0 ? "" : formData.rating}
+          onChange={(e) => setFormData(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
+          placeholder="8.5"
+          required
+        />
+      </div>
+
+      {/* Serial uchun qo'shimcha maydonlar */}
+      {formData.category === "series" && (
+        <>
+          {/* 5. Nechta qismdan iboratligi */}
+          <div className="space-y-2">
+            <Label htmlFor="totalEpisodes">Nechta qismdan iboratligi *</Label>
+            <Input
+              id="totalEpisodes"
+              type="number"
+              min="1"
+              value={formData.totalEpisodes === 0 ? "" : formData.totalEpisodes}
+              onChange={(e) => setFormData(prev => ({ ...prev, totalEpisodes: parseInt(e.target.value) || 0 }))}
+              placeholder="16"
+              required
+            />
+          </div>
+
+          {/* 6. Nechanchi qism ekanligi */}
+          <div className="space-y-2">
+            <Label htmlFor="currentEpisode">Nechanchi qism ekanligi *</Label>
+            <Input
+              id="currentEpisode"
+              type="number"
+              min="1"
+              value={formData.currentEpisode === 0 ? "" : formData.currentEpisode}
+              onChange={(e) => setFormData(prev => ({ ...prev, currentEpisode: parseInt(e.target.value) || 0 }))}
+              placeholder="1"
+              required
+            />
+          </div>
+        </>
+      )}
+
+      {/* 5/7. Tavsifi */}
+      <div className="space-y-2">
+        <Label htmlFor="description">Tavsifi *</Label>
         <Textarea
           id="description"
           value={formData.description}
           onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-          placeholder="Kino haqida batafsil ma'lumot"
+          placeholder="Kino yoki serial haqida batafsil ma'lumot"
           rows={4}
-            required
-          />
-        </div>
+          required
+        />
+      </div>
 
-      {/* Video Upload Section */}
+      {/* 8/10. Preview uchun rasm */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Video Kontent</h3>
+        <Label>Preview uchun rasm *</Label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* File Upload */}
           <div className="space-y-2">
-            <Label>Video Fayl Yuklash</Label>
-            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-              <FileVideo className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-2">MP4 formatida video fayl yuklang</p>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => videoFileRef.current?.click()}
-                disabled={isUploading}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                {isUploading ? "Yuklanmoqda..." : "Fayl Tanlash"}
-              </Button>
-              <input
-                ref={videoFileRef}
-                type="file"
-                accept="video/*"
-                onChange={handleVideoFileChange}
-                className="hidden"
-              />
-              {formData.videoFile && (
-                <p className="text-xs text-green-600 mt-2">
-                  ✓ {formData.videoFile.name}
-                </p>
-              )}
-            </div>
-            {isUploading && (
-              <div className="w-full bg-muted rounded-full h-2">
-                <div 
-                  className="bg-primary h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-            )}
-      </div>
-
-          {/* YouTube URL */}
-      <div className="space-y-2">
-            <Label>YouTube Link</Label>
-            <div className="flex space-x-2">
-              <Input
-                value={formData.videoUrl}
-                onChange={(e) => handleVideoUrlChange(e.target.value)}
-                placeholder="https://youtube.com/watch?v=..."
-                disabled={!!formData.videoFile}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                disabled={!!formData.videoFile}
-              >
-                <Link className="h-4 w-4" />
-              </Button>
-            </div>
-            {formData.videoUrl && (
-              <p className="text-xs text-green-600">
-                ✓ YouTube link kiritildi
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Video Info Display */}
-        {(formData.videoDuration || formData.videoQuality.length > 0) && (
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <h4 className="font-medium mb-2">Video Ma'lumotlari</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              {formData.videoDuration && (
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4" />
-                  <span>Davomiyligi: {formData.videoDuration}</span>
-                </div>
-              )}
-              <div className="flex items-center space-x-2">
-                <Star className="h-4 w-4" />
-                <span>Sifat: {formData.videoQuality.join(', ')}</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Poster Upload Section */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Poster Rasm</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* File Upload */}
-          <div className="space-y-2">
-            <Label>Rasm Fayl Yuklash</Label>
+            <Label>Qurilmadan yuklash</Label>
             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
               <Image className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground mb-2">JPG, PNG formatida rasm yuklang</p>
@@ -1042,23 +891,13 @@ export const AdminPanel = () => {
 
           {/* URL Input */}
           <div className="space-y-2">
-            <Label>Rasm URL</Label>
-            <div className="flex space-x-2">
-              <Input
-                value={formData.posterUrl}
-                onChange={(e) => handlePosterUrlChange(e.target.value)}
-                placeholder="https://example.com/poster.jpg"
-                disabled={!!formData.posterFile}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                disabled={!!formData.posterFile}
-              >
-                <Link className="h-4 w-4" />
-              </Button>
-            </div>
+            <Label>URL orqali</Label>
+            <Input
+              value={formData.posterUrl}
+              onChange={(e) => handlePosterUrlChange(e.target.value)}
+              placeholder="https://example.com/poster.jpg"
+              disabled={!!formData.posterFile}
+            />
             {formData.posterUrl && (
               <p className="text-xs text-green-600">
                 ✓ Rasm URL kiritildi
@@ -1070,11 +909,11 @@ export const AdminPanel = () => {
         {/* Poster Preview */}
         {formData.posterUrl && (
           <div className="mt-4">
-            <Label>Poster Ko'rinishi</Label>
+            <Label>Ko'rinishi</Label>
             <div className="mt-2 w-32 h-48 border rounded-lg overflow-hidden">
               <img
                 src={formData.posterUrl}
-                alt="Poster preview"
+                alt="Preview"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -1082,26 +921,9 @@ export const AdminPanel = () => {
         )}
       </div>
 
-      {/* Quality Selection */}
+      {/* 6/8. Janri */}
       <div className="space-y-2">
-        <Label>Video Sifatlar *</Label>
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-          {availableQualities.map((quality) => (
-            <div key={quality} className="flex items-center space-x-2">
-              <Checkbox
-                id={quality}
-                checked={formData.videoQuality.includes(quality)}
-                onCheckedChange={(checked) => handleQualityChange(quality, checked as boolean)}
-              />
-              <Label htmlFor={quality} className="text-sm">{quality}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Genres Selection */}
-      <div className="space-y-2">
-        <Label>Janrlar</Label>
+        <Label>Janri *</Label>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           {availableGenres.map((genre) => (
             <div key={genre} className="flex items-center space-x-2">
@@ -1116,52 +938,36 @@ export const AdminPanel = () => {
         </div>
       </div>
 
-      {/* Similar Content */}
+      {/* 7/9. Sifati */}
       <div className="space-y-2">
-        <Label htmlFor="similarContent">O'xshash Kontent ID lari</Label>
-        <Input
-          id="similarContent"
-          value={formData.similarContentIds.join(', ')}
-          onChange={(e) => handleSimilarContentChange(e.target.value)}
-          placeholder="ID1, ID2, ID3 (vergul bilan ajrating)"
-        />
-        <p className="text-xs text-muted-foreground">
-          O'xshash kinolar/seriallar ID larini vergul bilan ajrating
-        </p>
+        <Label>Sifati *</Label>
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+          {availableQualities.map((quality) => (
+            <div key={quality} className="flex items-center space-x-2">
+              <Checkbox
+                id={quality}
+                checked={formData.videoQuality.includes(quality)}
+                onCheckedChange={(checked) => handleQualityChange(quality, checked as boolean)}
+              />
+              <Label htmlFor={quality} className="text-sm">{quality}</Label>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Trailer URL */}
+      {/* 9/11. Video ko'rish tugasi uchun link */}
       <div className="space-y-2">
-        <Label htmlFor="trailerUrl">Treyler URL (ixtiyoriy)</Label>
+        <Label htmlFor="videoLink">Video ko'rish tugasi uchun link (Telegram) *</Label>
         <Input
-          id="trailerUrl"
-          value={formData.trailerUrl}
-          onChange={(e) => setFormData(prev => ({ ...prev, trailerUrl: e.target.value }))}
-          placeholder="https://youtube.com/watch?v=..."
+          id="videoLink"
+          value={formData.videoLink}
+          onChange={(e) => setFormData(prev => ({ ...prev, videoLink: e.target.value }))}
+          placeholder="https://t.me/..."
+          required
         />
         <p className="text-xs text-muted-foreground">
-          Kino treylerining YouTube linki
+          Telegram linkini kiriting
         </p>
-      </div>
-
-      {/* Status Flags */}
-      <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="isNew"
-            checked={formData.isNewContent}
-            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isNewContent: checked as boolean }))}
-          />
-          <Label htmlFor="isNew">Yangi</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="isPremiere"
-            checked={formData.isPremiere}
-            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isPremiere: checked as boolean }))}
-          />
-          <Label htmlFor="isPremiere">Premyera</Label>
-        </div>
       </div>
 
       {/* Form Actions */}
@@ -1184,7 +990,7 @@ export const AdminPanel = () => {
         </Button>
       </div>
     </form>
-  ), [formData, handleSubmit, handleVideoFileChange, handlePosterFileChange, handleVideoUrlChange, handlePosterUrlChange, handleQualityChange, handleGenreChange, handleSimilarContentChange, isUploading, uploadProgress, videoFileRef, posterFileRef, languages, contentCategories, availableQualities, availableGenres, editingMovie]);
+  ), [formData, handleSubmit, handlePosterFileChange, handlePosterUrlChange, handleQualityChange, handleGenreChange, isUploading, uploadProgress, posterFileRef, languages, availableQualities, availableGenres, editingMovie]);
 
   return (
     <div className="space-y-6">

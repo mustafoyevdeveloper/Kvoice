@@ -135,8 +135,7 @@ export const getMovieById = async (req, res) => {
       status: 'published' 
     })
     .populate('createdBy', 'username')
-    .populate('lastModifiedBy', 'username')
-    .populate('similarContentIds', 'title poster year rating category');
+    .populate('lastModifiedBy', 'username');
 
     if (!movie) {
       return res.status(404).json({
@@ -193,11 +192,31 @@ export const getMovieById = async (req, res) => {
 // Create movie
 export const createMovie = async (req, res) => {
   try {
+    // Video linkni videoUrl ga ham qo'shish (backward compatibility)
     const movieData = {
       ...req.body,
       createdBy: req.user._id,
       lastModifiedBy: req.user._id
     };
+
+    // Video linkni videoUrl ga ham qo'shish
+    if (movieData.videoLink && !movieData.videoUrl) {
+      movieData.videoUrl = movieData.videoLink;
+    }
+
+    // Serial uchun totalEpisodes va currentEpisode ni tekshirish
+    if (movieData.category === 'series') {
+      if (!movieData.totalEpisodes) {
+        movieData.totalEpisodes = 1;
+      }
+      if (!movieData.currentEpisode) {
+        movieData.currentEpisode = 1;
+      }
+    } else {
+      // Kino uchun bu maydonlar kerak emas
+      delete movieData.totalEpisodes;
+      delete movieData.currentEpisode;
+    }
 
     const movie = new Movie(movieData);
     await movie.save();
@@ -228,6 +247,25 @@ export const updateMovie = async (req, res) => {
       ...req.body,
       lastModifiedBy: req.user._id
     };
+
+    // Video linkni videoUrl ga ham qo'shish
+    if (updateData.videoLink && !updateData.videoUrl) {
+      updateData.videoUrl = updateData.videoLink;
+    }
+
+    // Serial uchun totalEpisodes va currentEpisode ni tekshirish
+    if (updateData.category === 'series') {
+      if (!updateData.totalEpisodes) {
+        updateData.totalEpisodes = 1;
+      }
+      if (!updateData.currentEpisode) {
+        updateData.currentEpisode = 1;
+      }
+    } else if (updateData.category === 'movies') {
+      // Kino uchun bu maydonlar kerak emas
+      delete updateData.totalEpisodes;
+      delete updateData.currentEpisode;
+    }
 
     const movie = await Movie.findByIdAndUpdate(
       id,

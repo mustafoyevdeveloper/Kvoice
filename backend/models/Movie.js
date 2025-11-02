@@ -34,17 +34,27 @@ const movieSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Category is required'],
-    enum: ['movies', 'series', 'trailers', 'premieres', 'new'],
+    enum: ['movies', 'series'],
     default: 'movies'
   },
   genres: [{
     type: String,
     enum: [
-      'Drama', 'Komediya', 'Fantastika', 'Triller', 'Jangari', 
+      'Drama', 'Komediya', 'Fantastika', 'Jangari', 
       'Romantik', 'Detektiv', 'Tarixiy', 'Oilaviy', 'Dokumental',
       'Qo\'rqinchli', 'Sarguzasht', 'Sport', 'Musiqiy', 'G\'ayritabiiy'
     ]
   }],
+  videoLink: {
+    type: String,
+    required: [true, 'Video link is required'],
+    validate: {
+      validator: function(v) {
+        return !v || /^https?:\/\/.+/.test(v);
+      },
+      message: 'Video link must be a valid HTTP/HTTPS URL'
+    }
+  },
   videoUrl: {
     type: String,
     validate: {
@@ -54,18 +64,10 @@ const movieSchema = new mongoose.Schema({
       message: 'Video URL must be a valid HTTP/HTTPS URL'
     }
   },
-  videoFile: {
-    type: String,
-    default: null
-  },
-  videoDuration: {
-    type: String,
-    default: null
-  },
   videoQuality: [{
     type: String,
     enum: ['360p', '480p', '720p', '1080p', '1440p', '4K'],
-    default: ['480p', '720p', '1080p']
+    default: []
   }],
   poster: {
     type: String,
@@ -80,14 +82,16 @@ const movieSchema = new mongoose.Schema({
       message: 'Poster URL must be a valid HTTP/HTTPS URL'
     }
   },
-  trailerUrl: {
-    type: String,
-    validate: {
-      validator: function(v) {
-        return !v || /^https?:\/\/.+/.test(v);
-      },
-      message: 'Trailer URL must be a valid HTTP/HTTPS URL'
-    }
+  // Serial uchun qo'shimcha maydonlar
+  totalEpisodes: {
+    type: Number,
+    min: [1, 'Total episodes must be at least 1'],
+    default: null
+  },
+  currentEpisode: {
+    type: Number,
+    min: [1, 'Current episode must be at least 1'],
+    default: null
   },
   cast: [{
     name: {
@@ -129,10 +133,6 @@ const movieSchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
-  similarContentIds: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Movie'
-  }],
   views: {
     type: Number,
     default: 0,
@@ -147,14 +147,6 @@ const movieSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     min: 0
-  },
-  isNewContent: {
-    type: Boolean,
-    default: false
-  },
-  isPremiere: {
-    type: Boolean,
-    default: false
   },
   isNew: {
     type: Boolean,
@@ -327,10 +319,20 @@ movieSchema.pre('save', function(next) {
     this.seoKeywords = this.genres;
   }
   
-  // Set isNew flag based on creation date
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  this.isNew = this.createdAt > oneWeekAgo;
+  // Serial uchun default qiymatlar
+  if (this.category === 'series') {
+    if (!this.totalEpisodes) {
+      this.totalEpisodes = 1;
+    }
+    if (!this.currentEpisode) {
+      this.currentEpisode = 1;
+    }
+  }
+  
+  // Video linkni videoUrl ga ham qo'shish (backward compatibility)
+  if (this.videoLink && !this.videoUrl) {
+    this.videoUrl = this.videoLink;
+  }
   
   next();
 });
@@ -347,17 +349,6 @@ movieSchema.statics.findFeatured = function(options = {}) {
   return this.find(query, null, options);
 };
 
-// Static method to find new content
-movieSchema.statics.findNew = function(options = {}) {
-  const query = { isNewContent: true, isActive: true, status: 'published' };
-  return this.find(query, null, options);
-};
-
-// Static method to find premieres
-movieSchema.statics.findPremieres = function(options = {}) {
-  const query = { isPremiere: true, isActive: true, status: 'published' };
-  return this.find(query, null, options);
-};
 
 // Static method to search content
 movieSchema.statics.search = function(searchTerm, options = {}) {

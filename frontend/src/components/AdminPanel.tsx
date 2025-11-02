@@ -169,10 +169,11 @@ export const AdminPanel = () => {
     termsDescription: "Saytdan foydalanish shartlari va qoidalari"
   });
 
-  // Update site settings
+  // Update site settings - Only update when settings actually changes
   useEffect(() => {
-    if (settings) {
-      setSiteSettings({
+    if (settings && typeof settings === 'object') {
+      // Create new settings object
+      const newSiteSettings = {
             siteName: settings.siteName || import.meta.env.VITE_APP_NAME || "Kvoice",
             siteDescription: settings.siteDescription || import.meta.env.VITE_APP_DESCRIPTION || "Koreya kinolari va seriallarini O'zbek tilida tomosha qiling",
             siteIcon: settings.siteIcon || import.meta.env.VITE_SITE_ICON || "",
@@ -213,16 +214,20 @@ export const AdminPanel = () => {
         privacyDescription: settings.privacyDescription || "Sizning shaxsiy ma'lumotlaringiz biz uchun muhim",
         termsTitle: settings.termsTitle || "Foydalanish shartlari",
         termsDescription: settings.termsDescription || "Saytdan foydalanish shartlari va qoidalari"
+      };
+      
+      // Only update if settings actually changed to prevent infinite loops
+      setSiteSettings(prev => {
+        // Simple comparison - only update if key values changed
+        if (prev.siteName === newSiteSettings.siteName && 
+            prev.siteDescription === newSiteSettings.siteDescription) {
+          return prev; // Return same reference to prevent re-render
+        }
+        return newSiteSettings;
       });
     }
   }, [settings]);
 
-  // Load content on mount
-  useEffect(() => {
-    getContent();
-    loadMovies();
-  }, [getContent, loadMovies]);
-  
   const posterFileRef = useRef(null);
   const autoSwitchInterval = useRef(null);
   
@@ -244,27 +249,81 @@ export const AdminPanel = () => {
     }
   };
   
-  // Initialize data on mount
+  // Initialize data on mount - Only once
   useEffect(() => {
-    // Ensure token is set for development
-    if (!localStorage.getItem('token')) {
-      localStorage.setItem('token', 'mock-admin-token-12345');
-    }
+    let isMounted = true;
     
-    getDashboard();
-    getContent();
-    getUsers();
-    getAnalytics();
-    getUploadStats();
-    getSettings();
-  }, []);
+    const initializeData = async () => {
+      try {
+        // Ensure token is set for development
+        if (!localStorage.getItem('token')) {
+          localStorage.setItem('token', 'mock-admin-token-12345');
+        }
+        
+        // Load all data once on mount with error handling
+        if (isMounted) {
+          try {
+            await getContent();
+          } catch (err) {
+            console.error('Error loading content:', err);
+          }
+          
+          try {
+            await loadMovies();
+          } catch (err) {
+            console.error('Error loading movies:', err);
+          }
+          
+          // Other functions that may return errors silently
+          try {
+            await getDashboard();
+          } catch (err) {
+            // Silent fail - not implemented
+          }
+          
+          try {
+            await getUsers();
+          } catch (err) {
+            // Silent fail - not implemented
+          }
+          
+          try {
+            await getAnalytics();
+          } catch (err) {
+            // Silent fail - not implemented
+          }
+          
+          try {
+            await getUploadStats();
+          } catch (err) {
+            // Silent fail - not implemented
+          }
+          
+          try {
+            await getSettings();
+          } catch (err) {
+            // Silent fail - not implemented
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing admin panel:', error);
+      }
+    };
+    
+    initializeData();
+    
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run once on mount
 
 
 
 
 
   // Cleanup on unmount
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (autoSwitchInterval.current) {
         clearInterval(autoSwitchInterval.current);
@@ -620,8 +679,7 @@ export const AdminPanel = () => {
         movieData.poster = formData.posterUrl;
       }
       
-      console.log('Form data before processing:', formData);
-      console.log('Movie data:', movieData);
+      // Removed console.log to prevent console spam
 
       if (editingMovie) {
         // Update existing movie

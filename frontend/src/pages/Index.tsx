@@ -9,13 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, X } from "lucide-react";
 
-// Import movie posters
-import poster1 from "@/assets/poster1.jpg";
-import poster2 from "@/assets/poster2.jpg";
-import poster3 from "@/assets/poster3.jpg";
-import poster4 from "@/assets/poster4.jpg";
-import poster5 from "@/assets/poster5.jpg";
-import poster6 from "@/assets/poster6.jpg";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -35,24 +28,25 @@ const Index = () => {
 
   // movies now comes from global store
 
-  // Featured movie for hero section
+  // Featured movie for hero section - from MongoDB or default
   const featuredFromStore = movies.find(m => m.category === 'movies') || movies.find(m => m.category === 'series') || movies[0];
   const featuredMovie = featuredFromStore
     ? {
         title: featuredFromStore.title,
-        description: "Eng yangi va ajoyib premyera filmi.",
+        description: featuredFromStore.description || "Eng yangi va ajoyib premyera filmi.",
         poster: featuredFromStore.poster,
         rating: featuredFromStore.rating,
         year: featuredFromStore.year,
-        quality: featuredFromStore.quality,
+        quality: featuredFromStore.quality || [],
       }
     : {
-        title: "Yura davri dunyosi: Qayta tug'ilish",
-        description: "Eng yangi va ajoyib premyera filmi. Dramatik va hayajonli voqealar bilan to'la muhim kino.",
-        poster: poster1,
+        // Default hero content when no movies in database
+        title: "Kvoice",
+        description: "Eng yangi va ajoyib Koreya kinolari va seriallari O'zbek tilida. HD va 4K sifatda barcha kontentlar mavjud.",
+        poster: "",
         rating: 8.5,
-        year: 2025,
-        quality: ["480p", "720p", "1080p"],
+        year: new Date().getFullYear(),
+        quality: ["720p", "1080p", "4K"],
       };
 
   // Filter movies based on category and search

@@ -38,7 +38,7 @@ FRONTEND_URL=http://localhost:8080
 
 **MongoDB Atlas uchun:**
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/kvoice?retryWrites=true&w=majority
+mongodb+srv://MovieMedia:kvoice@moviemedia.r8slcfd.mongodb.net/?appName=MovieMedia
 ```
 
 **Lokal MongoDB uchun:**

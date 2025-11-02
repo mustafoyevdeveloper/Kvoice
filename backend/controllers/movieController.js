@@ -350,6 +350,51 @@ export const updateMovie = async (req, res) => {
   }
 };
 
+// Get movie poster
+export const getMoviePoster = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const movie = await Movie.findById(id);
+
+    if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: 'Movie not found',
+        error: 'Movie not found'
+      });
+    }
+
+    // If poster is stored as Buffer in MongoDB
+    if (movie.posterData && Buffer.isBuffer(movie.posterData)) {
+      const contentType = movie.posterContentType || 'image/jpeg';
+      res.set('Content-Type', contentType);
+      res.set('Content-Length', movie.posterData.length);
+      res.set('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+      return res.send(movie.posterData);
+    }
+
+    // If poster is a URL, redirect to it
+    if (movie.posterUrl && movie.posterUrl.startsWith('http')) {
+      return res.redirect(movie.posterUrl);
+    }
+
+    // If poster is a path but no Buffer, return 404
+    return res.status(404).json({
+      success: false,
+      message: 'Poster not found',
+      error: 'Poster not found'
+    });
+  } catch (error) {
+    console.error('Get poster error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve poster',
+      error: error.message
+    });
+  }
+};
+
 // Delete movie
 export const deleteMovie = async (req, res) => {
   try {

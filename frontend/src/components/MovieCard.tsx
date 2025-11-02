@@ -1,4 +1,4 @@
-import { Star, Play, Download } from "lucide-react";
+import { Star, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -51,12 +51,19 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
     <div className="movie-card rounded-lg overflow-hidden cursor-pointer group relative touch-feedback"
          onClick={() => onClick(movie)}>
       {/* Movie Poster */}
-      <div className="relative aspect-[2/3] overflow-hidden">
+      <div className="relative aspect-[2/3] overflow-hidden bg-muted">
         <img
-          src={movie.poster}
+          src={movie.poster || movie.posterUrl || '/placeholder-poster.jpg'}
           alt={movie.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 group-active:scale-105"
           loading="lazy"
+          onError={(e) => {
+            // Fallback to placeholder if image fails to load
+            const target = e.target as HTMLImageElement;
+            if (target.src !== '/placeholder-poster.jpg') {
+              target.src = '/placeholder-poster.jpg';
+            }
+          }}
         />
         
         {/* Overlay on hover/touch */}
@@ -110,19 +117,6 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
         </h3>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>{movie.year}</span>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-5 md:h-6 px-1 md:px-2 text-xs hover:text-primary touch-feedback btn-interactive"
-            onClick={(e) => {
-              e.stopPropagation();
-              // Handle download
-            }}
-          >
-            <Download className="h-2 w-2 md:h-3 md:w-3 mr-1" />
-            <span className="hidden sm:inline">Yuklab olish</span>
-            <span className="sm:hidden">↓</span>
-          </Button>
         </div>
       </div>
     </div>

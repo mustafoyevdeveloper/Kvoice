@@ -9,7 +9,6 @@ import {
   SkipBack, 
   SkipForward,
   Settings,
-  Download,
   Share2,
   Star,
   Clock,
@@ -195,6 +194,13 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
   }, [volume]);
 
   const togglePlayPause = () => {
+    // Agar videoLink Telegram URL bo'lsa, uni ochamiz
+    const videoLink = movie.videoLink || movie.videoUrl;
+    if (videoLink && (videoLink.startsWith('http://') || videoLink.startsWith('https://'))) {
+      window.open(videoLink, '_blank');
+      return;
+    }
+    
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
@@ -301,12 +307,6 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
     }
   };
 
-  const handleDownload = () => {
-    toast({
-      title: "Yuklab olish boshlandi",
-      description: `${movie.title} ${selectedQuality} sifatida yuklab olinmoqda.`,
-    });
-  };
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -397,47 +397,58 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
             </div>
           )}
 
-          {/* Video Element */}
-        <video
-          ref={videoRef}
-          className="w-full h-full cursor-pointer"
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleLoadedMetadata}
-          onPlay={() => {
-            setIsPlaying(true);
-            setIsBuffering(false);
-          }}
-          onPause={() => {
-            setIsPlaying(false);
-            setIsBuffering(false);
-          }}
-          onWaiting={() => setIsBuffering(true)}
-          onCanPlay={() => setIsBuffering(false)}
-          onLoadStart={() => setIsBuffering(true)}
-          onError={() => setIsBuffering(false)}
-          onClick={(e) => {
-            e.stopPropagation();
-            // Don't trigger if clicking on controls
-            const target = e.target as Element;
-            const isControlElement = target.closest('.video-controls') || 
-                                   target.closest('button') || 
-                                   target.closest('[role="button"]') ||
-                                   target.closest('.settings-dropdown');
-            
-            // Don't trigger if mouse is over controls area in fullscreen
-            if (isFullscreen && isMouseOverControls) {
-              return;
-            }
-            
-            if (!isControlElement) {
-              togglePlayPause();
-            }
-          }}
-          poster={movie.poster}
-        >
-          <source src={movie.videoLink || movie.videoUrl || "#"} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+          {/* Video Element - Only show if no videoLink or videoLink is not a URL */}
+          {(!movie.videoLink || (!movie.videoLink.startsWith('http://') && !movie.videoLink.startsWith('https://'))) ? (
+            <video
+              ref={videoRef}
+              className="w-full h-full cursor-pointer"
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={handleLoadedMetadata}
+              onPlay={() => {
+                setIsPlaying(true);
+                setIsBuffering(false);
+              }}
+              onPause={() => {
+                setIsPlaying(false);
+                setIsBuffering(false);
+              }}
+              onWaiting={() => setIsBuffering(true)}
+              onCanPlay={() => setIsBuffering(false)}
+              onLoadStart={() => setIsBuffering(true)}
+              onError={() => setIsBuffering(false)}
+              onClick={(e) => {
+                e.stopPropagation();
+                // Don't trigger if clicking on controls
+                const target = e.target as Element;
+                const isControlElement = target.closest('.video-controls') || 
+                                       target.closest('button') || 
+                                       target.closest('[role="button"]') ||
+                                       target.closest('.settings-dropdown');
+                
+                // Don't trigger if mouse is over controls area in fullscreen
+                if (isFullscreen && isMouseOverControls) {
+                  return;
+                }
+                
+                if (!isControlElement) {
+                  togglePlayPause();
+                }
+              }}
+              poster={movie.poster}
+            >
+              <source src={movie.videoLink || movie.videoUrl || "#"} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            /* Poster Image when videoLink is a URL */
+            <div className="w-full h-full bg-black flex items-center justify-center">
+              <img
+                src={movie.poster || movie.posterUrl || '/placeholder-poster.jpg'}
+                alt={movie.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
 
         {/* Loading Overlay */}
         {isBuffering && (
@@ -464,6 +475,26 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
               }}
             >
               <Play className="h-6 w-6 md:h-8 md:w-8 ml-1" />
+            </Button>
+          </div>
+        )}
+        
+        {/* Big Watch Button - Shows if videoLink is a URL and opens Telegram */}
+        {movie.videoLink && (movie.videoLink.startsWith('http://') || movie.videoLink.startsWith('https://')) && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-primary text-primary-foreground px-8 py-6 text-lg md:text-xl btn-interactive touch-feedback pointer-events-auto"
+              onClick={(e) => {
+                e.stopPropagation();
+                const videoLink = movie.videoLink || movie.videoUrl;
+                if (videoLink && (videoLink.startsWith('http://') || videoLink.startsWith('https://'))) {
+                  window.open(videoLink, '_blank');
+                }
+              }}
+            >
+              <Play className="h-5 w-5 md:h-6 md:w-6 mr-2" />
+              Tomosha qilish
             </Button>
           </div>
         )}
@@ -662,11 +693,6 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
                     <span className="hidden sm:inline">Ulashish</span>
                     <span className="sm:hidden">Share</span>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleDownload} className="btn-interactive touch-feedback">
-                    <Download className="h-3 w-3 md:h-4 md:w-4 mr-2" />
-                    <span className="hidden sm:inline">Yuklab olish</span>
-                    <span className="sm:hidden">Download</span>
-                  </Button>
                 </div>
               </div>
 
@@ -699,10 +725,6 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
                     <p className="font-medium">
                       {movie.language || "O'zbek tilida"}
                     </p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-muted-foreground">Ko'rishlar</span>
-                    <p className="font-medium">{movie.views.toLocaleString()}</p>
                   </div>
                 </div>
               </div>

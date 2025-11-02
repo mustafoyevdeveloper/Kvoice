@@ -6,13 +6,6 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { Movie } from "@/components/MovieCard";
 import { useMovies } from "@/store/movies";
 
-// Import movie posters
-import poster1 from "@/assets/poster1.jpg";
-import poster2 from "@/assets/poster2.jpg";
-import poster3 from "@/assets/poster3.jpg";
-import poster4 from "@/assets/poster4.jpg";
-import poster5 from "@/assets/poster5.jpg";
-import poster6 from "@/assets/poster6.jpg";
 
 const MoviePlayer = () => {
   const { id } = useParams();

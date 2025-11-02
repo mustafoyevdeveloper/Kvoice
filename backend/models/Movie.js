@@ -114,7 +114,8 @@ const movieSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-movieSchema.index({ title: 'text', description: 'text' });
+// Text index removed - causes conflict with language field in MongoDB Atlas
+// movieSchema.index({ title: 'text', description: 'text' });
 movieSchema.index({ category: 1 });
 movieSchema.index({ year: -1 });
 movieSchema.index({ rating: -1 });
@@ -122,6 +123,7 @@ movieSchema.index({ views: -1 });
 movieSchema.index({ isActive: 1 });
 movieSchema.index({ genres: 1 });
 movieSchema.index({ language: 1 });
+// Text search can be done with regex instead
 
 // Pre-save middleware
 movieSchema.pre('save', function(next) {

@@ -6,7 +6,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seedMovies.js",
+    "clear": "node scripts/clearMovies.js"
   },
   "dependencies": {
     "express": "^4.21.2",

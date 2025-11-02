@@ -42,6 +42,13 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
   const handlePlayClick = () => {
     const latestContent = getLatestContent();
     if (latestContent) {
+      // Agar videoLink bo'lsa, Telegram'ga yo'naltiramiz
+      const videoLink = latestContent.videoLink || latestContent.videoUrl;
+      if (videoLink && (videoLink.startsWith('http://') || videoLink.startsWith('https://'))) {
+        window.open(videoLink, '_blank');
+        return;
+      }
+      
       // Navigate to appropriate player based on content type
       if (latestContent.category === 'movies') {
         navigate(`/movie/${latestContent.id}`);
@@ -54,10 +61,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
     }
   };
 
-  // Safety check to prevent errors
-  if (!featuredMovie) {
-    return null;
-  }
+  // featuredMovie is always provided from Index.tsx (has default values)
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">

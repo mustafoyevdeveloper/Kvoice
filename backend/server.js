@@ -7,11 +7,33 @@ import movieRoutes from './routes/movies.js';
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB
-connectDB();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Connect to MongoDB before starting server
+let serverStarted = false;
+
+const startServer = async () => {
+  try {
+    // Connect to MongoDB first
+    await connectDB();
+    
+    if (!serverStarted) {
+      app.listen(PORT, () => {
+        console.log(`🚀 Kvoice Backend API Server running on port ${PORT}`);
+        console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+        if (process.env.MONGODB_URI) {
+          const dbName = process.env.MONGODB_URI.split('/').pop()?.split('?')[0] || 'kvoice';
+          console.log(`🌐 MongoDB: Connected to database "${dbName}"`);
+        }
+        serverStarted = true;
+      });
+    }
+  } catch (error) {
+    console.error('❌ Failed to start server:', error.message);
+    process.exit(1);
+  }
+};
 
 // Middleware
 const allowedOrigins = process.env.CORS_ORIGIN 
@@ -56,19 +78,14 @@ app.use((req, res) => {
 // Error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).json({
+  console.error('Error stack:', err.stack);
+  res.status(err.status || 500).json({
     success: false,
     message: 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Kvoice Backend API Server running on port ${PORT}`);
-  console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-  if (process.env.MONGODB_URI) {
-    const dbName = process.env.MONGODB_URI.split('/').pop().split('?')[0];
-    console.log(`🌐 MongoDB: Connected to database "${dbName}"`);
-  }
-});
-
+// Start server after MongoDB connection
+startServer();

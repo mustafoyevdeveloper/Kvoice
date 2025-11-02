@@ -343,9 +343,7 @@ export const AdminPanel = () => {
     poster: "",
     genres: [],
     category: "movies",
-    videoLink: "",
-    totalEpisodes: 0,
-    currentEpisode: 0
+    videoLink: ""
   });
 
   // Content categories
@@ -524,9 +522,7 @@ export const AdminPanel = () => {
       poster: "",
       genres: [],
       category: selectedCategory === "all" ? "movies" : selectedCategory,
-      videoLink: "",
-      totalEpisodes: 0,
-      currentEpisode: 0
+      videoLink: ""
     });
   };
 
@@ -555,8 +551,8 @@ export const AdminPanel = () => {
       genres: movie.genres || ["Drama"],
       category: movie.category,
       videoLink: movie.videoLink || movie.videoUrl || "",
-      totalEpisodes: movie.totalEpisodes || 1,
-      currentEpisode: movie.currentEpisode || 1
+      ...(movie.totalEpisodes ? { totalEpisodes: movie.totalEpisodes } : {}),
+      ...(movie.currentEpisode ? { currentEpisode: movie.currentEpisode } : {})
     });
     setIsEditDialogOpen(true);
   };
@@ -665,9 +661,9 @@ export const AdminPanel = () => {
         genres: formData.genres,
         videoUrl: formData.videoLink,
         videoLink: formData.videoLink,
-        // Serial uchun qo'shimcha maydonlar
-        totalEpisodes: formData.category === "series" ? formData.totalEpisodes : undefined,
-        currentEpisode: formData.category === "series" ? formData.currentEpisode : undefined,
+        // Serial uchun qo'shimcha maydonlar - faqat yozilgan bo'lsa
+        ...(formData.category === "series" && formData.totalEpisodes ? { totalEpisodes: formData.totalEpisodes } : {}),
+        ...(formData.category === "series" && formData.currentEpisode ? { currentEpisode: formData.currentEpisode } : {}),
         quality: formData.videoQuality,
         // Add posterFile if uploaded
         posterFile: formData.posterFile || undefined
@@ -897,37 +893,6 @@ export const AdminPanel = () => {
       </div>
 
       {/* Serial uchun qo'shimcha maydonlar */}
-      {formData.category === "series" && (
-        <>
-          {/* 5. Nechta qismdan iboratligi */}
-          <div className="space-y-2">
-            <Label htmlFor="totalEpisodes">Nechta qismdan iboratligi *</Label>
-            <Input
-              id="totalEpisodes"
-              type="number"
-              min="1"
-              value={formData.totalEpisodes === 0 ? "" : formData.totalEpisodes}
-              onChange={(e) => setFormData(prev => ({ ...prev, totalEpisodes: parseInt(e.target.value) || 0 }))}
-              placeholder="16"
-              required
-            />
-          </div>
-
-          {/* 6. Nechanchi qism ekanligi */}
-          <div className="space-y-2">
-            <Label htmlFor="currentEpisode">Nechanchi qism ekanligi *</Label>
-            <Input
-              id="currentEpisode"
-              type="number"
-              min="1"
-              value={formData.currentEpisode === 0 ? "" : formData.currentEpisode}
-              onChange={(e) => setFormData(prev => ({ ...prev, currentEpisode: parseInt(e.target.value) || 0 }))}
-              placeholder="1"
-              required
-            />
-          </div>
-        </>
-      )}
 
       {/* 5/7. Tavsifi */}
       <div className="space-y-2">

@@ -80,25 +80,27 @@ const movieSchema = new mongoose.Schema({
       message: 'Video link must be a valid HTTP/HTTPS URL'
     }
   },
-  // Serial uchun qo'shimcha maydonlar
+  // Serial uchun qo'shimcha maydonlar - optional, faqat yozilgan bo'lsa saqlanadi
   totalEpisodes: {
     type: Number,
     min: [1, 'Total episodes must be at least 1'],
-    default: null
+    required: false
   },
   currentEpisode: {
     type: Number,
     min: [1, 'Current episode must be at least 1'],
-    default: null
+    required: false
   },
   views: {
     type: Number,
     default: 0,
-    min: 0
+    min: 0,
+    required: false
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
+    required: false
   }
 }, {
   timestamps: true,
@@ -125,20 +127,8 @@ movieSchema.index({ genres: 1 });
 movieSchema.index({ language: 1 });
 // Text search can be done with regex instead
 
-// Pre-save middleware
-movieSchema.pre('save', function(next) {
-  // Serial uchun default qiymatlar
-  if (this.category === 'series') {
-    if (!this.totalEpisodes) {
-      this.totalEpisodes = 1;
-    }
-    if (!this.currentEpisode) {
-      this.currentEpisode = 1;
-    }
-  }
-  
-  next();
-});
+// Pre-save middleware - removed default values for totalEpisodes and currentEpisode
+// Only save what's provided in the form
 
 export default mongoose.model('Movie', movieSchema);
 

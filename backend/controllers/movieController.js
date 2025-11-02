@@ -191,10 +191,14 @@ export const createMovie = async (req, res) => {
       movieData.posterContentType = posterContentType;
     }
 
-    // Serial uchun totalEpisodes va currentEpisode ni tekshirish
+    // Serial uchun totalEpisodes va currentEpisode - faqat yozilgan bo'lsa qo'shish
     if (req.body.category === 'series') {
-      movieData.totalEpisodes = req.body.totalEpisodes ? parseInt(req.body.totalEpisodes) : 1;
-      movieData.currentEpisode = req.body.currentEpisode ? parseInt(req.body.currentEpisode) : 1;
+      if (req.body.totalEpisodes) {
+        movieData.totalEpisodes = parseInt(req.body.totalEpisodes);
+      }
+      if (req.body.currentEpisode) {
+        movieData.currentEpisode = parseInt(req.body.currentEpisode);
+      }
     }
 
     const movie = new Movie(movieData);
@@ -300,12 +304,16 @@ export const updateMovie = async (req, res) => {
       updateData.posterContentType = 'image/jpeg';
     }
 
-    // Serial uchun totalEpisodes va currentEpisode ni tekshirish
+    // Serial uchun totalEpisodes va currentEpisode - faqat yozilgan bo'lsa qo'shish
     if (req.body.category === 'series') {
-      updateData.totalEpisodes = req.body.totalEpisodes ? parseInt(req.body.totalEpisodes) : 1;
-      updateData.currentEpisode = req.body.currentEpisode ? parseInt(req.body.currentEpisode) : 1;
+      if (req.body.totalEpisodes) {
+        updateData.totalEpisodes = parseInt(req.body.totalEpisodes);
+      }
+      if (req.body.currentEpisode) {
+        updateData.currentEpisode = parseInt(req.body.currentEpisode);
+      }
     } else if (req.body.category === 'movies') {
-      // Kino uchun bu maydonlar kerak emas
+      // Kino uchun bu maydonlar kerak emas - undefined qilib o'chirish
       updateData.totalEpisodes = undefined;
       updateData.currentEpisode = undefined;
     }

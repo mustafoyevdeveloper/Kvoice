@@ -21,7 +21,7 @@ export const Hero = ({ featuredMovie }: HeroProps) => {
   const navigate = useNavigate();
   const { movies } = useMovies();
   
-  // Site settings are now loaded from backend
+  // Site settings
   const { settings } = useSettingsStore();
 
   // Get the latest added content (most recent by ID or by order in array)

@@ -20,7 +20,7 @@ export const Movies = () => {
     }
   });
 
-  // Site settings are now loaded from backend
+  // Site settings
   const { settings } = useSettingsStore();
 
   // Set page title and scroll to top when component mounts

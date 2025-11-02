@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import useSettingsStore from "@/store/settings";
 
 export const Footer = () => {
-  // Site settings are now loaded from backend
+  // Site settings
   const { settings } = useSettingsStore();
   return (
     <footer className="bg-card/30 border-t border-border/30 py-8 md:py-12 mt-12 md:mt-16">
@@ -89,13 +89,19 @@ export const Footer = () => {
               <li className="flex items-center space-x-2">
                 <Mail className="h-3 w-3 md:h-4 md:w-4" />
                 <a href={`mailto:${settings?.contactEmail || "info@moviemedia.uz"}`} className="hover:text-primary transition-colors duration-200">
-                  {settings?.contactEmail || "info@moviemedia.uz"}
+                  {settings?.contactEmail || "sarvarxatamov405@gmail.com"}
                 </a>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-3 w-3 md:h-4 md:w-4" />
                 <a href={`tel:${settings?.contactPhone || "+998901234567"}`} className="hover:text-primary transition-colors duration-200">
-                  {settings?.contactPhone || "+998901234567"}
+                  {settings?.contactPhone || "+998 (95) 036-84-74"}
+                </a>
+              </li>
+              <li className="flex items-center space-x-2">
+                < MessageCircle className="h-3 w-3 md:h-4 md:w-4" />
+                <a href={`url:${settings?.contactTelegram || "https://t.me/kvoice_studio"}`} className="hover:text-primary transition-colors duration-200">
+                  {settings?.contactPhone || "Kvoice"}
                 </a>
               </li>
             </ul>

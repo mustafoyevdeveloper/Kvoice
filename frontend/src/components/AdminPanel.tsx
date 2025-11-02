@@ -94,10 +94,7 @@ export const AdminPanel = () => {
     updateContentStatus,
     updateUser,
     deleteUser,
-    uploadVideo,
     uploadPoster,
-    uploadImages,
-    deleteFile,
     createMovie,
     updateMovie,
     deleteMovie
@@ -126,7 +123,7 @@ export const AdminPanel = () => {
   const [selectedRole, setSelectedRole] = useState('all');
   const [selectedUserStatus, setSelectedUserStatus] = useState('all');
   
-  // Site settings state - now loaded from backend
+  // Site settings state
   const [siteSettings, setSiteSettings] = useState({
     siteName: "Kvoice",
     siteDescription: "Eng yangi kinolar va seriallar",
@@ -170,7 +167,7 @@ export const AdminPanel = () => {
     termsDescription: "Saytdan foydalanish shartlari va qoidalari"
   });
 
-  // Update site settings when backend settings change
+  // Update site settings
   useEffect(() => {
     if (settings) {
       setSiteSettings({
@@ -322,12 +319,10 @@ export const AdminPanel = () => {
 
   // User login tracking functions - removed localStorage usage
   const trackUserLogin = (userData: { name: string; email: string; role?: string }) => {
-    // This function is now handled by the backend
     console.log('User login tracked:', userData);
   };
 
   const trackUserLogout = () => {
-    // This function is now handled by the backend
     console.log('User logout tracked');
   };
 

@@ -435,7 +435,7 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
           }}
           poster={movie.poster}
         >
-          <source src={`/api/video/${movie.id}?quality=${selectedQuality}`} type="video/mp4" />
+          <source src={movie.videoLink || movie.videoUrl || "#"} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 

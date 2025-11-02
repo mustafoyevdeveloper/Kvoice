@@ -19,7 +19,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Site settings are now loaded from backend, no localStorage needed
+  // Site settings
 
   useEffect(() => {
     const handleScroll = () => {

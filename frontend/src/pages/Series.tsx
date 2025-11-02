@@ -17,7 +17,7 @@ export const Series = () => {
     }
   });
 
-  // Site settings are now loaded from backend, no localStorage needed
+  // Site settings
 
   // Set page title and scroll to top when component mounts
   useEffect(() => {

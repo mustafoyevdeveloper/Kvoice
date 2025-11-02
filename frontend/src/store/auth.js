@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import apiService from '../services/api';
 
 const useAuthStore = create(
   persist(
@@ -17,7 +16,6 @@ const useAuthStore = create(
       
       setToken: (token) => {
         set({ token });
-        apiService.setToken(token);
       },
 
       setLoading: (isLoading) => set({ isLoading }),
@@ -26,186 +24,38 @@ const useAuthStore = create(
 
       clearError: () => set({ error: null }),
 
-      // Login
+      // All API calls removed - return error
       login: async (credentials) => {
-        try {
-          set({ isLoading: true, error: null });
-          
-          const response = await apiService.auth.login(credentials);
-          
-          if (response.success) {
-            const { user, token } = response.data;
-            set({ 
-              user, 
-              token, 
-              isAuthenticated: true, 
-              isLoading: false 
-            });
-            apiService.setToken(token);
-            return { success: true, user };
-          } else {
-            throw new Error(response.message || 'Login failed');
-          }
-        } catch (error) {
-          set({ 
-            error: error.message, 
-            isLoading: false 
-          });
-          return { success: false, error: error.message };
-        }
+        return { success: false, error: 'Backend removed' };
       },
 
-      // Register
       register: async (userData) => {
-        try {
-          set({ isLoading: true, error: null });
-          
-          const response = await apiService.auth.register(userData);
-          
-          if (response.success) {
-            const { user, token } = response.data;
-            set({ 
-              user, 
-              token, 
-              isAuthenticated: true, 
-              isLoading: false 
-            });
-            apiService.setToken(token);
-            return { success: true, user };
-          } else {
-            throw new Error(response.message || 'Registration failed');
-          }
-        } catch (error) {
-          set({ 
-            error: error.message, 
-            isLoading: false 
-          });
-          return { success: false, error: error.message };
-        }
+        return { success: false, error: 'Backend removed' };
       },
 
-      // Logout
       logout: async () => {
-        try {
-          await apiService.auth.logout();
-        } catch (error) {
-          console.error('Logout error:', error);
-        } finally {
-          set({ 
-            user: null, 
-            token: null, 
-            isAuthenticated: false,
-            error: null 
-          });
-          apiService.setToken(null);
-        }
+        set({ 
+          user: null, 
+          token: null, 
+          isAuthenticated: false,
+          error: null 
+        });
       },
 
-      // Get current user
       getCurrentUser: async () => {
-        try {
-          set({ isLoading: true });
-          
-          const response = await apiService.auth.getMe();
-          
-          if (response.success) {
-            const { user } = response.data;
-            set({ 
-              user, 
-              isAuthenticated: true, 
-              isLoading: false 
-            });
-            return { success: true, user };
-          } else {
-            throw new Error(response.message || 'Failed to get user');
-          }
-        } catch (error) {
-          set({ 
-            error: error.message, 
-            isLoading: false,
-            isAuthenticated: false,
-            user: null,
-            token: null
-          });
-          apiService.setToken(null);
-          return { success: false, error: error.message };
-        }
+        return { success: false, error: 'Backend removed' };
       },
 
-      // Update profile
       updateProfile: async (data) => {
-        try {
-          set({ isLoading: true, error: null });
-          
-          const response = await apiService.auth.updateProfile(data);
-          
-          if (response.success) {
-            const { user } = response.data;
-            set({ 
-              user, 
-              isLoading: false 
-            });
-            return { success: true, user };
-          } else {
-            throw new Error(response.message || 'Profile update failed');
-          }
-        } catch (error) {
-          set({ 
-            error: error.message, 
-            isLoading: false 
-          });
-          return { success: false, error: error.message };
-        }
+        return { success: false, error: 'Backend removed' };
       },
 
-      // Change password
       changePassword: async (data) => {
-        try {
-          set({ isLoading: true, error: null });
-          
-          const response = await apiService.auth.changePassword(data);
-          
-          if (response.success) {
-            set({ isLoading: false });
-            return { success: true };
-          } else {
-            throw new Error(response.message || 'Password change failed');
-          }
-        } catch (error) {
-          set({ 
-            error: error.message, 
-            isLoading: false 
-          });
-          return { success: false, error: error.message };
-        }
+        return { success: false, error: 'Backend removed' };
       },
 
-      // Refresh token
       refreshToken: async () => {
-        try {
-          const response = await apiService.auth.refreshToken();
-          
-          if (response.success) {
-            const { user, token } = response.data;
-            set({ 
-              user, 
-              token, 
-              isAuthenticated: true 
-            });
-            apiService.setToken(token);
-            return { success: true };
-          } else {
-            throw new Error(response.message || 'Token refresh failed');
-          }
-        } catch (error) {
-          set({ 
-            isAuthenticated: false,
-            user: null,
-            token: null
-          });
-          apiService.setToken(null);
-          return { success: false, error: error.message };
-        }
+        return { success: false, error: 'Backend removed' };
       },
 
       // Check if user is admin
@@ -228,11 +78,7 @@ const useAuthStore = create(
 
       // Initialize auth state
       initialize: async () => {
-        const { token } = get();
-        if (token) {
-          apiService.setToken(token);
-          await get().getCurrentUser();
-        }
+        // Do nothing
       }
     }),
     {

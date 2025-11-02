@@ -20,7 +20,7 @@ const MoviesContext = createContext<MoviesContextValue | undefined>(undefined);
 export const MoviesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [movies, setMovies] = useState<Movie[]>([]);
 
-  // Movies are now loaded from backend API, no localStorage needed
+  // Movies state management
 
   const addMovie = (movie: Omit<Movie, "id">) => {
     const id = crypto.randomUUID();

@@ -155,7 +155,8 @@ export const createMovie = async (req, res) => {
       
       posterBuffer = req.file.buffer;
       posterContentType = req.file.mimetype;
-      posterPath = `/api/movies/${Date.now()}/poster`;
+      // Path will be updated with actual movie ID after creation
+      posterPath = `/api/movies/temp/poster`;
     }
 
     // Parse JSON fields if they are strings

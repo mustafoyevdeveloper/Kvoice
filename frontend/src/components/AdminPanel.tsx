@@ -127,16 +127,16 @@ export const AdminPanel = () => {
   
   // Site settings state
   const [siteSettings, setSiteSettings] = useState({
-    siteName: "Kvoice",
-    siteDescription: "Eng yangi kinolar va seriallar",
-    siteIcon: "",
-    contactEmail: "contact@moviemedia.org",
-    contactPhone: "+998 90 123 45 67",
+    siteName: import.meta.env.VITE_APP_NAME || "Kvoice",
+    siteDescription: import.meta.env.VITE_APP_DESCRIPTION || "Eng yangi kinolar va seriallar",
+    siteIcon: import.meta.env.VITE_SITE_ICON || "",
+    contactEmail: import.meta.env.VITE_CONTACT_EMAIL || "contact@moviemedia.org",
+    contactPhone: import.meta.env.VITE_CONTACT_PHONE || "+998 90 123 45 67",
     socialMedia: {
-      facebook: "https://facebook.com/moviemedia",
-      instagram: "https://instagram.com/moviemedia",
-      telegram: "https://t.me/moviemedia",
-      youtube: "https://youtube.com/moviemedia"
+      facebook: import.meta.env.VITE_FACEBOOK_URL || "https://facebook.com/moviemedia",
+      instagram: import.meta.env.VITE_INSTAGRAM_URL || "https://instagram.com/moviemedia",
+      telegram: import.meta.env.VITE_TELEGRAM_URL || "https://t.me/moviemedia",
+      youtube: import.meta.env.VITE_YOUTUBE_URL || "https://youtube.com/moviemedia"
     },
     sectionNames: {
       premieres: "Premyeralar",
@@ -173,17 +173,17 @@ export const AdminPanel = () => {
   useEffect(() => {
     if (settings) {
       setSiteSettings({
-        siteName: settings.siteName || "Kvoice",
-        siteDescription: settings.siteDescription || "Koreya kinolari va seriallarini O'zbek tilida tomosha qiling",
-        siteIcon: settings.siteIcon || "",
-        contactEmail: settings.contactEmail || "contact@moviemedia.org",
-        contactPhone: settings.contactPhone || "+998 90 123 45 67",
-        socialMedia: settings.socialMedia || {
-          facebook: "https://facebook.com/moviemedia",
-          instagram: "https://instagram.com/moviemedia",
-          telegram: "https://t.me/moviemedia",
-          youtube: "https://youtube.com/moviemedia"
-        },
+            siteName: settings.siteName || import.meta.env.VITE_APP_NAME || "Kvoice",
+            siteDescription: settings.siteDescription || import.meta.env.VITE_APP_DESCRIPTION || "Koreya kinolari va seriallarini O'zbek tilida tomosha qiling",
+            siteIcon: settings.siteIcon || import.meta.env.VITE_SITE_ICON || "",
+            contactEmail: settings.contactEmail || import.meta.env.VITE_CONTACT_EMAIL || "contact@moviemedia.org",
+            contactPhone: settings.contactPhone || import.meta.env.VITE_CONTACT_PHONE || "+998 90 123 45 67",
+            socialMedia: settings.socialMedia || {
+              facebook: import.meta.env.VITE_FACEBOOK_URL || "https://facebook.com/moviemedia",
+              instagram: import.meta.env.VITE_INSTAGRAM_URL || "https://instagram.com/moviemedia",
+              telegram: import.meta.env.VITE_TELEGRAM_URL || "https://t.me/moviemedia",
+              youtube: import.meta.env.VITE_YOUTUBE_URL || "https://youtube.com/moviemedia"
+            },
         sectionNames: settings.sectionNames || {
           premieres: "Premyeralar",
           movies: "Kinolar",
@@ -369,7 +369,7 @@ export const AdminPanel = () => {
 
   // Generate random URL for content
   const generateContentUrl = (category: string) => {
-    const baseUrl = "https://moviemedia-cinema.vercel.app";
+    const baseUrl = import.meta.env.VITE_APP_URL || import.meta.env.VITE_FRONTEND_URL || "http://localhost:8080";
     const randomId = Math.floor(Math.random() * 1000) + 10; // 10-1009 random ID
     
     switch (category) {

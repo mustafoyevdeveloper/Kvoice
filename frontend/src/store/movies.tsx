@@ -29,7 +29,7 @@ export const MoviesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           // Handle poster URL - if it's an API endpoint, prepend base URL
           let posterUrl = movie.poster || movie.posterUrl || '';
           if (posterUrl && posterUrl.startsWith('/api/movies/')) {
-            const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
             posterUrl = `${baseUrl}${posterUrl}`;
           }
           

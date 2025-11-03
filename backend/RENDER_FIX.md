@@ -9,26 +9,36 @@ Bu xatolik Render'da `npm install` bajarilmagani yoki `node_modules` o'rnatilmag
 
 ## ✅ Yechim
 
+**⚠️ MUHIM:** Path `/opt/render/project/src/backend/server.js` ko'rsatadiki, Render `src/backend` strukturasini kutmoqda. Lekin asl struktura `backend/` bo'lishi mumkin.
+
 ### Render Dashboard'da quyidagilarni tekshiring va sozlang:
 
 1. **Service → Settings** ga kiring
 
-2. **Build Command:**
-   ```
-   npm install
-   ```
-   ⚠️ **Muhim:** Bu bo'sh bo'lmasligi kerak! Render dependencies'ni o'rnatish uchun buni ishlatadi.
-
-3. **Start Command:**
-   ```
-   npm start
-   ```
-
-4. **Root Directory:**
+2. **Root Directory:**
    ```
    backend
    ```
-   ⚠️ **Muhim:** Agar loyiha root'ida `backend` folder bor bo'lsa, bu **mutlaqo** `backend` bo'lishi kerak!
+   ⚠️ **CRITICAL:** Agar repo'da `backend/` folder bor bo'lsa, Root Directory **mutlaqo** `backend` bo'lishi kerak!
+   
+   **Tekshirish:**
+   - GitHub repo'da: `backend/package.json` mavjudmi?
+   - Agar ha → Root Directory: `backend`
+   - Agar yo'q → Root Directory: `.` (bo'sh qoldirish)
+
+3. **Build Command:**
+   ```
+   cd backend && npm install
+   ```
+   Yoki agar Root Directory `backend` bo'lsa:
+   ```
+   npm install
+   ```
+
+4. **Start Command:**
+   ```
+   npm start
+   ```
    
    Tekshirish:
    - GitHub repo'da: `backend/package.json` mavjudmi?

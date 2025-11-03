@@ -584,8 +584,8 @@ export const AdminPanel = () => {
       return;
     }
 
-    // Validation: max 500KB, PNG/WebP/JPG only
-    const maxSize = 500 * 1024; // 500KB
+    // Validation: max 2000KB (2MB), PNG/WebP/JPG only
+    const maxSize = 2000 * 1024; // 2000KB
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     
     if (!allowedTypes.includes(file.type)) {
@@ -600,7 +600,7 @@ export const AdminPanel = () => {
     if (file.size > maxSize) {
         toast({
         title: "Xatolik",
-        description: "Rasm hajmi 500KB dan katta bo'lishi mumkin emas!",
+        description: "Rasm hajmi 2000KB (2MB) dan katta bo'lishi mumkin emas!",
           variant: "destructive"
         });
       return;
@@ -997,7 +997,7 @@ export const AdminPanel = () => {
             <Label>Qurilmadan yuklash</Label>
             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
               <Image className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-2">PNG, WebP yoki JPG formatida rasm yuklang (maksimum 500KB)</p>
+              <p className="text-sm text-muted-foreground mb-2">PNG, WebP yoki JPG formatida rasm yuklang (maksimum 2000KB)</p>
               <Button
                 type="button"
                 variant="outline"

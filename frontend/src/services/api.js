@@ -1,24 +1,18 @@
 // Determine API base URL
 // Only use VITE_API_URL; fallback to localhost during development
 const getApiBaseUrl = () => {
-  const url = import.meta.env.VITE_API_URL && String(import.meta.env.VITE_API_URL).trim();
-  if (url) {
-    return url.endsWith('/api') ? url : `${url}/api`;
+  const envUrl = import.meta.env.VITE_API_URL && String(import.meta.env.VITE_API_URL).trim();
+  if (envUrl) {
+    return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
   }
   // Fallback to localhost for development
-  return 'http://localhost:3000/api', 'https://kvoice-studio-back-nows.onrender.com/api';
+  return 'http://localhost:3000/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Log API URL for debugging (both dev and production)
+// Log API URL for debugging
 console.log('🔗 API Base URL:', API_BASE_URL);
-console.log('🔍 Environment Variables:', {
-  VITE_API_URL: import.meta.env.VITE_API_URL,
-  MODE: import.meta.env.MODE,
-  PROD: import.meta.env.PROD,
-  DEV: import.meta.env.DEV
-});
 
 class ApiService {
   constructor() {

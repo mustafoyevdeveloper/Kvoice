@@ -814,9 +814,9 @@ export const AdminPanel = () => {
       categoryMatch = movie.category === "series";
     }
     
-    // Search filter - nom bo'yicha qidirish
+    // Search filter - kino yoki serial nomiga qarab qidirish
     const searchMatch = !searchQuery.trim() || 
-      movie.title.toLowerCase().includes(searchQuery.toLowerCase());
+      (movie.title || '').toLowerCase().includes(searchQuery.toLowerCase().trim());
     
     return categoryMatch && searchMatch;
   });

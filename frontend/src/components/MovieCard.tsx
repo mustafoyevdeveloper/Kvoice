@@ -120,11 +120,23 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
 
         {/* Quality badges - Vertical layout */}
         <div className="absolute top-1 md:top-2 left-1 md:left-2 flex flex-col gap-1">
-          {(movie.videoQuality || movie.quality || []).map((q) => (
-            <span key={q} className={`${getQualityBadgeClass(q)}`}>
-              {q}
-            </span>
-          ))}
+          {(() => {
+            const qualityArray = movie.videoQuality || movie.quality || [];
+            const qualityOrder = ['360p', '480p', '720p', '1080p', '1440p', '4K'];
+            const sortedQuality = [...qualityArray].sort((a, b) => {
+              const indexA = qualityOrder.indexOf(a);
+              const indexB = qualityOrder.indexOf(b);
+              // If quality not in order list, put at end
+              if (indexA === -1) return 1;
+              if (indexB === -1) return -1;
+              return indexA - indexB;
+            });
+            return sortedQuality.map((q) => (
+              <span key={q} className={`${getQualityBadgeClass(q)}`}>
+                {q}
+              </span>
+            ));
+          })()}
         </div>
 
         {/* New/Premiere badges */}

@@ -43,6 +43,17 @@ export const MoviesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             // Full URL - use as is
           }
           
+          // Sort quality array in ascending order
+          const qualityArray = movie.quality || movie.videoQuality || [];
+          const qualityOrder = ['360p', '480p', '720p', '1080p', '1440p', '4K'];
+          const sortedQuality = [...qualityArray].sort((a, b) => {
+            const indexA = qualityOrder.indexOf(a);
+            const indexB = qualityOrder.indexOf(b);
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+          });
+          
           return {
             id: movie._id || movie.id,
             title: movie.title,
@@ -54,8 +65,8 @@ export const MoviesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             category: movie.category,
             language: movie.language,
             genres: movie.genres || [],
-            quality: movie.quality || movie.videoQuality || [],
-            videoQuality: movie.videoQuality || movie.quality || [],
+            quality: sortedQuality,
+            videoQuality: sortedQuality,
             url: movie.videoLink || movie.videoUrl,
             videoLink: movie.videoLink || movie.videoUrl,
             videoUrl: movie.videoUrl || movie.videoLink,

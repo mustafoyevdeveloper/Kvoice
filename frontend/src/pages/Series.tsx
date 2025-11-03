@@ -34,11 +34,13 @@ export const Series = () => {
     movie.category === "series"
   );
 
-  // Filter by search query
-  const filteredMovies = seriesList.filter(movie =>
-    !searchQuery.trim() || 
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter by search query - serial nomiga qarab qidirish
+  const filteredMovies = seriesList.filter(movie => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    const title = (movie.title || '').toLowerCase();
+    return title.includes(query);
+  });
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);

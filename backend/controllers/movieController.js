@@ -186,6 +186,18 @@ export const createMovie = async (req, res) => {
       posterUrl = req.body.posterUrl;
     }
 
+    // Sort quality array in ascending order (360p, 480p, 720p, 1080p, 1440p, 4K)
+    const qualityArray = parseField(req.body.quality) || [];
+    const qualityOrder = ['360p', '480p', '720p', '1080p', '1440p', '4K'];
+    const sortedQuality = qualityArray.sort((a, b) => {
+      const indexA = qualityOrder.indexOf(a);
+      const indexB = qualityOrder.indexOf(b);
+      // If quality not in order list, put at end
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
+
     const movieData = {
       title: req.body.title,
       description: req.body.description,
@@ -194,7 +206,7 @@ export const createMovie = async (req, res) => {
       rating: parseFloat(req.body.rating),
       category: req.body.category,
       genres: parseField(req.body.genres) || [],
-      quality: parseField(req.body.quality) || [],
+      quality: sortedQuality,
       videoLink: req.body.videoLink || req.body.videoUrl,
       poster: poster,
       ...(posterUrl ? { posterUrl: posterUrl } : {})
@@ -321,7 +333,19 @@ export const updateMovie = async (req, res) => {
       rating: req.body.rating ? parseFloat(req.body.rating) : undefined,
       category: req.body.category,
       genres: parseField(req.body.genres),
-      quality: parseField(req.body.quality),
+      quality: (() => {
+        // Sort quality array in ascending order (360p, 480p, 720p, 1080p, 1440p, 4K)
+        const qualityArray = parseField(req.body.quality) || [];
+        const qualityOrder = ['360p', '480p', '720p', '1080p', '1440p', '4K'];
+        return qualityArray.sort((a, b) => {
+          const indexA = qualityOrder.indexOf(a);
+          const indexB = qualityOrder.indexOf(b);
+          // If quality not in order list, put at end
+          if (indexA === -1) return 1;
+          if (indexB === -1) return -1;
+          return indexA - indexB;
+        });
+      })(),
       videoLink: req.body.videoLink || req.body.videoUrl
     };
 

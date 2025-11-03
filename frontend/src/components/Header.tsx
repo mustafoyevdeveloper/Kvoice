@@ -119,9 +119,13 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-all duration-300 ease-in-out z-10 pointer-events-none text-white-foreground" style={{ zIndex: 10 }} />
               <Input
                 type="text"
-                placeholder="Qidiruv..."
+                placeholder="Kino yoki serial nomini kiriting..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  // Real-time qidiruv - har bir harf kirilganda qidirish
+                  onSearch(e.target.value);
+                }}
                 className={`pl-10 pr-4 max-w-[200px] md:max-w-none w-78 md:w-64 text-foreground placeholder:text-white-foreground focus:ring-2 focus:ring-primary/100 transition-all duration-300 ease-in-out border-white/100 ${
                   isHomePage && !isScrolled 
                     ? 'bg-white/10 backdrop-blur-sm text-white placeholder:text-white/100' 

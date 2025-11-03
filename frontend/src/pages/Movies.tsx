@@ -38,11 +38,13 @@ export const Movies = () => {
     movie.category === "movies" || movie.category === "movie"
   );
 
-  // Filter by search query
-  const filteredMovies = moviesList.filter(movie =>
-    !searchQuery.trim() || 
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter by search query - kino nomiga qarab qidirish
+  const filteredMovies = moviesList.filter(movie => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    const title = (movie.title || '').toLowerCase();
+    return title.includes(query);
+  });
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);

@@ -58,11 +58,14 @@ const Index = () => {
       filtered = filtered.filter(movie => movie.category === selectedCategory);
     }
 
-    // Filter by search query
+    // Filter by search query - kino yoki serial nomiga qarab qidirish
     if (searchQuery.trim()) {
-      filtered = filtered.filter(movie =>
-        movie.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(movie => {
+        const title = (movie.title || '').toLowerCase();
+        // Nom bo'yicha qidirish (case-insensitive)
+        return title.includes(query);
+      });
     }
 
     return filtered;
@@ -76,7 +79,7 @@ const Index = () => {
       case "series":
         return "SERIALLAR";
       default:
-        return searchQuery ? `"${searchQuery}" UCHUN QIDIRUV NATIJALARI` : "BARCHA KINOLAR VA SERIALLAR";
+        return searchQuery ? `"${searchQuery}" UCHUN QIDIRUV NATIJALARI` : "";
     }
   };
 
@@ -148,12 +151,14 @@ const Index = () => {
           </div>
         )}
 
-
-        <MovieGrid
-          movies={filteredMovies}
-          title={getCategoryTitle(selectedCategory)}
-          onMovieClick={handleMovieClick}
-        />
+        {/* Show grid only if category is selected or search is active */}
+        {(selectedCategory !== "all" || searchQuery) && (
+          <MovieGrid
+            movies={filteredMovies}
+            title={getCategoryTitle(selectedCategory)}
+            onMovieClick={handleMovieClick}
+          />
+        )}
 
         {/* Additional sections for full experience */}
         {selectedCategory === "all" && !searchQuery && (

@@ -539,18 +539,26 @@ export const AdminPanel = () => {
   // Open edit dialog
   const handleOpenEditDialog = (movie) => {
     setEditingMovie(movie);
+    
+    // Get poster URL and convert to full URL if needed
+    let posterUrl = movie.posterUrl || movie.poster || "";
+    if (posterUrl && posterUrl.startsWith('/api/movies/')) {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
+      posterUrl = `${baseUrl}${posterUrl}`;
+    }
+    
     setFormData({
-      title: movie.title,
+      title: movie.title || "",
       description: movie.description || "",
-      year: movie.year,
+      year: movie.year || 0,
       language: movie.language || "uzbek",
-      rating: movie.rating,
+      rating: movie.rating || 0,
       videoQuality: movie.videoQuality || movie.quality || [],
       posterFile: null,
-        posterUrl: movie.posterUrl || movie.poster || "",
+      posterUrl: posterUrl,
       poster: movie.poster || "",
-      genres: movie.genres || ["Drama"],
-      category: movie.category,
+      genres: movie.genres || [],
+      category: movie.category || "movies",
       videoLink: movie.videoLink || movie.videoUrl || "",
       ...(movie.totalEpisodes ? { totalEpisodes: movie.totalEpisodes } : {}),
       ...(movie.currentEpisode ? { currentEpisode: movie.currentEpisode } : {})
@@ -720,13 +728,35 @@ export const AdminPanel = () => {
 
   // Handle delete movie
   const handleDeleteMovie = async (id: string) => {
-    const result = await deleteMovie(id);
-    if (result.success) {
-      toast({ title: "Muvaffaqiyat", description: "Kontent muvaffaqiyatli o'chirildi!" });
-      // Reload movies list
-      await loadMovies();
-    } else {
-      toast({ title: "Xatolik", description: result.error || "Kontent o'chirilmadi", variant: "destructive" });
+    if (!id) {
+      toast({ 
+        title: "Xatolik", 
+        description: "Kontent ID topilmadi", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    try {
+      const result = await deleteMovie(id);
+      if (result.success) {
+        toast({ title: "Muvaffaqiyat", description: "Kontent muvaffaqiyatli o'chirildi!" });
+        // Reload movies list
+        await loadMovies();
+      } else {
+        toast({ 
+          title: "Xatolik", 
+          description: result.error || "Kontent o'chirilmadi", 
+          variant: "destructive" 
+        });
+      }
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      toast({ 
+        title: "Xatolik", 
+        description: error?.message || "Kontent o'chirilmadi", 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -999,14 +1029,18 @@ export const AdminPanel = () => {
         </div>
 
         {/* Poster Preview */}
-        {formData.posterUrl && (
+        {(formData.posterUrl || (editingMovie && (editingMovie.poster || editingMovie.posterUrl))) && (
           <div className="mt-4">
             <Label>Ko'rinishi</Label>
             <div className="mt-2 w-32 h-48 border rounded-lg overflow-hidden">
               <img
-                src={formData.posterUrl}
+                src={formData.posterUrl || (editingMovie ? (editingMovie.posterUrl || editingMovie.poster) : '')}
                 alt="Preview"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder-poster.jpg';
+                }}
               />
             </div>
           </div>
@@ -1163,16 +1197,61 @@ export const AdminPanel = () => {
                   </p>
                 </div>
               ) : (
-                filteredMovies.map((movie, index) => (
-                  <div key={movie.id || movie._id || `movie-${index}`} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
-                    <div className="space-y-1 flex-1">
-                      <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-sm md:text-base">{movie.title}</h4>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono bg-muted px-2 py-1 rounded">#{movie.id}</span>
-                          {movie.url && (
+                filteredMovies.map((movie, index) => {
+                  // Get poster URL
+                  const posterUrl = movie.poster || movie.posterUrl || '';
+                  const fullPosterUrl = posterUrl && posterUrl.startsWith('/api/movies/') 
+                    ? `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000'}${posterUrl}`
+                    : posterUrl;
+                  
+                  // Get language label
+                  const getLanguageLabel = (lang: string | undefined) => {
+                    if (!lang) return '';
+                    const langMap: Record<string, string> = {
+                      'uzbek': 'O\'zbek',
+                      'russian': 'Rus',
+                      'english': 'Ingliz',
+                      'german': 'Nemis',
+                      'spanish': 'Ispan',
+                      'italian': 'Italyan',
+                      'japanese': 'Yapon',
+                      'chinese': 'Xitoy',
+                      'turkish': 'Turk',
+                      'korean': 'Koreys'
+                    };
+                    return langMap[lang.toLowerCase()] || lang;
+                  };
+                  
+                  return (
+                  <div key={movie.id || movie._id || `movie-${index}`} className="flex flex-col sm:flex-row sm:items-start p-3 md:p-4 border rounded-lg gap-4">
+                    {/* Poster Image */}
+                    {fullPosterUrl && (
+                      <div className="flex-shrink-0">
+                        <img 
+                          src={fullPosterUrl} 
+                          alt={movie.title}
+                          className="w-20 h-28 md:w-24 md:h-36 object-cover rounded-lg border"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm md:text-base mb-1">{movie.title}</h4>
+                          {movie.description && (
+                            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{movie.description}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-xs font-mono bg-muted px-2 py-1 rounded">#{movie.id || movie._id}</span>
+                          {movie.videoLink && (
                             <a 
-                              href={movie.url} 
+                              href={movie.videoLink} 
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="text-xs text-blue-500 hover:text-blue-700 underline"
@@ -1182,16 +1261,51 @@ export const AdminPanel = () => {
                           )}
                         </div>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs md:text-sm text-muted-foreground">
-                        <span>{movie.year}</span>
-                        <span className="capitalize">{movie.category}</span>
-                        <span>⭐ {movie.rating}</span>
-                        <span>👁 {movie.views || 0}</span>
-                        {movie.isNew && <span className="text-red-500 font-medium">Yangi</span>}
-                        {movie.isPremiere && <span className="text-blue-500 font-medium">Premyera</span>}
+                      
+                      {/* Yili, Tili, Reytingi */}
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <span>📅 {movie.year}</span>
+                        {movie.language && (
+                          <span>🌐 {getLanguageLabel(movie.language)}</span>
+                        )}
+                        <span className="flex items-center gap-1">⭐ {movie.rating}</span>
+                        <span className="capitalize">📂 {movie.category === 'movies' ? 'Kino' : 'Serial'}</span>
                       </div>
+                      
+                      {/* Janri */}
+                      {movie.genres && movie.genres.length > 0 && (
+                        <div className="flex items-center gap-1 flex-wrap text-xs">
+                          <span className="text-muted-foreground">🎭</span>
+                          {movie.genres.map((genre, idx) => (
+                            <span key={idx}>
+                              {genre}{idx < movie.genres!.length - 1 ? ',' : ''}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Sifati */}
+                      {(movie.quality || movie.videoQuality) && (movie.quality || movie.videoQuality)!.length > 0 && (
+                        <div className="flex items-center gap-1 flex-wrap text-xs">
+                          <span className="text-muted-foreground">📹</span>
+                          {(movie.quality || movie.videoQuality || []).map((q, idx) => (
+                            <span key={idx}>
+                              {q}{idx < (movie.quality || movie.videoQuality)!.length - 1 ? ',' : ''}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Serial uchun qo'shimcha ma'lumotlar */}
+                      {movie.category === 'series' && (movie.totalEpisodes || movie.currentEpisode) && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          {movie.totalEpisodes && <span>📊 {movie.totalEpisodes} qism</span>}
+                          {movie.currentEpisode && <span>▶️ {movie.currentEpisode}-qism</span>}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex space-x-2 self-end sm:self-auto">
+                    
+                    <div className="flex space-x-2 self-start sm:self-auto flex-shrink-0">
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -1215,7 +1329,7 @@ export const AdminPanel = () => {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteMovie(movie.id)}>
+                            <AlertDialogAction onClick={() => handleDeleteMovie(movie.id || movie._id || '')}>
                               O'chirish
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -1223,7 +1337,8 @@ export const AdminPanel = () => {
                       </AlertDialog>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
           </CardContent>

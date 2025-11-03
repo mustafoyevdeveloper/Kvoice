@@ -484,6 +484,24 @@ export const deleteMovie = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Validate ID
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Movie ID is required',
+        error: 'Movie ID is required'
+      });
+    }
+
+    // Check if ID is a valid MongoDB ObjectId format (24 hex characters)
+    if (!id || id.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid movie ID format',
+        error: 'Invalid movie ID format'
+      });
+    }
+
     const movie = await Movie.findById(id);
 
     if (!movie) {
@@ -503,6 +521,14 @@ export const deleteMovie = async (req, res) => {
     });
   } catch (error) {
     console.error('Delete movie error:', error);
+    // Handle CastError for invalid ObjectId
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid movie ID',
+        error: 'Invalid movie ID format'
+      });
+    }
     res.status(500).json({
       success: false,
       message: 'Failed to delete movie',

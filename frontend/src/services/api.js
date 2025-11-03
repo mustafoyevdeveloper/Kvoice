@@ -21,15 +21,21 @@ const getApiBaseUrl = () => {
   }
   
   // Fallback to localhost for development
-  return 'http://localhost:3000/api';
+  return 'http://localhost:3000/api' || "https://kvoice-studio-back-nows.onrender.com/api";
 };
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Log API URL in development for debugging
-if (import.meta.env.DEV) {
-  console.log('🔗 API Base URL:', API_BASE_URL);
-}
+// Log API URL for debugging (both dev and production)
+console.log('🔗 API Base URL:', API_BASE_URL);
+console.log('🔍 Environment Variables:', {
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
+  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  MODE: import.meta.env.MODE,
+  PROD: import.meta.env.PROD,
+  DEV: import.meta.env.DEV
+});
 
 class ApiService {
   constructor() {
@@ -53,7 +59,17 @@ class ApiService {
     }
 
     try {
+      console.log('🌐 Fetching URL:', url);
       const response = await fetch(url, config);
+      
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('❌ Non-JSON response:', text.substring(0, 200));
+        throw new Error(`API returned non-JSON response: ${response.status} ${response.statusText}`);
+      }
+      
       const data = await response.json();
 
       if (!response.ok) {
@@ -64,12 +80,25 @@ class ApiService {
           ).join(', ');
           throw new Error(data.message + ': ' + errorMessages);
         }
-        throw new Error(data.message || data.error || 'API request failed');
+        throw new Error(data.message || data.error || `API request failed: ${response.status} ${response.statusText}`);
       }
 
       return data;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('❌ API Error:', {
+        message: error.message,
+        url: url,
+        type: error.name,
+        stack: error.stack
+      });
+      
+      // More specific error messages
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        const errorMessage = `Backend'ga ulanib bo'lmadi. API URL: ${API_BASE_URL}. Tekshiring: 1) Backend ishlayaptimi? 2) CORS sozlanganmi? 3) Environment variable'lar to'g'rimi?`;
+        console.error('❌', errorMessage);
+        throw new Error(errorMessage);
+      }
+      
       throw error;
     }
   }

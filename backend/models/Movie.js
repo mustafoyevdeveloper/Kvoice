@@ -29,7 +29,7 @@ const movieSchema = new mongoose.Schema({
     required: [true, 'Rating is required'],
     min: [1, 'Rating must be at least 1'],
     max: [10, 'Rating cannot exceed 10'],
-    default: 0
+    default: 1
   },
   category: {
     type: String,

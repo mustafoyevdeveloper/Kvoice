@@ -22,7 +22,10 @@ const movieValidation = [
     }
     return true;
   }),
-  body('language').notEmpty().withMessage('Language is required'),
+  body('language')
+    .notEmpty().withMessage('Language is required')
+    .isIn(['uzbek','russian','english','german','spanish','italian','japanese','chinese','turkish','korean'])
+    .withMessage('Language must be one of: uzbek, russian, english, german, spanish, italian, japanese, chinese, turkish, korean'),
   body('rating').custom((value) => {
     const rating = typeof value === 'string' ? parseFloat(value) : value;
     if (isNaN(rating) || rating < 1 || rating > 10) {

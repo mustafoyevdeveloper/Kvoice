@@ -513,9 +513,9 @@ export const AdminPanel = () => {
     setFormData({
       title: "",
       description: "",
-      year: 0,
+      year: "",
       language: "",
-      rating: 0,
+      rating: "",
       videoQuality: [],
       posterFile: null,
       posterUrl: "",

@@ -21,7 +21,7 @@ export const Series = () => {
 
   // Set page title and scroll to top when component mounts
   useEffect(() => {
-    document.title = "Kvoice - seriallar";
+    document.title = "Kvoice Studio - seriallar";
     window.scrollTo({
       top: 0,
       left: 0,

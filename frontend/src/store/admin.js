@@ -33,14 +33,16 @@ const useAdminStore = create((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
-      const response = await apiService.movies.getAll(params);
+      // Ensure admin loads enough items to compute accurate counts
+      const defaultParams = { page: 1, limit: 1000 };
+      const response = await apiService.movies.getAll({ ...defaultParams, ...params });
       
       if (response.success) {
         set({ 
           content: response.data || [], 
           pagination: response.pagination || {
             page: 1,
-            limit: 20,
+            limit: 10000,
             total: response.data?.length || 0,
             pages: 1,
             hasNext: false,

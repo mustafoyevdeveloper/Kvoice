@@ -2,10 +2,20 @@
 
 ## Render sozlamalari
 
-### 1. Environment Settings
-- **Build Command:** `npm install` (yoki bo'sh qoldirish mumkin)
+### 1. Environment Settings (MUHIM!)
+Render Dashboard → Service Settings → quyidagilarni sozlang:
+
+- **Build Command:** `npm install`
+  - ⚠️ Bu muhim! Render dependencies'ni o'rnatish uchun buni ishlatadi
+  - Agar bo'sh qoldirilsa, `npm install` avtomatik ishlamaydi
+  
 - **Start Command:** `npm start`
-- **Root Directory:** `backend` (agar loyiha root'ida bo'lsa)
+  - Bu har doim bo'lishi kerak
+
+- **Root Directory:** `backend`
+  - ⚠️ Agar loyiha root'ida `backend` folder bor bo'lsa, bu kritik!
+  - Render `backend` folder'da `package.json` ni topishi kerak
+  - Agar Root Directory noto'g'ri bo'lsa, `npm install` ishlamaydi va dependencies o'rnatilmaydi
 
 ### 2. Environment Variables (.env)
 

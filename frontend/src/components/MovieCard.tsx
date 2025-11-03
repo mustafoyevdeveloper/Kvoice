@@ -132,9 +132,9 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
               return indexA - indexB;
             });
             return sortedQuality.map((q) => (
-              <span key={q} className={`${getQualityBadgeClass(q)}`}>
-                {q}
-              </span>
+            <span key={q} className={`${getQualityBadgeClass(q)}`}>
+              {q}
+            </span>
             ));
           })()}
         </div>

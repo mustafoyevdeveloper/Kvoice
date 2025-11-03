@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AdminPanel } from "@/components/AdminPanel";
@@ -6,11 +6,17 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, Eye, EyeOff } from "lucide-react";
+import { Lock, Eye, EyeOff, LogOut } from "lucide-react";
+
+const ADMIN_PASSWORD = "12345678!@WEB";
+const ADMIN_SESSION_KEY = "admin_authorized";
 
 const Admin = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAuthorized, setIsAuthorized] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    // Check if user is already authorized (session exists)
+    return localStorage.getItem(ADMIN_SESSION_KEY) === "true";
+  });
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -32,8 +38,10 @@ const Admin = () => {
 
     // Simulate API call
     setTimeout(() => {
-      if (password === "12345678!@WEB") {
+      if (password === ADMIN_PASSWORD) {
         setIsAuthorized(true);
+        // Save session to localStorage
+        localStorage.setItem(ADMIN_SESSION_KEY, "true");
       } else {
         setError("Noto'g'ri parol! Qaytadan urinib ko'ring.");
         setPassword("");
@@ -41,6 +49,18 @@ const Admin = () => {
       setIsLoading(false);
     }, 1000);
   };
+
+  const handleLogout = () => {
+    setIsAuthorized(false);
+    localStorage.removeItem(ADMIN_SESSION_KEY);
+    setPassword("");
+  };
+
+  // Check authorization on mount
+  useEffect(() => {
+    const isAuth = localStorage.getItem(ADMIN_SESSION_KEY) === "true";
+    setIsAuthorized(isAuth);
+  }, []);
 
   if (!isAuthorized) {
     return (
@@ -156,6 +176,16 @@ const Admin = () => {
       />
       
       <main className="container mx-auto px-4 py-8 flex-1">
+        <div className="flex justify-end mb-4">
+          <Button
+            variant="outline"
+            onClick={handleLogout}
+            className="flex items-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Chiqish
+          </Button>
+        </div>
         <AdminPanel />
       </main>
 

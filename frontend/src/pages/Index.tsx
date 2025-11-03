@@ -153,11 +153,11 @@ const Index = () => {
 
         {/* Show grid only if category is selected or search is active */}
         {(selectedCategory !== "all" || searchQuery) && (
-          <MovieGrid
-            movies={filteredMovies}
-            title={getCategoryTitle(selectedCategory)}
-            onMovieClick={handleMovieClick}
-          />
+        <MovieGrid
+          movies={filteredMovies}
+          title={getCategoryTitle(selectedCategory)}
+          onMovieClick={handleMovieClick}
+        />
         )}
 
         {/* Additional sections for full experience */}

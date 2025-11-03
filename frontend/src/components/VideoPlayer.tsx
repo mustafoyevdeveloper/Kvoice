@@ -399,46 +399,46 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
 
           {/* Video Element - Only show if no videoLink or videoLink is not a URL */}
           {(!movie.videoLink || (!movie.videoLink.startsWith('http://') && !movie.videoLink.startsWith('https://'))) ? (
-            <video
-              ref={videoRef}
-              className="w-full h-full cursor-pointer"
-              onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
-              onPlay={() => {
-                setIsPlaying(true);
-                setIsBuffering(false);
-              }}
-              onPause={() => {
-                setIsPlaying(false);
-                setIsBuffering(false);
-              }}
-              onWaiting={() => setIsBuffering(true)}
-              onCanPlay={() => setIsBuffering(false)}
-              onLoadStart={() => setIsBuffering(true)}
-              onError={() => setIsBuffering(false)}
-              onClick={(e) => {
-                e.stopPropagation();
-                // Don't trigger if clicking on controls
-                const target = e.target as Element;
-                const isControlElement = target.closest('.video-controls') || 
-                                       target.closest('button') || 
-                                       target.closest('[role="button"]') ||
-                                       target.closest('.settings-dropdown');
-                
-                // Don't trigger if mouse is over controls area in fullscreen
-                if (isFullscreen && isMouseOverControls) {
-                  return;
-                }
-                
-                if (!isControlElement) {
-                  togglePlayPause();
-                }
-              }}
-              poster={movie.poster}
-            >
+        <video
+          ref={videoRef}
+          className="w-full h-full cursor-pointer"
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onPlay={() => {
+            setIsPlaying(true);
+            setIsBuffering(false);
+          }}
+          onPause={() => {
+            setIsPlaying(false);
+            setIsBuffering(false);
+          }}
+          onWaiting={() => setIsBuffering(true)}
+          onCanPlay={() => setIsBuffering(false)}
+          onLoadStart={() => setIsBuffering(true)}
+          onError={() => setIsBuffering(false)}
+          onClick={(e) => {
+            e.stopPropagation();
+            // Don't trigger if clicking on controls
+            const target = e.target as Element;
+            const isControlElement = target.closest('.video-controls') || 
+                                   target.closest('button') || 
+                                   target.closest('[role="button"]') ||
+                                   target.closest('.settings-dropdown');
+            
+            // Don't trigger if mouse is over controls area in fullscreen
+            if (isFullscreen && isMouseOverControls) {
+              return;
+            }
+            
+            if (!isControlElement) {
+              togglePlayPause();
+            }
+          }}
+          poster={movie.poster}
+        >
               <source src={movie.videoLink || movie.videoUrl || "#"} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+          Your browser does not support the video tag.
+        </video>
           ) : (
             /* Poster Image when videoLink is a URL */
             <div className="w-full h-full bg-black flex items-center justify-center">

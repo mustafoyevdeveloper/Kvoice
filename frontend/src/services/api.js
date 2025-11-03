@@ -1,7 +1,35 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api` : null) ||
-  (import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : null) ||
-  'http://localhost:3000/api';
+// Determine API base URL
+// Priority: VITE_API_URL > VITE_BACKEND_URL/api > VITE_API_BASE_URL/api > localhost
+const getApiBaseUrl = () => {
+  // If VITE_API_URL is set and is a full URL, use it
+  if (import.meta.env.VITE_API_URL) {
+    const url = import.meta.env.VITE_API_URL.trim();
+    // If it already ends with /api, use as is, otherwise add /api
+    return url.endsWith('/api') ? url : `${url}/api`;
+  }
+  
+  // If VITE_BACKEND_URL is set
+  if (import.meta.env.VITE_BACKEND_URL) {
+    const url = import.meta.env.VITE_BACKEND_URL.trim();
+    return url.endsWith('/api') ? url : `${url}/api`;
+  }
+  
+  // If VITE_API_BASE_URL is set
+  if (import.meta.env.VITE_API_BASE_URL) {
+    const url = import.meta.env.VITE_API_BASE_URL.trim();
+    return url.endsWith('/api') ? url : `${url}/api`;
+  }
+  
+  // Fallback to localhost for development
+  return 'http://localhost:3000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Log API URL in development for debugging
+if (import.meta.env.DEV) {
+  console.log('🔗 API Base URL:', API_BASE_URL);
+}
 
 class ApiService {
   constructor() {

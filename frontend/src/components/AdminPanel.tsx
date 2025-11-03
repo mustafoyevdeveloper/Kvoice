@@ -179,12 +179,12 @@ export const AdminPanel = () => {
             siteIcon: settings.siteIcon || import.meta.env.VITE_SITE_ICON || "",
             contactEmail: settings.contactEmail || import.meta.env.VITE_CONTACT_EMAIL || "contact@moviemedia.org",
             contactPhone: settings.contactPhone || import.meta.env.VITE_CONTACT_PHONE || "+998 90 123 45 67",
-            socialMedia: settings.socialMedia || {
+        socialMedia: settings.socialMedia || {
               facebook: import.meta.env.VITE_FACEBOOK_URL || "https://facebook.com/moviemedia",
               instagram: import.meta.env.VITE_INSTAGRAM_URL || "https://instagram.com/moviemedia",
               telegram: import.meta.env.VITE_TELEGRAM_URL || "https://t.me/moviemedia",
               youtube: import.meta.env.VITE_YOUTUBE_URL || "https://youtube.com/moviemedia"
-            },
+        },
         sectionNames: settings.sectionNames || {
           premieres: "Premyeralar",
           movies: "Kinolar",
@@ -227,7 +227,7 @@ export const AdminPanel = () => {
       });
     }
   }, [settings]);
-
+  
   const posterFileRef = useRef(null);
   const autoSwitchInterval = useRef(null);
   
@@ -255,11 +255,11 @@ export const AdminPanel = () => {
     
     const initializeData = async () => {
       try {
-        // Ensure token is set for development
-        if (!localStorage.getItem('token')) {
-          localStorage.setItem('token', 'mock-admin-token-12345');
-        }
-        
+    // Ensure token is set for development
+    if (!localStorage.getItem('token')) {
+      localStorage.setItem('token', 'mock-admin-token-12345');
+    }
+    
         // Load all data once on mount with error handling
         if (isMounted) {
           try {
@@ -583,40 +583,40 @@ export const AdminPanel = () => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     
     if (!allowedTypes.includes(file.type)) {
-      toast({
-        title: "Xatolik",
+          toast({
+            title: "Xatolik",
         description: "Faqat PNG, WebP yoki JPG formatidagi rasmlar ruxsat etiladi!",
-        variant: "destructive"
-      });
+            variant: "destructive"
+          });
       return;
-    }
+        }
     
     if (file.size > maxSize) {
-      toast({
+        toast({
         title: "Xatolik",
         description: "Rasm hajmi 500KB dan katta bo'lishi mumkin emas!",
-        variant: "destructive"
-      });
+          variant: "destructive"
+        });
       return;
-    }
-    
-    setFormData(prev => ({ ...prev, posterFile: file, posterUrl: "" }));
-    
-    try {
-      const url = await simulateFileUpload(file);
-      setFormData(prev => ({ ...prev, posterUrl: url, poster: url }));
-      
-      toast({
-        title: "Poster yuklandi",
-        description: "Rasm muvaffaqiyatli yuklandi"
-      });
-    } catch (error) {
-      toast({
-        title: "Xatolik",
-        description: "Rasm yuklashda xatolik yuz berdi",
-        variant: "destructive"
-      });
-    }
+      }
+
+        setFormData(prev => ({ ...prev, posterFile: file, posterUrl: "" }));
+        
+        try {
+          const url = await simulateFileUpload(file);
+          setFormData(prev => ({ ...prev, posterUrl: url, poster: url }));
+          
+          toast({
+            title: "Poster yuklandi",
+            description: "Rasm muvaffaqiyatli yuklandi"
+          });
+        } catch (error) {
+          toast({
+            title: "Xatolik",
+            description: "Rasm yuklashda xatolik yuz berdi",
+            variant: "destructive"
+          });
+        }
   };
 
   const handlePosterUrlChange = (url: string) => {
@@ -702,7 +702,7 @@ export const AdminPanel = () => {
         } else {
           throw new Error(result.error);
         }
-      } else { 
+      } else {
         // Add new movie
         const result = await createMovie(movieData);
         if (result.success) {
@@ -865,73 +865,73 @@ export const AdminPanel = () => {
   const MovieForm = (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* 1. Nomi */}
-      <div className="space-y-2">
+        <div className="space-y-2">
         <Label htmlFor="title">Nomi *</Label>
-        <Input
-          id="title"
-          value={formData.title}
-          onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+          <Input
+            id="title"
+            value={formData.title}
+            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
           placeholder="Kino yoki serial nomini kiriting"
-          required
-        />
-      </div>
+            required
+          />
+        </div>
 
       {/* 2. Yili */}
-      <div className="space-y-2">
+        <div className="space-y-2">
         <Label htmlFor="year">Yili *</Label>
-        <Input
-          id="year"
-          type="number"
+          <Input
+            id="year"
+            type="number"
           value={formData.year === 0 ? "" : formData.year}
-          onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) || 0 }))}
-          placeholder="2025"
-          min="1900"
-          max="2030"
-          required
-        />
-      </div>
+              onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) || 0 }))}
+            placeholder="2025"
+            min="1900"
+            max="2030"
+            required
+          />
+        </div>
 
       {/* 3. Tili */}
-      <div className="space-y-2">
+          <div className="space-y-2">
         <Label htmlFor="language">Tili *</Label>
-        <Select
-          value={formData.language}
-          onValueChange={(value) => setFormData(prev => ({ ...prev, language: value }))}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Tilni tanlang" />
-          </SelectTrigger>
-          <SelectContent>
-            {languages.map((lang) => (
-              <SelectItem key={lang.value} value={lang.value}>
-                {lang.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+            <Select
+              value={formData.language}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, language: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Tilni tanlang" />
+              </SelectTrigger>
+              <SelectContent>
+                {languages.map((lang) => (
+                  <SelectItem key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
       {/* 4. Reytingi */}
-      <div className="space-y-2">
+        <div className="space-y-2">
         <Label htmlFor="rating">Reytingi (1-10 gacha) *</Label>
-        <Input
-          id="rating"
-          type="number"
-          step="0.1"
+          <Input
+            id="rating"
+            type="number"
+            step="0.1"
           min="1"
-          max="10"
+            max="10"
           value={formData.rating === 0 ? "" : formData.rating}
-          onChange={(e) => setFormData(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
-          placeholder="8.5"
-          required
-        />
-      </div>
+              onChange={(e) => setFormData(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
+            placeholder="8.5"
+            required
+          />
+        </div>
 
       {/* Serial uchun qo'shimcha maydonlar */}
       {formData.category === "series" && (
         <>
           {/* Nechta qismdan iboratligi */}
-          <div className="space-y-2">
+        <div className="space-y-2">
             <Label htmlFor="totalEpisodes">Nechta qismdan iboratligi</Label>
             <Input
               id="totalEpisodes"
@@ -944,7 +944,7 @@ export const AdminPanel = () => {
               }))}
               placeholder="Masalan: 16"
             />
-          </div>
+        </div>
 
           {/* Nechanchi qism ekanligi */}
           <div className="space-y-2">
@@ -960,12 +960,12 @@ export const AdminPanel = () => {
               }))}
               placeholder="Masalan: 1"
             />
-          </div>
+        </div>
         </>
       )}
 
       {/* 5/7. Tavsifi */}
-      <div className="space-y-2">
+        <div className="space-y-2">
         <Label htmlFor="description">Tavsifi *</Label>
         <Textarea
           id="description"
@@ -973,9 +973,9 @@ export const AdminPanel = () => {
           onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
           placeholder="Kino yoki serial haqida batafsil ma'lumot"
           rows={4}
-          required
-        />
-      </div>
+            required
+          />
+        </div>
 
       {/* 8/10. Preview uchun rasm */}
       <div className="space-y-4">
@@ -1014,12 +1014,12 @@ export const AdminPanel = () => {
           {/* URL Input */}
           <div className="space-y-2">
             <Label>URL orqali</Label>
-            <Input
-              value={formData.posterUrl}
-              onChange={(e) => handlePosterUrlChange(e.target.value)}
-              placeholder="https://example.com/poster.jpg"
-              disabled={!!formData.posterFile}
-            />
+              <Input
+                value={formData.posterUrl}
+                onChange={(e) => handlePosterUrlChange(e.target.value)}
+                placeholder="https://example.com/poster.jpg"
+                disabled={!!formData.posterFile}
+              />
             {formData.posterUrl && (
               <p className="text-xs text-green-600">
                 ✓ Rasm URL kiritildi
@@ -1074,7 +1074,7 @@ export const AdminPanel = () => {
                 id={quality}
                 checked={formData.videoQuality.includes(quality)}
                 onCheckedChange={(checked) => handleQualityChange(quality, checked as boolean)}
-              />
+        />
               <Label htmlFor={quality} className="text-sm">{quality}</Label>
             </div>
           ))}
@@ -1122,31 +1122,31 @@ export const AdminPanel = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4">
+          <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4">
         <h2 className="text-2xl font-bold">Kinolar va Seriallar Boshqaruvi</h2>
-      </div>
+          </div>
 
       <div className="space-y-4 md:space-y-6">
         {/* Category Filter Tabs - Mobile'da birinchi */}
         <div className="flex gap-2 w-full">
           {["all", "movies", "series"].map((category) => {
-            const count = category === "all" ? content.length : 
-                         category === "movies" ? content.filter(m => m.category === "movies").length :
+              const count = category === "all" ? content.length : 
+                           category === "movies" ? content.filter(m => m.category === "movies").length :
                          category === "series" ? content.filter(m => m.category === "series").length : 0;
-            
-            return (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
+              
+              return (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category)}
                 className="flex-1 animate-slide-in-left h-10 md:h-12"
-              >
-                {getCategoryTitle(category)} ({count})
-              </Button>
-            );
-          })}
-        </div>
+                >
+                  {getCategoryTitle(category)} ({count})
+                </Button>
+              );
+            })}
+          </div>
 
         {/* Search and Add Button - Mobile'da ikkinchi va uchinchi */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
@@ -1179,17 +1179,17 @@ export const AdminPanel = () => {
           )}
         </div>
 
-        {/* Content Section Header */}
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-          <h3 className="text-lg font-semibold">
-            {getCategoryTitle(selectedCategory)} - Mavjud Kontentlar ({filteredMovies.length})
-          </h3>
-        </div>
+          {/* Content Section Header */}
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+            <h3 className="text-lg font-semibold">
+              {getCategoryTitle(selectedCategory)} - Mavjud Kontentlar ({filteredMovies.length})
+            </h3>
+                </div>
 
-        {/* Movies List */}
-        <Card>
-          <CardContent className="p-0">
-            <div className="space-y-3 md:space-y-4 p-4 md:p-6">
+          {/* Movies List */}
+          <Card>
+            <CardContent className="p-0">
+              <div className="space-y-3 md:space-y-4 p-4 md:p-6">
               {filteredMovies.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground text-lg">
@@ -1281,7 +1281,7 @@ export const AdminPanel = () => {
                               {genre}{idx < movie.genres!.length - 1 ? ',' : ''}
                             </span>
                           ))}
-                        </div>
+                    </div>
                       )}
                       
                       {/* Sifati */}
@@ -1340,10 +1340,10 @@ export const AdminPanel = () => {
                   );
                 })
               )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              </div>
+            </CardContent>
+          </Card>
+                  </div>
 
       {/* Add Movie Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

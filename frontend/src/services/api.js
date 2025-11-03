@@ -1,27 +1,12 @@
 // Determine API base URL
-// Priority: VITE_API_URL > VITE_BACKEND_URL/api > VITE_API_BASE_URL/api > localhost
+// Only use VITE_API_URL; fallback to localhost during development
 const getApiBaseUrl = () => {
-  // If VITE_API_URL is set and is a full URL, use it
-  if (import.meta.env.VITE_API_URL) {
-    const url = import.meta.env.VITE_API_URL.trim();
-    // If it already ends with /api, use as is, otherwise add /api
+  const url = import.meta.env.VITE_API_URL && String(import.meta.env.VITE_API_URL).trim();
+  if (url) {
     return url.endsWith('/api') ? url : `${url}/api`;
   }
-  
-  // If VITE_BACKEND_URL is set
-  if (import.meta.env.VITE_BACKEND_URL) {
-    const url = import.meta.env.VITE_BACKEND_URL.trim();
-    return url.endsWith('/api') ? url : `${url}/api`;
-  }
-  
-  // If VITE_API_BASE_URL is set
-  if (import.meta.env.VITE_API_BASE_URL) {
-    const url = import.meta.env.VITE_API_BASE_URL.trim();
-    return url.endsWith('/api') ? url : `${url}/api`;
-  }
-  
   // Fallback to localhost for development
-  return 'http://localhost:3000/api', "https://kvoice-studio-back-nows.onrender.com/api";
+  return 'http://localhost:3000/api', 'https://kvoice-studio-back-nows.onrender.com/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -30,8 +15,6 @@ const API_BASE_URL = getApiBaseUrl();
 console.log('🔗 API Base URL:', API_BASE_URL);
 console.log('🔍 Environment Variables:', {
   VITE_API_URL: import.meta.env.VITE_API_URL,
-  VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
-  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
   MODE: import.meta.env.MODE,
   PROD: import.meta.env.PROD,
   DEV: import.meta.env.DEV

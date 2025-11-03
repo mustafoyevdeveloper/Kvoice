@@ -71,9 +71,28 @@ class ApiService {
 
   // DELETE request
   async delete(endpoint) {
-    return this.request(endpoint, {
+    // DELETE requests typically don't have a body
+    const url = `${this.baseURL}${endpoint}`;
+    const config = {
       method: 'DELETE',
-    });
+      headers: {
+        // Don't set Content-Type for DELETE without body
+      },
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Delete request failed');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
   }
 
   // Movies endpoints

@@ -52,7 +52,13 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json({ limit: '50mb' }));
+// JSON body parser - allow empty body for GET/DELETE requests
+app.use(express.json({ 
+  limit: '50mb',
+  strict: false // Don't throw error on empty body
+}));
+
+// URL encoded parser
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Routes
@@ -75,10 +81,43 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
+// JSON parsing error handler (must be before general error handler)
+app.use((err, req, res, next) => {
+  // Handle JSON parsing errors
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    // Check if this is a method that doesn't require body (GET, DELETE, etc.)
+    const noBodyMethods = ['GET', 'DELETE', 'HEAD', 'OPTIONS'];
+    if (noBodyMethods.includes(req.method)) {
+      // For methods that don't need body, set empty object and continue
+      req.body = {};
+      return next();
+    }
+    
+    // For methods that need body (POST, PUT, PATCH), check if body is empty
+    const bodyStr = err.body?.toString() || '';
+    if (!bodyStr || bodyStr.trim().length === 0 || bodyStr === '\r\n' || bodyStr === '\n') {
+      // Empty body - set empty object and continue
+      req.body = {};
+      return next();
+    }
+    
+    // Otherwise return error for invalid JSON
+    console.warn('JSON parsing error:', err.message, 'Body:', bodyStr.substring(0, 100));
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid JSON format',
+      error: 'Please provide valid JSON data'
+    });
+  }
+  next(err);
+});
+
+// General error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  console.error('Error stack:', err.stack);
+  if (process.env.NODE_ENV === 'development') {
+    console.error('Error stack:', err.stack);
+  }
   res.status(err.status || 500).json({
     success: false,
     message: 'Internal server error',

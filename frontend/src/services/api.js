@@ -21,7 +21,7 @@ const getApiBaseUrl = () => {
   }
   
   // Fallback to localhost for development
-  return 'http://localhost:3000/api' || "https://kvoice-studio-back-nows.onrender.com/api";
+  return 'http://localhost:3000/api', "https://kvoice-studio-back-nows.onrender.com/api";
 };
 
 const API_BASE_URL = getApiBaseUrl();

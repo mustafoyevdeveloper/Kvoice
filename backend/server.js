@@ -38,10 +38,17 @@ const startServer = async () => {
 // Middleware - CORS Configuration
 const allowedOrigins = process.env.CORS_ORIGIN 
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-  : ['http://localhost:5173', 'http://localhost:8080'];
+  : ['http://localhost:5173', 'http://localhost:8080', 'https://kvoice.vercel.app'];
 
 // Development mode - allow all origins for testing
 const allowAllOrigins = process.env.NODE_ENV !== 'production' && process.env.ALLOW_ALL_ORIGINS === 'true';
+
+// Log CORS configuration for debugging
+console.log('🌐 CORS Configuration:', {
+  allowedOrigins: allowedOrigins,
+  allowAllOrigins: allowAllOrigins,
+  nodeEnv: process.env.NODE_ENV
+});
 
 app.use(cors({
   origin: (origin, callback) => {

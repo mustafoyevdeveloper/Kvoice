@@ -606,10 +606,7 @@ export const AdminPanel = () => {
           const url = await simulateFileUpload(file);
           setFormData(prev => ({ ...prev, posterUrl: url, poster: url }));
           
-          toast({
-            title: "Poster yuklandi",
-            description: "Rasm muvaffaqiyatli yuklandi"
-          });
+          // Success notification removed per requirements
         } catch (error) {
           toast({
             title: "Xatolik",
@@ -694,7 +691,7 @@ export const AdminPanel = () => {
         }
         const result = await updateMovie(movieId, movieData);
         if (result.success) {
-          toast({ title: "Muvaffaqiyat", description: "Kontent muvaffaqiyatli yangilandi!" });
+          // Success notification removed per requirements
           setIsEditDialogOpen(false);
           setEditingMovie(null);
           // Reload movies list
@@ -706,7 +703,7 @@ export const AdminPanel = () => {
         // Add new movie
         const result = await createMovie(movieData);
         if (result.success) {
-          toast({ title: "Muvaffaqiyat", description: `Yangi ${formData.category === "series" ? "serial" : "kino"} qo'shildi!` });
+          // Success notification removed per requirements
           setIsAddDialogOpen(false);
           // Reload movies list
           await loadMovies();
@@ -740,7 +737,7 @@ export const AdminPanel = () => {
     try {
       const result = await deleteMovie(id);
       if (result.success) {
-        toast({ title: "Muvaffaqiyat", description: "Kontent muvaffaqiyatli o'chirildi!" });
+        // Success notification removed per requirements
         // Reload movies list
         await loadMovies();
       } else {

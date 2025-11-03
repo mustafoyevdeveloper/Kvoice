@@ -113,6 +113,12 @@ export const AdminPanel = () => {
   const { loadMovies } = useMovies();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  // Clear search when switching to "Barchasi" as search is disabled there
+  useEffect(() => {
+    if (selectedCategory === 'all' && searchQuery) {
+      setSearchQuery("");
+    }
+  }, [selectedCategory]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingMovie, setEditingMovie] = useState(null);
@@ -153,7 +159,7 @@ export const AdminPanel = () => {
       new: "YANGI KINOLAR"
     },
     sectionDescriptions: {
-      premieres: "Issiq'ida tomosha qilib oling! Hammasi bizda!",
+      premieres: "",
       movies: "Eng mashhur Koreya kinolari to'plami",
       series: "Mashhur K-dramalar va Koreya seriallari",
       trailers: "Eng so'nggi Koreya kinolar treylerlari",
@@ -513,9 +519,9 @@ export const AdminPanel = () => {
     setFormData({
       title: "",
       description: "",
-      year: "",
+      year: 0,
       language: "",
-      rating: "",
+      rating: 0,
       videoQuality: [],
       posterFile: null,
       posterUrl: "",
@@ -796,27 +802,35 @@ export const AdminPanel = () => {
     }));
   }, []);
 
-  // Filter movies by selected category and search
-  const filteredMovies = content.filter(movie => {
+  // Filter movies by selected category and search (align with user panel)
+  const filteredMovies = React.useMemo(() => {
+    let filtered = content;
+
     // Category filter
-    let categoryMatch = true;
-    if (selectedCategory === "all") {
-      // "Barchasi" bo'limida - kino va seriallar ham qidiriladi
-      categoryMatch = true;
-    } else if (selectedCategory === "movies") {
-      // "Kinolar" bo'limida - faqat kinolar qidiriladi
-      categoryMatch = movie.category === "movies";
-    } else if (selectedCategory === "series") {
-      // "Seriallar" bo'limida - faqat seriallar qidiriladi
-      categoryMatch = movie.category === "series";
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((movie) => {
+        const cat = (movie.category || '').toLowerCase();
+        if (selectedCategory === 'movies') {
+          return cat === 'movies' || cat === 'movie';
+        }
+        if (selectedCategory === 'series') {
+          return cat === 'series' || cat === 'serial';
+        }
+        return true;
+      });
     }
-    
-    // Search filter - kino yoki serial nomiga qarab qidirish
-    const searchMatch = !searchQuery.trim() || 
-      (movie.title || '').toLowerCase().includes(searchQuery.toLowerCase().trim());
-    
-    return categoryMatch && searchMatch;
-  });
+
+    // Search by title only, case-insensitive
+    const q = (searchQuery || "").trim().toLowerCase();
+    if (q) {
+      filtered = filtered.filter((movie) => {
+        const title = (movie.title || '').toLowerCase();
+        return title.includes(q);
+      });
+    }
+
+    return filtered;
+  }, [content, selectedCategory, searchQuery]);
 
   const getCategoryTitle = (category: string) => {
     switch (category) {

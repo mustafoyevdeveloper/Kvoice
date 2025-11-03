@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock, Eye, EyeOff, LogOut } from "lucide-react";
 
-const ADMIN_PASSWORD = "12345678!@WEB";
+const ADMIN_PASSWORD = "Kvoice11Sudio20nows25Admin?3:38:42";
 const ADMIN_SESSION_KEY = "admin_authorized";
 
 const Admin = () => {

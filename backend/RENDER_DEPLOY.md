@@ -19,11 +19,11 @@ PORT=10000
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/kvoice?retryWrites=true&w=majority
 
 # CORS - Frontend URL'lar (vergul bilan ajratilgan)
-CORS_ORIGIN=https://your-frontend-domain.vercel.app,https://your-frontend-domain.netlify.app,https://www.your-domain.com
+CORS_ORIGIN=http://localhost:5173,http://localhost:8080,https://kvoice.vercel.app,https://www.kvoice.vercel.app
 
 # API Base URL (optional)
-API_BASE_URL=https://your-backend-name.onrender.com
-FRONTEND_URL=https://your-frontend-domain.com
+API_BASE_URL=https://kvoice-studio-back-nows.onrender.com
+FRONTEND_URL=https://kvoice.vercel.app
 ```
 
 ### 3. Render Service Type

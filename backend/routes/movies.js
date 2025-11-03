@@ -57,7 +57,16 @@ const seriesValidation = [
 // Pre-process FormData fields before validation
 const preProcessFormData = (req, res, next) => {
   try {
+    // Handle videoQuality -> quality mapping (frontend sends both)
+    if (req.body.videoQuality) {
+      // If both exist, prefer quality, otherwise use videoQuality
+      if (!req.body.quality) {
+        req.body.quality = req.body.videoQuality;
+      }
+    }
+    
     // Parse JSON fields if they are strings (from FormData)
+    // Ensure genres is always an array
     if (req.body.genres) {
       if (typeof req.body.genres === 'string') {
         try {
@@ -71,8 +80,12 @@ const preProcessFormData = (req, res, next) => {
       if (!Array.isArray(req.body.genres)) {
         req.body.genres = [];
       }
+    } else {
+      // If genres is missing, set to empty array (validation will catch it)
+      req.body.genres = [];
     }
     
+    // Ensure quality is always an array
     if (req.body.quality) {
       if (typeof req.body.quality === 'string') {
         try {
@@ -86,6 +99,9 @@ const preProcessFormData = (req, res, next) => {
       if (!Array.isArray(req.body.quality)) {
         req.body.quality = [];
       }
+    } else {
+      // If quality is missing, set to empty array (validation will catch it)
+      req.body.quality = [];
     }
     
     // Convert string numbers to actual numbers
@@ -129,6 +145,13 @@ const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.error('Validation errors:', errors.array());
+    console.error('Request body:', {
+      title: req.body.title,
+      category: req.body.category,
+      genres: req.body.genres,
+      quality: req.body.quality,
+      videoQuality: req.body.videoQuality
+    });
     return res.status(400).json({
       success: false,
       message: 'Validation failed',

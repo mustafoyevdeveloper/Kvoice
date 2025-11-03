@@ -528,6 +528,7 @@ export const AdminPanel = () => {
 
   // Open add dialog
   const handleOpenAddDialog = (category?: string) => {
+    setEditingMovie(null); // Clear editing state when adding new
     resetFormData();
     if (category) {
       setFormData(prev => ({ ...prev, category }));
@@ -675,11 +676,15 @@ export const AdminPanel = () => {
         movieData.poster = formData.posterUrl;
       }
       
-      // Removed console.log to prevent console spam
-
+      // Check if we're editing or creating
       if (editingMovie) {
-        // Update existing movie
-        const result = await updateMovie(editingMovie.id, movieData);
+        // Update existing movie - use _id if id doesn't exist
+        const movieId = editingMovie.id || editingMovie._id;
+        if (!movieId) {
+          console.error('Editing movie but ID is missing:', editingMovie);
+          throw new Error('Movie ID not found. Cannot update movie without ID.');
+        }
+        const result = await updateMovie(movieId, movieData);
         if (result.success) {
           toast({ title: "Muvaffaqiyat", description: "Kontent muvaffaqiyatli yangilandi!" });
           setIsEditDialogOpen(false);
@@ -893,6 +898,41 @@ export const AdminPanel = () => {
       </div>
 
       {/* Serial uchun qo'shimcha maydonlar */}
+      {formData.category === "series" && (
+        <>
+          {/* Nechta qismdan iboratligi */}
+          <div className="space-y-2">
+            <Label htmlFor="totalEpisodes">Nechta qismdan iboratligi</Label>
+            <Input
+              id="totalEpisodes"
+              type="number"
+              min="1"
+              value={formData.totalEpisodes || ""}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                totalEpisodes: e.target.value ? parseInt(e.target.value) : undefined 
+              }))}
+              placeholder="Masalan: 16"
+            />
+          </div>
+
+          {/* Nechanchi qism ekanligi */}
+          <div className="space-y-2">
+            <Label htmlFor="currentEpisode">Nechanchi qism ekanligi</Label>
+            <Input
+              id="currentEpisode"
+              type="number"
+              min="1"
+              value={formData.currentEpisode || ""}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                currentEpisode: e.target.value ? parseInt(e.target.value) : undefined 
+              }))}
+              placeholder="Masalan: 1"
+            />
+          </div>
+        </>
+      )}
 
       {/* 5/7. Tavsifi */}
       <div className="space-y-2">
@@ -1123,8 +1163,8 @@ export const AdminPanel = () => {
                   </p>
                 </div>
               ) : (
-                filteredMovies.map((movie) => (
-                  <div key={movie.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
+                filteredMovies.map((movie, index) => (
+                  <div key={movie.id || movie._id || `movie-${index}`} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center justify-between">
                       <h4 className="font-semibold text-sm md:text-base">{movie.title}</h4>
@@ -1146,7 +1186,7 @@ export const AdminPanel = () => {
                         <span>{movie.year}</span>
                         <span className="capitalize">{movie.category}</span>
                         <span>⭐ {movie.rating}</span>
-                        <span>👁 {movie.views}</span>
+                        <span>👁 {movie.views || 0}</span>
                         {movie.isNew && <span className="text-red-500 font-medium">Yangi</span>}
                         {movie.isPremiere && <span className="text-blue-500 font-medium">Premyera</span>}
                       </div>

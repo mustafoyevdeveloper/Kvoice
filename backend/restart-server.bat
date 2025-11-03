@@ -14,4 +14,3 @@ timeout /t 2 /nobreak >nul
 echo Starting server...
 cd /d "%~dp0"
 node server.js
-

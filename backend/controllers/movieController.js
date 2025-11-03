@@ -15,8 +15,8 @@ export const getAllMovies = async (req, res) => {
       order = 'desc'
     } = req.query;
 
-    // Build query
-    const query = { isActive: true };
+    // Build query - removed isActive filter
+    const query = {};
 
     // Category filter
     if (category && category !== 'all') {
@@ -89,8 +89,7 @@ export const getMovieById = async (req, res) => {
     const { id } = req.params;
 
     const movie = await Movie.findOne({ 
-      _id: id, 
-      isActive: true 
+      _id: id
     });
 
     if (!movie) {
@@ -101,9 +100,7 @@ export const getMovieById = async (req, res) => {
       });
     }
 
-    // Increment views
-    movie.views += 1;
-    await movie.save();
+    // Views tracking removed - not in form
 
     // Exclude Buffer from response
     const movieObj = movie.toObject();
@@ -171,6 +168,24 @@ export const createMovie = async (req, res) => {
       return field;
     };
 
+    // Handle poster URL - if it's base64 or data URI, store in poster field, not posterUrl
+    let posterUrl = req.body.posterUrl || posterPath;
+    let poster = posterPath || req.body.poster || '';
+    
+    // If posterUrl is base64/data URI, use it as poster instead
+    if (req.body.posterUrl && /^data:image\/.+;base64,.+/.test(req.body.posterUrl)) {
+      poster = req.body.posterUrl;
+      posterUrl = posterPath || ''; // Use path if file uploaded, otherwise empty
+    } else if (req.body.posterUrl && /^https?:\/\/.+/.test(req.body.posterUrl)) {
+      // Valid HTTP/HTTPS URL - use for both
+      poster = req.body.posterUrl;
+      posterUrl = req.body.posterUrl;
+    } else if (req.body.posterUrl && /^\/.+/.test(req.body.posterUrl)) {
+      // Relative path
+      poster = req.body.posterUrl;
+      posterUrl = req.body.posterUrl;
+    }
+
     const movieData = {
       title: req.body.title,
       description: req.body.description,
@@ -181,8 +196,8 @@ export const createMovie = async (req, res) => {
       genres: parseField(req.body.genres) || [],
       quality: parseField(req.body.quality) || [],
       videoLink: req.body.videoLink || req.body.videoUrl,
-      poster: posterPath || req.body.posterUrl || req.body.poster,
-      posterUrl: req.body.posterUrl || posterPath
+      poster: poster,
+      ...(posterUrl ? { posterUrl: posterUrl } : {})
     };
 
     // Add poster data to MongoDB if file was uploaded
@@ -222,10 +237,22 @@ export const createMovie = async (req, res) => {
     });
   } catch (error) {
     console.error('Create movie error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      reqBody: {
+        title: req.body?.title,
+        category: req.body?.category,
+        genres: req.body?.genres,
+        quality: req.body?.quality
+      }
+    });
     res.status(500).json({
       success: false,
       message: 'Failed to create movie',
-      error: error.message
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };
@@ -234,6 +261,15 @@ export const createMovie = async (req, res) => {
 export const updateMovie = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    // Validate ID
+    if (!id || id === 'undefined' || id === 'null') {
+      return res.status(400).json({
+        success: false,
+        message: 'Movie ID is required',
+        error: 'Invalid movie ID'
+      });
+    }
     let posterPath = null;
     let posterBuffer = null;
     let posterContentType = 'image/jpeg';
@@ -289,7 +325,7 @@ export const updateMovie = async (req, res) => {
       videoLink: req.body.videoLink || req.body.videoUrl
     };
 
-    // Handle poster update
+    // Handle poster update - similar to createMovie
     if (posterBuffer) {
       // New file uploaded - save to MongoDB
       updateData.poster = posterPath;
@@ -297,11 +333,38 @@ export const updateMovie = async (req, res) => {
       updateData.posterData = posterBuffer;
       updateData.posterContentType = posterContentType;
     } else if (req.body.posterUrl) {
-      // URL provided - clear Buffer and use URL
-      updateData.poster = req.body.posterUrl;
-      updateData.posterUrl = req.body.posterUrl;
+      // Handle poster URL - if it's base64/data URI, store in poster field, not posterUrl
+      if (/^data:image\/.+;base64,.+/.test(req.body.posterUrl)) {
+        // Base64 data URI - store in poster, not posterUrl
+        updateData.poster = req.body.posterUrl;
+        updateData.posterUrl = posterPath || ''; // Use path if available, otherwise empty
+        updateData.posterData = null;
+        updateData.posterContentType = 'image/jpeg';
+      } else if (/^https?:\/\/.+/.test(req.body.posterUrl)) {
+        // Valid HTTP/HTTPS URL - use for both
+        updateData.poster = req.body.posterUrl;
+        updateData.posterUrl = req.body.posterUrl;
+        updateData.posterData = null;
+        updateData.posterContentType = 'image/jpeg';
+      } else if (/^\/.+/.test(req.body.posterUrl)) {
+        // Relative path
+        updateData.poster = req.body.posterUrl;
+        updateData.posterUrl = req.body.posterUrl;
+        updateData.posterData = null;
+        updateData.posterContentType = 'image/jpeg';
+      } else {
+        // Fallback - use as poster
+        updateData.poster = req.body.posterUrl;
+        updateData.posterData = null;
+        updateData.posterContentType = 'image/jpeg';
+      }
+    } else if (req.body.poster) {
+      // Fallback to poster field
+      updateData.poster = req.body.poster;
+      if (req.body.poster && /^https?:\/\/.+/.test(req.body.poster)) {
+        updateData.posterUrl = req.body.poster;
+      }
       updateData.posterData = null;
-      updateData.posterContentType = 'image/jpeg';
     }
 
     // Serial uchun totalEpisodes va currentEpisode - faqat yozilgan bo'lsa qo'shish
@@ -350,10 +413,23 @@ export const updateMovie = async (req, res) => {
     });
   } catch (error) {
     console.error('Update movie error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      reqBody: {
+        title: req.body?.title,
+        category: req.body?.category,
+        genres: req.body?.genres,
+        quality: req.body?.quality,
+        posterUrl: req.body?.posterUrl ? (req.body.posterUrl.substring(0, 50) + '...') : undefined
+      }
+    });
     res.status(500).json({
       success: false,
       message: 'Failed to update movie',
-      error: error.message
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };

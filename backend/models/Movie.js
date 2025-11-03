@@ -57,9 +57,13 @@ const movieSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function(v) {
-        return !v || /^https?:\/\/.+/.test(v);
+        // Allow empty, HTTP/HTTPS URLs, data URIs (base64), or relative paths
+        return !v || 
+               /^https?:\/\/.+/.test(v) || 
+               /^data:image\/.+;base64,.+/.test(v) ||
+               /^\/.+/.test(v);
       },
-      message: 'Poster URL must be a valid HTTP/HTTPS URL'
+      message: 'Poster URL must be a valid HTTP/HTTPS URL, data URI, or relative path'
     }
   },
   posterData: {
@@ -90,17 +94,6 @@ const movieSchema = new mongoose.Schema({
     type: Number,
     min: [1, 'Current episode must be at least 1'],
     required: false
-  },
-  views: {
-    type: Number,
-    default: 0,
-    min: 0,
-    required: false
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-    required: false
   }
 }, {
   timestamps: true,
@@ -121,8 +114,6 @@ const movieSchema = new mongoose.Schema({
 movieSchema.index({ category: 1 });
 movieSchema.index({ year: -1 });
 movieSchema.index({ rating: -1 });
-movieSchema.index({ views: -1 });
-movieSchema.index({ isActive: 1 });
 movieSchema.index({ genres: 1 });
 movieSchema.index({ language: 1 });
 // Text search can be done with regex instead

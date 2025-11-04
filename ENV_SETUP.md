@@ -7,7 +7,7 @@
 # Backend development environment
 cp backend/env backend/.env
 ```
-
+  d
 ### Production (.env.production)
 ```bash
 # Backend production environment

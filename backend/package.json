@@ -2,7 +2,7 @@
   "name": "kvoice-backend",
   "version": "1.0.0",
   "type": "module",
-  "description": "Movie Media Backend API - Koreya kinolari va seriallari",
+  "description": "Kvoice Backend API - Koreya kinolari va seriallari",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

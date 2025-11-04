@@ -20,7 +20,7 @@ const startServer = async () => {
     
     if (!serverStarted) {
       app.listen(PORT, () => {
-        console.log(`🚀 Movie Media Backend API Server running on port ${PORT}`);
+        console.log(`🚀 Kvoice Backend API Server running on port ${PORT}`);
         console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
         if (process.env.MONGODB_URI) {
           const dbName = process.env.MONGODB_URI.split('/').pop()?.split('?')[0] || 'kvoice';
@@ -93,7 +93,7 @@ app.use('/api/movies', movieRoutes);
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
-    message: 'Movie Media API Server is running',
+    message: 'Kvoice API Server is running',
     timestamp: new Date().toISOString()
   });
 });

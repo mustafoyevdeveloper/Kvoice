@@ -21,7 +21,7 @@ Render Dashboard → Your Service → **Logs**
 
 Quyidagilarni ko'rish kerak:
 ```
-🚀 Kvoice Backend API Server running on port 10000
+🚀 Movie Media Backend API Server running on port 10000
 ✅ MongoDB connected successfully
 ```
 

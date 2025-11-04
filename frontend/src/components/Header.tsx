@@ -69,7 +69,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
               }`}>
                 <img 
                   src="/favicon.png" 
-                  alt="Kvoice Logo" 
+                  alt="Movie Media Logo" 
                   className="h-9 w-9 md:h-[2.625rem] md:w-[2.625rem] object-contain"
                   onError={(e) => {
                     // Agar logo yuklanmasa, fallback icon ko'rsatish
@@ -77,7 +77,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
                     target.style.display = 'none';
                     const parent = target.parentElement;
                     if (parent) {
-                      parent.innerHTML = '<span class="text-primary font-bold text-base md:text-lg">K</span>';
+                      parent.innerHTML = '<span class="text-primary font-bold text-base md:text-lg">M</span>';
                     }
                   }}
                 />
@@ -85,7 +85,7 @@ export const Header = ({ onSearch, onCategorySelect, selectedCategory, isHomePag
               <div className={`text-xl md:text-3xl font-bold animate-fade-in transition-all duration-300 ease-in-out ${
                 isScrolled ? 'text-white' : 'text-primary'
               }`}>
-                {settings?.siteName || "Kvoice"}
+                {settings?.siteName || "Movie Media"}
               </div>
             </div>
           </div>

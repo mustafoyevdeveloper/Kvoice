@@ -1,6 +1,6 @@
-# Kvoice Backend API Documentation
+# Movie Media Backend API Documentation
 
-Bu hujjat Kvoice backend API'sining barcha endpoint'larini va ularning qo'llanilishini tushuntiradi.
+Bu hujjat Movie Media backend API'sining barcha endpoint'larini va ularning qo'llanilishini tushuntiradi.
 
 ## Base URL
 
@@ -29,7 +29,7 @@ Serverning holatini tekshiradi.
 ```json
 {
   "success": true,
-  "message": "Kvoice API Server is running",
+  "message": "Movie Media API Server is running",
   "timestamp": "2024-01-01T12:00:00.000Z"
 }
 ```

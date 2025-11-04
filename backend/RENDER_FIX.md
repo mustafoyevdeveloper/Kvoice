@@ -124,7 +124,7 @@ added 123 packages in 5s
 ==> Running 'npm start'
 🔄 Connecting to MongoDB...
 ✅ MongoDB connected successfully
-🚀 Kvoice Backend API Server running on port 10000
+🚀 Movie Media Backend API Server running on port 10000
 ```
 
 Agar `added 123 packages` ko'rsatmasa, `npm install` ishlamagan!

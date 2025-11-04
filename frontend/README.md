@@ -1,8 +1,8 @@
-# Kvoice - O'zbek Kino Streaming Sayti
+# Movie Media - O'zbek Kino Streaming Sayti
 
 ## Loyiha haqida
 
-Kvoice - o'zbek tilidagi eng yangi va sifatli kinolar, seriallar va premyeralar uchun professional streaming platformasi.
+Movie Media - o'zbek tilidagi eng yangi va sifatli kinolar, seriallar va premyeralar uchun professional streaming platformasi.
 
 ## Texnologiyalar
 

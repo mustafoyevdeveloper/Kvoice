@@ -202,6 +202,3 @@ Bu loyiha MIT litsenziyasi ostida tarqatilmoqda. Batafsil ma'lumot uchun `LICENS
 _________________________________________________________________________
 
 **MoviMedia** - O'zbek kinolarining eng yaxshi platformasi! 🎬✨# MovieMeda
-# MovieMedia
-# MovieMedia
-# MovieMedia

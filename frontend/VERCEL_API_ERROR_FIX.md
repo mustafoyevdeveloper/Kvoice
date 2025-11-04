@@ -58,7 +58,7 @@ CORS_ORIGIN=http://localhost:5173,http://localhost:8080,https://kvoice.vercel.ap
 
 2. Quyidagilarni ko'rish kerak:
 ```
-🚀 Kvoice Backend API Server running on port 10000
+🚀 Movie Media Backend API Server running on port 10000
 ✅ MongoDB connected successfully
 ```
 
@@ -129,7 +129,7 @@ fetch('https://kvoice-studio-back-nows.onrender.com/api/health')
 ```
 
 **Natija:**
-- ✅ `{success: true, message: "Kvoice API Server is running"}` - Backend ishlayapti
+- ✅ `{success: true, message: "Movie Media API Server is running"}` - Backend ishlayapti
 - ❌ `Failed to fetch` - Backend ishlamayapti yoki CORS muammosi
 
 ---

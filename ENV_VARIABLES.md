@@ -13,7 +13,7 @@ VITE_BACKEND_URL=http://localhost:3000           # Backend server URL
 ```env
 VITE_APP_URL=http://localhost:8080               # Frontend URL
 VITE_FRONTEND_URL=http://localhost:8080          # Frontend URL (alternativ)
-VITE_APP_NAME=Kvoice
+VITE_APP_NAME=Movie Media
 ```
 
 ### Contact & Social Media

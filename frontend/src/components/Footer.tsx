@@ -15,7 +15,7 @@ export const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <h3 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-4">
-              {settings?.siteName || "Kvoice"}
+              {settings?.siteName || "Movie Media"}
             </h3>
             <p className="text-muted-foreground mb-4 text-sm md:text-base leading-relaxed">
               {settings?.siteDescription || "Koreya kinolari va seriallarini O'zbek tilida tomosha qiling. Eng mashhur K-dramalar va Koreya filmlari."}
@@ -101,7 +101,7 @@ export const Footer = () => {
               <li className="flex items-center space-x-2">
                 < MessageCircle className="h-3 w-3 md:h-4 md:w-4" />
                 <a href={`url:${settings?.contactTelegram || "https://t.me/kvoice_studio"}`} className="hover:text-primary transition-colors duration-200">
-                  {settings?.contactPhone || "Kvoice"}
+                  {settings?.contactPhone || "Movie Media"}
                 </a>
               </li>
             </ul>
@@ -111,7 +111,7 @@ export const Footer = () => {
         {/* Bottom */}
         <div className="border-t border-border/30 pt-4 md:pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-xs text-muted-foreground mb-3 md:mb-0">
-            © 2025 Kvoice. Barcha huquqlar himoyalangan.
+            © 2025 Movie Media. Barcha huquqlar himoyalangan.
           </p>
         </div>
 

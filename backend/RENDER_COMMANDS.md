@@ -201,7 +201,7 @@ added 123 packages in 5s
   allowAllOrigins: false,
   nodeEnv: 'production'
 }
-🚀 Kvoice Backend API Server running on port 10000
+🚀 Movie Media Backend API Server running on port 10000
 📡 Environment: production
 🌐 MongoDB: Connected to database "kvoice"
 ```

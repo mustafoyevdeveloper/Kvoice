@@ -1,4 +1,4 @@
-# Kvoice Backend API
+# Movie Media Backend API
 
 Koreya kinolari va seriallari uchun backend API serveri.
 

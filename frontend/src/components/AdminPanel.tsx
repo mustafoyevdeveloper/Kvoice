@@ -133,7 +133,7 @@ export const AdminPanel = () => {
   
   // Site settings state
   const [siteSettings, setSiteSettings] = useState({
-    siteName: import.meta.env.VITE_APP_NAME || "Kvoice",
+    siteName: import.meta.env.VITE_APP_NAME || "Movie Media",
     siteDescription: import.meta.env.VITE_APP_DESCRIPTION || "Eng yangi kinolar va seriallar",
     siteIcon: import.meta.env.VITE_SITE_ICON || "",
     contactEmail: import.meta.env.VITE_CONTACT_EMAIL || "contact@moviemedia.org",
@@ -168,7 +168,7 @@ export const AdminPanel = () => {
     heroTitle: "Koreya kinolari va seriallari",
     heroSubtitle: "Eng mashhur K-dramalar va Koreya filmlarini O'zbek tilida tomosha qiling",
     aboutTitle: "Biz haqimizda",
-    aboutDescription: "Kvoice - Koreya kinolari va seriallari olamiga xush kelibsiz! Bizning platformamizda eng mashhur K-dramalar, Koreya filmlari va seriallarini O'zbek tilida tomosha qiling. HD va 4K sifatda barcha kontentlar mavjud.",
+    aboutDescription: "Movie Media - Koreya kinolari va seriallari olamiga xush kelibsiz! Bizning platformamizda eng mashhur K-dramalar, Koreya filmlari va seriallarini O'zbek tilida tomosha qiling. HD va 4K sifatda barcha kontentlar mavjud.",
     privacyTitle: "Maxfiylik siyosati",
     privacyDescription: "Sizning shaxsiy ma'lumotlaringiz biz uchun muhim",
     termsTitle: "Foydalanish shartlari",
@@ -180,7 +180,7 @@ export const AdminPanel = () => {
     if (settings && typeof settings === 'object') {
       // Create new settings object
       const newSiteSettings = {
-            siteName: settings.siteName || import.meta.env.VITE_APP_NAME || "Kvoice",
+            siteName: settings.siteName || import.meta.env.VITE_APP_NAME || "Movie Media",
             siteDescription: settings.siteDescription || import.meta.env.VITE_APP_DESCRIPTION || "Koreya kinolari va seriallarini O'zbek tilida tomosha qiling",
             siteIcon: settings.siteIcon || import.meta.env.VITE_SITE_ICON || "",
             contactEmail: settings.contactEmail || import.meta.env.VITE_CONTACT_EMAIL || "contact@moviemedia.org",
@@ -215,7 +215,7 @@ export const AdminPanel = () => {
         heroTitle: settings.heroTitle || "Koreya kinolari va seriallari",
         heroSubtitle: settings.heroSubtitle || "Eng mashhur K-dramalar va Koreya filmlarini O'zbek tilida tomosha qiling",
         aboutTitle: settings.aboutTitle || "Biz haqimizda",
-        aboutDescription: settings.aboutDescription || "Kvoice - Koreya kinolari va seriallari olamiga xush kelibsiz! Bizning platformamizda eng mashhur K-dramalar, Koreya filmlari va seriallarini O'zbek tilida tomosha qiling. HD va 4K sifatda barcha kontentlar mavjud.",
+        aboutDescription: settings.aboutDescription || "Movie Media - Koreya kinolari va seriallari olamiga xush kelibsiz! Bizning platformamizda eng mashhur K-dramalar, Koreya filmlari va seriallarini O'zbek tilida tomosha qiling. HD va 4K sifatda barcha kontentlar mavjud.",
         privacyTitle: settings.privacyTitle || "Maxfiylik siyosati",
         privacyDescription: settings.privacyDescription || "Sizning shaxsiy ma'lumotlaringiz biz uchun muhim",
         termsTitle: settings.termsTitle || "Foydalanish shartlari",

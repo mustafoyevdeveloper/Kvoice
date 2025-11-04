@@ -18,7 +18,7 @@ const Index = () => {
 
   // Set page title and scroll to top when component mounts
   useEffect(() => {
-    document.title = "Kvoice - Koreya kinolari va seriallari O'zbek tilida";
+    document.title = "Movie Media - Koreya kinolari va seriallari O'zbek tilida";
     window.scrollTo({
       top: 0,
       left: 0,
@@ -41,7 +41,7 @@ const Index = () => {
       }
     : {
         // Default hero content when no movies in database
-        title: "Kvoice",
+        title: "Movie Media",
         description: "Eng yangi va ajoyib Koreya kinolari va seriallari O'zbek tilida. HD va 4K sifatda barcha kontentlar mavjud.",
         poster: "",
         rating: 8.5,

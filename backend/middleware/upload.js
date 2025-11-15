@@ -10,7 +10,7 @@ const posterStorage = multer.memoryStorage();
 // Image upload filter - PNG, WebP, JPG only, max 500KB
 const imageFilter = (req, file, cb) => {
   const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-  const maxSize = 500 * 1024; // 500KB in bytes
+  const maxSize = 1000 * 1024; // 500KB in bytes
   
   if (!allowedMimes.includes(file.mimetype)) {
     return cb(new Error('Faqat PNG, WebP yoki JPG formatidagi rasmlar ruxsat etiladi!'), false);
@@ -29,7 +29,7 @@ export const uploadPoster = multer({
   storage: posterStorage,
   fileFilter: imageFilter,
   limits: {
-    fileSize: 500 * 1024 // 500KB maximum
+    fileSize: 1000 * 1024 // 500KB maximum
   }
 });
 

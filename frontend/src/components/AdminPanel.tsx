@@ -586,7 +586,7 @@ export const AdminPanel = () => {
     }
 
     // Validation: max 500KB (backend limit), PNG/WebP/JPG only
-    const maxSize = 500 * 1024; // 500KB (backend limit)
+    const maxSize = 1000 * 1024; // 500KB (backend limit)
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     
     if (!allowedTypes.includes(file.type)) {

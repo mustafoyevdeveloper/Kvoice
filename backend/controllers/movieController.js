@@ -131,13 +131,13 @@ export const createMovie = async (req, res) => {
     // Handle file upload - store in MongoDB as Buffer
     // Validation: max 500KB, PNG/WebP/JPG only
     if (req.file) {
-      const maxSize = 500 * 1024; // 500KB
+      const maxSize = 1000 * 1024; // 500KB
       const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       
       if (req.file.size > maxSize) {
         return res.status(400).json({
           success: false,
-          message: 'Rasm hajmi 500KB dan katta bo\'lishi mumkin emas!',
+          message: 'Rasm hajmi 1000KB dan katta bo\'lishi mumkin emas!',
           error: 'File size exceeds 500KB limit'
         });
       }
@@ -289,14 +289,14 @@ export const updateMovie = async (req, res) => {
     // Handle file upload - store in MongoDB as Buffer
     // Validation: max 500KB, PNG/WebP/JPG only
     if (req.file) {
-      const maxSize = 500 * 1024; // 500KB
+      const maxSize = 1000 * 1024; // 500KB
       const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       
       if (req.file.size > maxSize) {
         return res.status(400).json({
           success: false,
-          message: 'Rasm hajmi 500KB dan katta bo\'lishi mumkin emas!',
-          error: 'File size exceeds 500KB limit'
+          message: 'Rasm hajmi 1000KB dan katta bo\'lishi mumkin emas!',
+          error: 'File size exceeds 1000KB limit'
         });
       }
       

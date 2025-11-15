@@ -601,7 +601,7 @@ export const AdminPanel = () => {
     if (file.size > maxSize) {
       toast({
         title: "Xatolik",
-        description: "Rasm hajmi 500KB dan katta bo'lishi mumkin emas!",
+        description: "Rasm hajmi 1000KB dan katta bo'lishi mumkin emas!",
         variant: "destructive"
       });
       return;
@@ -996,7 +996,7 @@ export const AdminPanel = () => {
             <Label>Qurilmadan yuklash</Label>
             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
               <Image className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-2">PNG, WebP yoki JPG formatida rasm yuklang (maksimum 2000KB)</p>
+              <p className="text-sm text-muted-foreground mb-2">PNG, WebP yoki JPG formatida rasm yuklang (maksimum 1000KB)</p>
               <Button
                 type="button"
                 variant="outline"

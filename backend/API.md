@@ -281,8 +281,8 @@ formData.append('posterUrl', 'https://example.com/poster.jpg');
 ```json
 {
   "success": false,
-  "message": "Rasm hajmi 500KB dan katta bo'lishi mumkin emas!",
-  "error": "File size exceeds 500KB limit"
+  "message": "Rasm hajmi 1000KB dan katta bo'lishi mumkin emas!",
+  "error": "File size exceeds 1000KB limit"
 }
 ```
 

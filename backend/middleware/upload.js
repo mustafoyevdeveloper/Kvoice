@@ -18,7 +18,7 @@ const imageFilter = (req, file, cb) => {
   
   // File size will be checked by multer limits, but we can add extra validation
   if (file.size && file.size > maxSize) {
-    return cb(new Error('Rasm hajmi 500KB dan katta bo\'lishi mumkin emas!'), false);
+    return cb(new Error('Rasm hajmi 1000KB dan katta bo\'lishi mumkin emas!'), false);
   }
   
   cb(null, true);

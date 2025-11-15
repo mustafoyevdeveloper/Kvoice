@@ -135,14 +135,26 @@ class ApiService {
     create: (data, posterFile) => {
       const formData = new FormData();
       
-      // Add all fields to FormData
+      // Add all fields to FormData, but exclude posterUrl/poster if posterFile exists
+      // Also exclude blob URLs - they should never be sent
       Object.keys(data).forEach(key => {
+        // Skip posterUrl and poster if posterFile is provided (file upload takes priority)
+        if (posterFile && (key === 'posterUrl' || key === 'poster')) {
+          return;
+        }
+        
+        // Skip blob URLs - they are only for preview
         if (data[key] !== undefined && data[key] !== null) {
-          if (Array.isArray(data[key])) {
+          const value = data[key];
+          if (typeof value === 'string' && value.startsWith('blob:')) {
+            return; // Skip blob URLs
+          }
+          
+          if (Array.isArray(value)) {
             // Arrays should be sent as JSON string or multiple fields
-            formData.append(key, JSON.stringify(data[key]));
+            formData.append(key, JSON.stringify(value));
           } else {
-            formData.append(key, data[key]);
+            formData.append(key, value);
           }
         }
       });
@@ -157,20 +169,39 @@ class ApiService {
     update: (id, data, posterFile) => {
       const formData = new FormData();
       
-      // Add all fields to FormData
+      // Add all fields to FormData, but exclude posterUrl/poster if posterFile exists
+      // Also exclude blob URLs - they should never be sent
       Object.keys(data).forEach(key => {
+        // Skip posterUrl and poster if posterFile is provided (file upload takes priority)
+        if (posterFile && (key === 'posterUrl' || key === 'poster')) {
+          return;
+        }
+        
+        // Skip blob URLs - they are only for preview
         if (data[key] !== undefined && data[key] !== null) {
-          if (Array.isArray(data[key])) {
-            formData.append(key, JSON.stringify(data[key]));
+          const value = data[key];
+          if (typeof value === 'string' && value.startsWith('blob:')) {
+            return; // Skip blob URLs
+          }
+          
+          if (Array.isArray(value)) {
+            formData.append(key, JSON.stringify(value));
           } else {
-            formData.append(key, data[key]);
+            formData.append(key, value);
           }
         }
       });
 
       // Add poster file if provided
       if (posterFile) {
+        console.log('📤 API: Adding poster file to FormData:', {
+          filename: posterFile.name,
+          size: posterFile.size,
+          type: posterFile.type
+        });
         formData.append('poster', posterFile);
+      } else {
+        console.log('📤 API: No poster file provided for update');
       }
 
       return this.put(`/movies/${id}`, formData);

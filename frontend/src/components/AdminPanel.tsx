@@ -674,16 +674,28 @@ export const AdminPanel = () => {
         ...(formData.category === "series" && formData.totalEpisodes ? { totalEpisodes: formData.totalEpisodes } : {}),
         ...(formData.category === "series" && formData.currentEpisode ? { currentEpisode: formData.currentEpisode } : {}),
         quality: formData.videoQuality,
-        // Add posterFile if uploaded
+        // Add posterFile if uploaded - this will be extracted and sent as FormData
         posterFile: formData.posterFile || undefined
       };
 
       // Add poster URL only if no file is provided (for URL-based posters)
       // If posterFile exists, it will be sent as FormData and backend will handle it
-      // If only posterUrl exists (and it's not a blob URL), send it
+      // IMPORTANT: Never send blob URLs - they are only for preview
       if (!formData.posterFile && formData.posterUrl && !formData.posterUrl.startsWith('blob:')) {
         movieData.posterUrl = formData.posterUrl;
         movieData.poster = formData.posterUrl;
+      }
+      
+      // If posterFile exists, don't send posterUrl/poster to avoid sending blob URLs
+      // The file will be uploaded via FormData and backend will generate the proper URL
+      
+      // Debug log for poster update
+      if (editingMovie && formData.posterFile) {
+        console.log('📤 Edit: Poster file will be uploaded:', {
+          filename: formData.posterFile.name,
+          size: formData.posterFile.size,
+          type: formData.posterFile.type
+        });
       }
       
       // Check if we're editing or creating

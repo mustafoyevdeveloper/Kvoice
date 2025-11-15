@@ -3,6 +3,41 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Get API base URL from environment or construct from request
+const getApiBaseUrl = (req) => {
+  // Try environment variable first (highest priority)
+  if (process.env.API_BASE_URL) {
+    return process.env.API_BASE_URL;
+  }
+  
+  // Fallback: construct from request (works in both local and production)
+  if (req) {
+    // Check for forwarded protocol (for reverse proxy/load balancer)
+    const protocol = req.get('x-forwarded-proto') || 
+                     req.protocol || 
+                     (req.secure ? 'https' : 'http');
+    
+    // Check for forwarded host (for reverse proxy/load balancer)
+    const host = req.get('x-forwarded-host') || 
+                 req.get('host') || 
+                 req.hostname;
+    
+    if (host) {
+      // Ensure protocol is correct (http for localhost, https for others)
+      const finalProtocol = host.includes('localhost') || host.includes('127.0.0.1') 
+        ? 'http' 
+        : protocol === 'https' ? 'https' : 'http';
+      
+      return `${finalProtocol}://${host}`;
+    }
+  }
+  
+  // Final fallback based on environment
+  return process.env.NODE_ENV === 'production' 
+    ? 'https://kvoice-studio-back-nows.onrender.com'
+    : 'http://localhost:3000';
+};
+
 // Get all movies
 export const getAllMovies = async (req, res) => {
   try {
@@ -168,9 +203,18 @@ export const createMovie = async (req, res) => {
       return field;
     };
 
-    // Handle poster URL - if it's base64 or data URI, store in poster field, not posterUrl
+    // Handle poster URL - reject blob URLs
     let posterUrl = req.body.posterUrl || posterPath;
     let poster = posterPath || req.body.poster || '';
+    
+    // Reject blob URLs - they should not be saved
+    if (req.body.posterUrl && req.body.posterUrl.startsWith('blob:')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Blob URL saqlash mumkin emas. Iltimos, faylni yuklang yoki to\'g\'ri URL kiriting.',
+        error: 'Blob URL not allowed'
+      });
+    }
     
     // If posterUrl is base64/data URI, use it as poster instead
     if (req.body.posterUrl && /^data:image\/.+;base64,.+/.test(req.body.posterUrl)) {
@@ -181,9 +225,10 @@ export const createMovie = async (req, res) => {
       poster = req.body.posterUrl;
       posterUrl = req.body.posterUrl;
     } else if (req.body.posterUrl && /^\/.+/.test(req.body.posterUrl)) {
-      // Relative path
-      poster = req.body.posterUrl;
-      posterUrl = req.body.posterUrl;
+      // Relative path - convert to full URL
+      const baseUrl = getApiBaseUrl(req);
+      poster = `${baseUrl}${req.body.posterUrl}`;
+      posterUrl = `${baseUrl}${req.body.posterUrl}`;
     }
 
     // Sort quality array in ascending order (360p, 480p, 720p, 1080p, 1440p, 4K)
@@ -232,9 +277,13 @@ export const createMovie = async (req, res) => {
     await movie.save();
 
     // Update poster path with actual movie ID if file was uploaded
+    // Save as full URL based on category: /api/movies/{id}/poster or /api/series/{id}/poster
     if (posterBuffer && movie._id) {
-      movie.poster = `/api/movies/${movie._id}/poster`;
-      movie.posterUrl = `/api/movies/${movie._id}/poster`;
+      const baseUrl = getApiBaseUrl(req);
+      const categoryPath = movie.category === 'series' ? 'series' : 'movies';
+      const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${movie._id}/poster`;
+      movie.poster = fullPosterUrl;
+      movie.posterUrl = fullPosterUrl;
       await movie.save();
     }
 
@@ -289,7 +338,13 @@ export const updateMovie = async (req, res) => {
     // Handle file upload - store in MongoDB as Buffer
     // Validation: max 500KB, PNG/WebP/JPG only
     if (req.file) {
-      const maxSize = 1000 * 1024; // 500KB
+      console.log('📤 Update: New poster file received:', {
+        filename: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype
+      });
+      
+      const maxSize = 1000 * 1024; // 1000KB
       const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       
       if (req.file.size > maxSize) {
@@ -311,6 +366,12 @@ export const updateMovie = async (req, res) => {
       posterBuffer = req.file.buffer;
       posterContentType = req.file.mimetype;
       posterPath = `/api/movies/${id}/poster`;
+    } else {
+      console.log('📤 Update: No file received, checking posterUrl:', {
+        hasPosterUrl: !!req.body.posterUrl,
+        hasPoster: !!req.body.poster,
+        posterUrl: req.body.posterUrl ? req.body.posterUrl.substring(0, 50) + '...' : null
+      });
     }
 
     // Parse JSON fields if they are strings
@@ -350,10 +411,32 @@ export const updateMovie = async (req, res) => {
     };
 
     // Handle poster update - similar to createMovie
+    // Reject blob URLs - they should not be saved
+    if (req.body.posterUrl && req.body.posterUrl.startsWith('blob:')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Blob URL saqlash mumkin emas. Iltimos, faylni yuklang yoki to\'g\'ri URL kiriting.',
+        error: 'Blob URL not allowed'
+      });
+    }
+    
+    if (req.body.poster && req.body.poster.startsWith('blob:')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Blob URL saqlash mumkin emas. Iltimos, faylni yuklang yoki to\'g\'ri URL kiriting.',
+        error: 'Blob URL not allowed'
+      });
+    }
+    
     if (posterBuffer) {
-      // New file uploaded - save to MongoDB
-      updateData.poster = posterPath;
-      updateData.posterUrl = posterPath;
+      // New file uploaded - save to MongoDB with full URL
+      // Determine category from request body or existing movie
+      const category = req.body.category || (await Movie.findById(id))?.category || 'movies';
+      const baseUrl = getApiBaseUrl(req);
+      const categoryPath = category === 'series' ? 'series' : 'movies';
+      const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${id}/poster`;
+      updateData.poster = fullPosterUrl;
+      updateData.posterUrl = fullPosterUrl;
       updateData.posterData = posterBuffer;
       updateData.posterContentType = posterContentType;
     } else if (req.body.posterUrl) {
@@ -361,7 +444,7 @@ export const updateMovie = async (req, res) => {
       if (/^data:image\/.+;base64,.+/.test(req.body.posterUrl)) {
         // Base64 data URI - store in poster, not posterUrl
         updateData.poster = req.body.posterUrl;
-        updateData.posterUrl = posterPath || ''; // Use path if available, otherwise empty
+        updateData.posterUrl = ''; // Empty for base64
         updateData.posterData = null;
         updateData.posterContentType = 'image/jpeg';
       } else if (/^https?:\/\/.+/.test(req.body.posterUrl)) {
@@ -371,9 +454,10 @@ export const updateMovie = async (req, res) => {
         updateData.posterData = null;
         updateData.posterContentType = 'image/jpeg';
       } else if (/^\/.+/.test(req.body.posterUrl)) {
-        // Relative path
-        updateData.poster = req.body.posterUrl;
-        updateData.posterUrl = req.body.posterUrl;
+        // Relative path - convert to full URL
+        const baseUrl = getApiBaseUrl(req);
+        updateData.poster = `${baseUrl}${req.body.posterUrl}`;
+        updateData.posterUrl = `${baseUrl}${req.body.posterUrl}`;
         updateData.posterData = null;
         updateData.posterContentType = 'image/jpeg';
       } else {
@@ -384,9 +468,16 @@ export const updateMovie = async (req, res) => {
       }
     } else if (req.body.poster) {
       // Fallback to poster field
-      updateData.poster = req.body.poster;
-      if (req.body.poster && /^https?:\/\/.+/.test(req.body.poster)) {
+      if (/^https?:\/\/.+/.test(req.body.poster)) {
+        updateData.poster = req.body.poster;
         updateData.posterUrl = req.body.poster;
+      } else if (/^\/.+/.test(req.body.poster)) {
+        // Relative path - convert to full URL
+        const baseUrl = getApiBaseUrl(req);
+        updateData.poster = `${baseUrl}${req.body.poster}`;
+        updateData.posterUrl = `${baseUrl}${req.body.poster}`;
+      } else {
+        updateData.poster = req.body.poster;
       }
       updateData.posterData = null;
     }

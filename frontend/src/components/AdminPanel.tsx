@@ -49,6 +49,7 @@ import useAuthStore from "@/store/auth";
 import useAnalyticsStore from "@/store/analytics";
 import useSettingsStore from "@/store/settings";
 import { useMovies } from "@/store/movies";
+import { getPosterUrl } from "@/lib/utils";
 
 interface MovieFormData {
   title: string;
@@ -584,42 +585,38 @@ export const AdminPanel = () => {
       return;
     }
 
-    // Validation: max 2000KB (2MB), PNG/WebP/JPG only
-    const maxSize = 2000 * 1024; // 2000KB
+    // Validation: max 500KB (backend limit), PNG/WebP/JPG only
+    const maxSize = 500 * 1024; // 500KB (backend limit)
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     
     if (!allowedTypes.includes(file.type)) {
-          toast({
-            title: "Xatolik",
+      toast({
+        title: "Xatolik",
         description: "Faqat PNG, WebP yoki JPG formatidagi rasmlar ruxsat etiladi!",
-            variant: "destructive"
-          });
+        variant: "destructive"
+      });
       return;
-        }
+    }
     
     if (file.size > maxSize) {
-        toast({
+      toast({
         title: "Xatolik",
-        description: "Rasm hajmi 2000KB (2MB) dan katta bo'lishi mumkin emas!",
-          variant: "destructive"
-        });
+        description: "Rasm hajmi 500KB dan katta bo'lishi mumkin emas!",
+        variant: "destructive"
+      });
       return;
-      }
+    }
 
-        setFormData(prev => ({ ...prev, posterFile: file, posterUrl: "" }));
-        
-        try {
-          const url = await simulateFileUpload(file);
-          setFormData(prev => ({ ...prev, posterUrl: url, poster: url }));
-          
-          // Success notification removed per requirements
-        } catch (error) {
-          toast({
-            title: "Xatolik",
-            description: "Rasm yuklashda xatolik yuz berdi",
-            variant: "destructive"
-          });
-        }
+    // Create preview URL for display
+    const previewUrl = URL.createObjectURL(file);
+    
+    // Save file and preview URL
+    setFormData(prev => ({ 
+      ...prev, 
+      posterFile: file, 
+      posterUrl: previewUrl, 
+      poster: previewUrl 
+    }));
   };
 
   const handlePosterUrlChange = (url: string) => {
@@ -682,7 +679,9 @@ export const AdminPanel = () => {
       };
 
       // Add poster URL only if no file is provided (for URL-based posters)
-      if (!formData.posterFile && formData.posterUrl) {
+      // If posterFile exists, it will be sent as FormData and backend will handle it
+      // If only posterUrl exists (and it's not a blob URL), send it
+      if (!formData.posterFile && formData.posterUrl && !formData.posterUrl.startsWith('blob:')) {
         movieData.posterUrl = formData.posterUrl;
         movieData.poster = formData.posterUrl;
       }
@@ -1205,11 +1204,8 @@ export const AdminPanel = () => {
                 </div>
               ) : (
                 filteredMovies.map((movie, index) => {
-                  // Get poster URL
-                  const posterUrl = movie.poster || movie.posterUrl || '';
-                  const fullPosterUrl = posterUrl && posterUrl.startsWith('/api/movies/') 
-                    ? `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000'}${posterUrl}`
-                    : posterUrl;
+                  // Get poster URL using utility function
+                  const fullPosterUrl = getPosterUrl(movie.poster || movie.posterUrl);
                   
                   // Get language label
                   const getLanguageLabel = (lang: string | undefined) => {

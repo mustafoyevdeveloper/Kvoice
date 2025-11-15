@@ -14,7 +14,7 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
-  const { movies } = useMovies();
+  const { movies, isLoading } = useMovies();
 
   // Set page title and scroll to top when component mounts
   useEffect(() => {
@@ -157,6 +157,7 @@ const Index = () => {
           movies={filteredMovies}
           title={getCategoryTitle(selectedCategory)}
           onMovieClick={handleMovieClick}
+          isLoading={isLoading}
         />
         )}
 
@@ -167,12 +168,14 @@ const Index = () => {
               movies={movies.filter(m => m.category === "movies")}
               title="KINOLAR"
               onMovieClick={handleMovieClick}
+              isLoading={isLoading}
             />
             
             <MovieGrid
               movies={movies.filter(m => m.category === "series")}
               title="SERIALLAR"
               onMovieClick={handleMovieClick}
+              isLoading={isLoading}
             />
           </>
         )}

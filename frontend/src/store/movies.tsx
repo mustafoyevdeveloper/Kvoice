@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Movie } from "@/components/MovieCard";
 import apiService from "@/services/api";
+import { getPosterUrl } from "@/lib/utils";
 
 type MoviesContextValue = {
   movies: Movie[];
@@ -26,22 +27,8 @@ export const MoviesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (response.success && response.data) {
         // Convert MongoDB _id to id for frontend compatibility
         const convertedMovies = response.data.map((movie: any) => {
-          // Handle poster URL
-          let posterUrl = movie.poster || movie.posterUrl || '';
-          
-          // If it's a base64 string, use it directly
-          if (posterUrl && posterUrl.startsWith('data:image')) {
-            // Base64 string - use as is
-          }
-          // If it's an API endpoint, prepend base URL
-          else if (posterUrl && posterUrl.startsWith('/api/movies/')) {
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
-            posterUrl = `${baseUrl}${posterUrl}`;
-          }
-          // If it's already a full URL, use as is
-          else if (posterUrl && (posterUrl.startsWith('http://') || posterUrl.startsWith('https://'))) {
-            // Full URL - use as is
-          }
+          // Handle poster URL using utility function
+          const posterUrl = getPosterUrl(movie.poster || movie.posterUrl);
           
           // Sort quality array in ascending order
           const qualityArray = movie.quality || movie.videoQuality || [];

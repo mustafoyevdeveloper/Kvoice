@@ -1,6 +1,7 @@
 import { Star, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getPosterUrl } from "@/lib/utils";
 
 export interface Movie {
   id: string;
@@ -27,6 +28,8 @@ export interface Movie {
   similarContentIds?: string[];
   trailerUrl?: string;
   posterUrl?: string;
+  totalEpisodes?: number; // Serial uchun - nechta qismdan iboratligi
+  currentEpisode?: number; // Serial uchun - nechanchi qism ekanligi
 }
 
 interface MovieCardProps {
@@ -92,7 +95,7 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
       {/* Movie Poster */}
       <div className="relative aspect-[2/3] overflow-hidden bg-muted">
         <img
-          src={movie.poster || movie.posterUrl || '/placeholder-poster.jpg'}
+          src={getPosterUrl(movie.poster || movie.posterUrl)}
           alt={movie.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 group-active:scale-105"
           loading="lazy"
@@ -197,6 +200,24 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
               ))}
               {movie.genres.length > 3 && (
                 <span className="text-xs">+{movie.genres.length - 3}</span>
+              )}
+            </div>
+          )}
+          
+          {/* Serial uchun qismlar ma'lumoti */}
+          {movie.category === 'series' && (movie.totalEpisodes || movie.currentEpisode) && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              {movie.totalEpisodes && (
+                <span className="flex items-center gap-1">
+                  <span>📊</span>
+                  <span>{movie.totalEpisodes} qism</span>
+                </span>
+              )}
+              {movie.currentEpisode && (
+                <span className="flex items-center gap-1">
+                  <span>▶️</span>
+                  <span>{movie.currentEpisode}-qism</span>
+                </span>
               )}
             </div>
           )}

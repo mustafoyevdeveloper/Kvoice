@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Movie } from "./MovieCard";
 import { useToast } from "@/hooks/use-toast";
 import { useMovies } from "@/store/movies";
+import { getPosterUrl } from "@/lib/utils";
 
 interface VideoPlayerProps {
   movie: Movie;
@@ -434,7 +435,7 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
               togglePlayPause();
             }
           }}
-          poster={movie.poster}
+          poster={getPosterUrl(movie.poster || movie.posterUrl)}
         >
               <source src={movie.videoLink || movie.videoUrl || "#"} type="video/mp4" />
           Your browser does not support the video tag.
@@ -443,9 +444,15 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
             /* Poster Image when videoLink is a URL */
             <div className="w-full h-full bg-black flex items-center justify-center">
               <img
-                src={movie.poster || movie.posterUrl || '/placeholder-poster.jpg'}
+                src={getPosterUrl(movie.poster || movie.posterUrl)}
                 alt={movie.title}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== '/placeholder-poster.jpg') {
+                    target.src = '/placeholder-poster.jpg';
+                  }
+                }}
               />
             </div>
           )}
@@ -726,6 +733,22 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
                       {movie.language || "O'zbek tilida"}
                     </p>
                   </div>
+                  {/* Serial uchun qismlar ma'lumoti */}
+                  {movie.category === 'series' && (movie.totalEpisodes || movie.currentEpisode) && (
+                    <div>
+                      <span className="text-sm text-muted-foreground">Qismlar</span>
+                      <p className="font-medium">
+                        {movie.currentEpisode && movie.totalEpisodes 
+                          ? `${movie.currentEpisode}/${movie.totalEpisodes} qism`
+                          : movie.totalEpisodes 
+                            ? `${movie.totalEpisodes} qism`
+                            : movie.currentEpisode 
+                              ? `${movie.currentEpisode}-qism`
+                              : ""
+                        }
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>

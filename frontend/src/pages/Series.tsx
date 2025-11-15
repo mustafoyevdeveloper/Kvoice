@@ -5,7 +5,7 @@ import { MovieGrid } from "@/components/MovieGrid";
 import { useMovies } from "@/store/movies";
 
 export const Series = () => {
-  const { movies } = useMovies();
+  const { movies, isLoading } = useMovies();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("series");
   const [siteSettings, setSiteSettings] = useState({
@@ -74,11 +74,19 @@ export const Series = () => {
         </div>
 
         {/* Movies Grid */}
-        {filteredMovies.length > 0 ? (
+        {isLoading ? (
+          <MovieGrid 
+            movies={[]} 
+            title=""
+            onMovieClick={handleMovieClick}
+            isLoading={true}
+          />
+        ) : filteredMovies.length > 0 ? (
           <MovieGrid 
             movies={filteredMovies} 
             title=""
             onMovieClick={handleMovieClick}
+            isLoading={false}
           />
         ) : (
           <div className="text-center py-12">

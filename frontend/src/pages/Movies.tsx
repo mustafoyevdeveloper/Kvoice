@@ -8,7 +8,7 @@ import { ArrowLeft, X } from "lucide-react";
 import useSettingsStore from "@/store/settings";
 
 export const Movies = () => {
-  const { movies } = useMovies();
+  const { movies, isLoading } = useMovies();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("movies");
   const [siteSettings, setSiteSettings] = useState({
@@ -117,16 +117,24 @@ export const Movies = () => {
         )}
 
         {/* Movies Grid */}
-        {filteredMovies.length > 0 ? (
+        {isLoading ? (
+          <MovieGrid 
+            movies={[]} 
+            title=""
+            onMovieClick={handleMovieClick}
+            isLoading={true}
+          />
+        ) : filteredMovies.length > 0 ? (
           <MovieGrid 
             movies={filteredMovies} 
             title=""
             onMovieClick={handleMovieClick}
+            isLoading={false}
           />
         ) : (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">
-              {searchQuery ? "Qidiruv natijasi topilmadi" : "Hech qanday kino topilmadi"}
+              {searchQuery ? "Qidiruv natijasi topilmadi" : ""}
             </p>
           </div>
         )}

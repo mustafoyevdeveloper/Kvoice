@@ -12,7 +12,7 @@ const getApiBaseUrl = () => {
 const API_BASE_URL = getApiBaseUrl();
 
 // Log API URL for debugging
-console.log('🔗 API Base URL:', API_BASE_URL);
+
 
 class ApiService {
   constructor() {
@@ -36,7 +36,6 @@ class ApiService {
     }
 
     try {
-      console.log('🌐 Fetching URL:', url);
       const response = await fetch(url, config);
       
       // Check if response is JSON

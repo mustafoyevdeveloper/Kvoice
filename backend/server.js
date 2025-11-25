@@ -36,7 +36,7 @@ const startServer = async () => {
 };
 
 // Middleware - CORS Configuration
-const allowedOrigins = process.env.CORS_ORIGIN 
+const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
   : ['http://localhost:5173', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:8082', 'https://kvoice.vercel.app', 'https://www.kvoice.vercel.app'];
 
@@ -87,7 +87,9 @@ app.use(express.json({
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Routes
+// Both /api/movies and /api/series use the same routes (movies and series are stored in the same collection)
 app.use('/api/movies', movieRoutes);
+app.use('/api/series', movieRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,5 +1,6 @@
 import Movie from '../models/Movie.js';
 import dotenv from 'dotenv';
+import { uploadPosterToR2, isR2Configured } from '../services/r2Client.js';
 
 dotenv.config();
 
@@ -36,6 +37,38 @@ const getApiBaseUrl = (req) => {
   return process.env.NODE_ENV === 'production' 
     ? 'https://kvoice-studio-back-nows.onrender.com'
     : 'http://localhost:3000';
+};
+
+const normalizePosterUrl = (value, baseUrl) => {
+  if (!value || typeof value !== 'string') {
+    return value;
+  }
+
+  // Already absolute (non-local) URL
+  if (/^https?:\/\//i.test(value) && !value.includes('localhost') && !value.includes('127.0.0.1')) {
+    return value;
+  }
+
+  // Extract path portion if URL includes localhost or 127.0.0.1
+  const path = value.replace(/^https?:\/\/[^/]+/i, '');
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  return `${baseUrl}${normalizedPath}`;
+};
+
+const normalizeMoviePosters = (movie, req) => {
+  if (!movie) return movie;
+  const baseUrl = getApiBaseUrl(req);
+
+  if (movie.poster) {
+    movie.poster = normalizePosterUrl(movie.poster, baseUrl);
+  }
+
+  if (movie.posterUrl) {
+    movie.posterUrl = normalizePosterUrl(movie.posterUrl, baseUrl);
+  }
+
+  return movie;
 };
 
 // Get all movies
@@ -84,7 +117,7 @@ export const getAllMovies = async (req, res) => {
     const cleanedMovies = movies.map(movie => {
       const movieObj = { ...movie };
       delete movieObj.posterData;
-      return movieObj;
+      return normalizeMoviePosters(movieObj, req);
     });
 
     // Get total count
@@ -140,6 +173,7 @@ export const getMovieById = async (req, res) => {
     // Exclude Buffer from response
     const movieObj = movie.toObject();
     delete movieObj.posterData;
+    normalizeMoviePosters(movieObj, req);
 
     res.json({
       success: true,
@@ -159,7 +193,6 @@ export const getMovieById = async (req, res) => {
 // Create movie
 export const createMovie = async (req, res) => {
   try {
-    let posterPath = null;
     let posterBuffer = null;
     let posterContentType = 'image/jpeg';
 
@@ -187,8 +220,6 @@ export const createMovie = async (req, res) => {
       
       posterBuffer = req.file.buffer;
       posterContentType = req.file.mimetype;
-      // Path will be updated with actual movie ID after creation
-      posterPath = `/api/movies/temp/poster`;
     }
 
     // Parse JSON fields if they are strings
@@ -204,8 +235,8 @@ export const createMovie = async (req, res) => {
     };
 
     // Handle poster URL - reject blob URLs
-    let posterUrl = req.body.posterUrl || posterPath;
-    let poster = posterPath || req.body.poster || '';
+    let posterUrl = req.body.posterUrl || '';
+    let poster = req.body.poster || '';
     
     // Reject blob URLs - they should not be saved
     if (req.body.posterUrl && req.body.posterUrl.startsWith('blob:')) {
@@ -219,7 +250,7 @@ export const createMovie = async (req, res) => {
     // If posterUrl is base64/data URI, use it as poster instead
     if (req.body.posterUrl && /^data:image\/.+;base64,.+/.test(req.body.posterUrl)) {
       poster = req.body.posterUrl;
-      posterUrl = posterPath || ''; // Use path if file uploaded, otherwise empty
+      posterUrl = '';
     } else if (req.body.posterUrl && /^https?:\/\/.+/.test(req.body.posterUrl)) {
       // Valid HTTP/HTTPS URL - use for both
       poster = req.body.posterUrl;
@@ -257,12 +288,6 @@ export const createMovie = async (req, res) => {
       ...(posterUrl ? { posterUrl: posterUrl } : {})
     };
 
-    // Add poster data to MongoDB if file was uploaded
-    if (posterBuffer) {
-      movieData.posterData = posterBuffer;
-      movieData.posterContentType = posterContentType;
-    }
-
     // Serial uchun totalEpisodes va currentEpisode - faqat yozilgan bo'lsa qo'shish
     if (req.body.category === 'series') {
       if (req.body.totalEpisodes) {
@@ -279,17 +304,47 @@ export const createMovie = async (req, res) => {
     // Update poster path with actual movie ID if file was uploaded
     // Save as full URL based on category: /api/movies/{id}/poster or /api/series/{id}/poster
     if (posterBuffer && movie._id) {
-      const baseUrl = getApiBaseUrl(req);
-      const categoryPath = movie.category === 'series' ? 'series' : 'movies';
-      const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${movie._id}/poster`;
-      movie.poster = fullPosterUrl;
-      movie.posterUrl = fullPosterUrl;
-      await movie.save();
+      if (isR2Configured) {
+        try {
+          const uploadResult = await uploadPosterToR2(
+            movie._id.toString(),
+            posterBuffer,
+            posterContentType
+          );
+          if (uploadResult?.url) {
+            movie.poster = uploadResult.url;
+            movie.posterUrl = uploadResult.url;
+            movie.posterData = undefined;
+            movie.posterContentType = posterContentType;
+            await movie.save();
+          }
+        } catch (error) {
+          console.error('❌ R2 upload failed, falling back to Mongo posterData:', error.message);
+          const baseUrl = getApiBaseUrl(req);
+          const categoryPath = movie.category === 'series' ? 'series' : 'movies';
+          const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${movie._id}/poster`;
+          movie.poster = fullPosterUrl;
+          movie.posterUrl = fullPosterUrl;
+          movie.posterData = posterBuffer;
+          movie.posterContentType = posterContentType;
+          await movie.save();
+        }
+      } else {
+        const baseUrl = getApiBaseUrl(req);
+        const categoryPath = movie.category === 'series' ? 'series' : 'movies';
+        const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${movie._id}/poster`;
+        movie.poster = fullPosterUrl;
+        movie.posterUrl = fullPosterUrl;
+        movie.posterData = posterBuffer;
+        movie.posterContentType = posterContentType;
+        await movie.save();
+      }
     }
 
     // Exclude Buffer from response
     const movieObj = movie.toObject();
     delete movieObj.posterData;
+    normalizeMoviePosters(movieObj, req);
 
     res.status(201).json({
       success: true,
@@ -331,7 +386,6 @@ export const updateMovie = async (req, res) => {
         error: 'Invalid movie ID'
       });
     }
-    let posterPath = null;
     let posterBuffer = null;
     let posterContentType = 'image/jpeg';
 
@@ -365,7 +419,6 @@ export const updateMovie = async (req, res) => {
       
       posterBuffer = req.file.buffer;
       posterContentType = req.file.mimetype;
-      posterPath = `/api/movies/${id}/poster`;
     } else {
       console.log('📤 Update: No file received, checking posterUrl:', {
         hasPosterUrl: !!req.body.posterUrl,
@@ -429,16 +482,40 @@ export const updateMovie = async (req, res) => {
     }
     
     if (posterBuffer) {
-      // New file uploaded - save to MongoDB with full URL
-      // Determine category from request body or existing movie
-      const category = req.body.category || (await Movie.findById(id))?.category || 'movies';
-      const baseUrl = getApiBaseUrl(req);
-      const categoryPath = category === 'series' ? 'series' : 'movies';
-      const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${id}/poster`;
-      updateData.poster = fullPosterUrl;
-      updateData.posterUrl = fullPosterUrl;
-      updateData.posterData = posterBuffer;
-      updateData.posterContentType = posterContentType;
+      if (isR2Configured) {
+        try {
+          const uploadResult = await uploadPosterToR2(
+            id,
+            posterBuffer,
+            posterContentType
+          );
+          if (uploadResult?.url) {
+            updateData.poster = uploadResult.url;
+            updateData.posterUrl = uploadResult.url;
+            updateData.posterData = undefined;
+            updateData.posterContentType = posterContentType;
+          }
+        } catch (error) {
+          console.error('❌ R2 upload failed, falling back to Mongo posterData:', error.message);
+          const category = req.body.category || (await Movie.findById(id))?.category || 'movies';
+          const baseUrl = getApiBaseUrl(req);
+          const categoryPath = category === 'series' ? 'series' : 'movies';
+          const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${id}/poster`;
+          updateData.poster = fullPosterUrl;
+          updateData.posterUrl = fullPosterUrl;
+          updateData.posterData = posterBuffer;
+          updateData.posterContentType = posterContentType;
+        }
+      } else {
+        const category = req.body.category || (await Movie.findById(id))?.category || 'movies';
+        const baseUrl = getApiBaseUrl(req);
+        const categoryPath = category === 'series' ? 'series' : 'movies';
+        const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${id}/poster`;
+        updateData.poster = fullPosterUrl;
+        updateData.posterUrl = fullPosterUrl;
+        updateData.posterData = posterBuffer;
+        updateData.posterContentType = posterContentType;
+      }
     } else if (req.body.posterUrl) {
       // Handle poster URL - if it's base64/data URI, store in poster field, not posterUrl
       if (/^data:image\/.+;base64,.+/.test(req.body.posterUrl)) {
@@ -503,6 +580,15 @@ export const updateMovie = async (req, res) => {
       }
     });
 
+    // Debug log before update
+    console.log('📤 Update: Final updateData:', {
+      hasPoster: !!updateData.poster,
+      hasPosterUrl: !!updateData.posterUrl,
+      hasPosterData: !!updateData.posterData,
+      posterType: updateData.poster ? (typeof updateData.poster) : null,
+      posterUrlPreview: updateData.posterUrl ? updateData.posterUrl.substring(0, 50) + '...' : null
+    });
+
     const movie = await Movie.findByIdAndUpdate(
       id,
       updateData,
@@ -520,6 +606,7 @@ export const updateMovie = async (req, res) => {
     // Exclude Buffer from response
     const movieObj = movie.toObject();
     delete movieObj.posterData;
+    normalizeMoviePosters(movieObj, req);
 
     res.json({
       success: true,
@@ -573,9 +660,21 @@ export const getMoviePoster = async (req, res) => {
       return res.send(movie.posterData);
     }
 
-    // If poster is a URL, redirect to it
+    // If poster is a URL, redirect to it (avoid redirect loops)
     if (movie.posterUrl && movie.posterUrl.startsWith('http')) {
-      return res.redirect(movie.posterUrl);
+      try {
+        const posterUrlObj = new URL(movie.posterUrl);
+        const currentHost = req.get('host');
+        const isSameHost = posterUrlObj.host === currentHost;
+        const isSamePath = posterUrlObj.pathname === req.path;
+
+        if (!(isSameHost && isSamePath)) {
+          return res.redirect(movie.posterUrl);
+        }
+      } catch (error) {
+        console.warn('Invalid posterUrl, returning direct response:', movie.posterUrl, error.message);
+        return res.redirect(movie.posterUrl);
+      }
     }
 
     // If poster is a path but no Buffer, return 404

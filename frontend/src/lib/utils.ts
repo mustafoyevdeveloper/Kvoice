@@ -25,18 +25,19 @@ export function getPosterUrl(posterUrl: string | undefined | null): string {
   }
 
   // If it's an API endpoint (MongoDB stored poster), prepend base URL
-  if (posterUrl.startsWith('/api/movies/') || posterUrl.includes('/poster')) {
+  if (posterUrl.startsWith('/api/movies/') || posterUrl.startsWith('/api/series/') || posterUrl.includes('/poster')) {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 
                    import.meta.env.VITE_BACKEND_URL || 
                    import.meta.env.VITE_API_URL?.replace('/api', '') || 
                    'http://localhost:3000';
     
     // Ensure it's the full poster endpoint
-    if (posterUrl.startsWith('/api/movies/') && !posterUrl.endsWith('/poster')) {
+    if ((posterUrl.startsWith('/api/movies/') || posterUrl.startsWith('/api/series/')) && !posterUrl.endsWith('/poster')) {
       // Extract movie ID and create poster endpoint
       const movieId = posterUrl.split('/').filter(p => p).pop()?.split('?')[0];
+      const categoryPath = posterUrl.startsWith('/api/series/') ? 'series' : 'movies';
       if (movieId) {
-        return `${baseUrl}/api/movies/${movieId}/poster`;
+        return `${baseUrl}/api/${categoryPath}/${movieId}/poster`;
       } else {
         return `${baseUrl}${posterUrl}`;
       }

@@ -1,11 +1,31 @@
+const isLocalhost = (hostname) => {
+  if (!hostname) return false;
+  return (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '[::1]' ||
+    hostname.endsWith('.local')
+  );
+};
+
+const PROD_FALLBACK_API = 'https://kvoice-studio-back-nows.onrender.com/api';
+
 // Determine API base URL
-// Only use VITE_API_URL; fallback to localhost during development
+// Prefer VITE_API_URL; fallback to production backend when running on non-local origins
 const getApiBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL && String(import.meta.env.VITE_API_URL).trim();
   if (envUrl) {
     return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
   }
-  // Fallback to localhost for development
+
+  // On vercel (or any non-local origin) never point to localhost to avoid CORS failures
+  if (typeof window !== 'undefined' && window.location) {
+    if (!isLocalhost(window.location.hostname)) {
+      return PROD_FALLBACK_API;
+    }
+  }
+
+  // Default to localhost for local development
   return 'http://localhost:3000/api';
 };
 

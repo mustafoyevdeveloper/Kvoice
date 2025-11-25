@@ -517,6 +517,11 @@ export const AdminPanel = () => {
 
   // Reset form data
   const resetFormData = () => {
+    // Reset file input
+    if (posterFileRef.current) {
+      (posterFileRef.current as HTMLInputElement).value = '';
+    }
+    
     setFormData({
       title: "",
       description: "",
@@ -546,6 +551,11 @@ export const AdminPanel = () => {
   // Open edit dialog
   const handleOpenEditDialog = (movie) => {
     setEditingMovie(movie);
+    
+    // Reset file input
+    if (posterFileRef.current) {
+      (posterFileRef.current as HTMLInputElement).value = '';
+    }
     
     // Get poster URL and convert to full URL if needed
     let posterUrl = movie.posterUrl || movie.poster || "";
@@ -711,8 +721,15 @@ export const AdminPanel = () => {
           // Success notification removed per requirements
           setIsEditDialogOpen(false);
           setEditingMovie(null);
-          // Reload movies list
-          await loadMovies();
+          // Reset file input
+          if (posterFileRef.current) {
+            (posterFileRef.current as HTMLInputElement).value = '';
+          }
+          // Reload both admin content and movies list
+          await Promise.all([
+            getContent(),
+            loadMovies()
+          ]);
         } else {
           throw new Error(result.error);
         }
@@ -722,8 +739,11 @@ export const AdminPanel = () => {
         if (result.success) {
           // Success notification removed per requirements
           setIsAddDialogOpen(false);
-          // Reload movies list
-          await loadMovies();
+          // Reload both admin content and movies list
+          await Promise.all([
+            getContent(),
+            loadMovies()
+          ]);
         } else {
           throw new Error(result.error);
         }

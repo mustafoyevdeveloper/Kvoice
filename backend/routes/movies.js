@@ -8,7 +8,7 @@ import {
   deleteMovie,
   getMoviePoster
 } from '../controllers/movieController.js';
-import { uploadPoster } from '../middleware/upload.js';
+import { uploadMedia } from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -49,7 +49,20 @@ const movieValidation = [
     }
     return true;
   }),
-  body('videoLink').trim().notEmpty().withMessage('Video link is required')
+  body('videoLink').custom((value, { req }) => {
+    const hasVideoLink = value && value.trim().length > 0;
+    const hasVideoFile = req.files && req.files.videoFile && req.files.videoFile.length > 0;
+
+    if (!hasVideoLink && !hasVideoFile) {
+      throw new Error('Video fayl yoki video link kiritilishi shart');
+    }
+
+    if (hasVideoLink && !/^https?:\/\/.+/.test(value)) {
+      throw new Error('Video link HTTP/HTTPS formatda bo\'lishi kerak');
+    }
+
+    return true;
+  })
 ];
 
 const seriesValidation = [
@@ -172,8 +185,29 @@ const handleValidationErrors = (req, res, next) => {
 router.get('/', getAllMovies);
 router.get('/:id/poster', getMoviePoster); // Poster endpoint - should be before /:id route
 router.get('/:id', getMovieById);
-router.post('/', uploadPoster.single('poster'), preProcessFormData, movieValidation, handleValidationErrors, createMovie);
-router.put('/:id', uploadPoster.single('poster'), preProcessFormData, movieValidation, seriesValidation, handleValidationErrors, updateMovie);
+router.post(
+  '/',
+  uploadMedia.fields([
+    { name: 'poster', maxCount: 1 },
+    { name: 'videoFile', maxCount: 1 }
+  ]),
+  preProcessFormData,
+  movieValidation,
+  handleValidationErrors,
+  createMovie
+);
+router.put(
+  '/:id',
+  uploadMedia.fields([
+    { name: 'poster', maxCount: 1 },
+    { name: 'videoFile', maxCount: 1 }
+  ]),
+  preProcessFormData,
+  movieValidation,
+  seriesValidation,
+  handleValidationErrors,
+  updateMovie
+);
 router.delete('/:id', deleteMovie);
 
 export default router;

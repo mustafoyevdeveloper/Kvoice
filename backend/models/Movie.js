@@ -74,15 +74,24 @@ const movieSchema = new mongoose.Schema({
     type: String,
     default: 'image/jpeg'
   },
+  // Video manbai - endi ixtiyoriy: fayl (videoUrl/videoKey) yoki tashqi link (videoLink)
   videoLink: {
     type: String,
-    required: [true, 'Video link is required'],
+    required: false,
     validate: {
       validator: function(v) {
         return !v || /^https?:\/\/.+/.test(v);
       },
       message: 'Video link must be a valid HTTP/HTTPS URL'
     }
+  },
+  videoUrl: {
+    type: String,
+    required: false
+  },
+  videoKey: {
+    type: String,
+    required: false
   },
   // Serial uchun qo'shimcha maydonlar - optional, faqat yozilgan bo'lsa saqlanadi
   totalEpisodes: {

@@ -22,7 +22,6 @@ import {
   Link,
   Clock,
   Globe,
-  FileVideo,
   Image,
   CheckCircle,
   AlertCircle,
@@ -63,7 +62,9 @@ interface MovieFormData {
   poster: string;
   genres: string[];
   category: string;
-  videoLink: string; // Telegram link for video
+  videoLink: string; // Tashqi video link (masalan, Telegram)
+  videoFile: File | null; // Qurilmadan yuklangan video fayl
+  videoUrl: string; // Backenddan keladigan video URL (R2)
   // Serial uchun qo'shimcha maydonlar
   totalEpisodes?: number; // Nechta qismdan iboratligi
   currentEpisode?: number; // Nechanchi qism ekanligi
@@ -534,7 +535,9 @@ export const AdminPanel = () => {
       poster: "",
       genres: [],
       category: selectedCategory === "all" ? "movies" : selectedCategory,
-      videoLink: ""
+      videoLink: "",
+      videoFile: null,
+      videoUrl: ""
     });
   };
 
@@ -576,7 +579,9 @@ export const AdminPanel = () => {
       poster: movie.poster || "",
       genres: movie.genres || [],
       category: movie.category || "movies",
-      videoLink: movie.videoLink || movie.videoUrl || "",
+      videoLink: movie.videoLink || "",
+      videoFile: null,
+      videoUrl: movie.videoUrl || "",
       ...(movie.totalEpisodes ? { totalEpisodes: movie.totalEpisodes } : {}),
       ...(movie.currentEpisode ? { currentEpisode: movie.currentEpisode } : {})
     });
@@ -662,8 +667,9 @@ export const AdminPanel = () => {
       return;
     }
 
-    if (!formData.videoLink.trim()) {
-      toast({ title: "Xatolik", description: "Video ko'rish tugasi uchun link kiritilishi shart!", variant: "destructive" });
+    // Video manbai: fayl yoki linkdan kamida bittasi bo'lishi shart
+    if (!formData.videoFile && !formData.videoLink.trim()) {
+      toast({ title: "Xatolik", description: "Video fayl yoki video link kiritilishi shart!", variant: "destructive" });
       return;
     }
 
@@ -678,14 +684,16 @@ export const AdminPanel = () => {
         category: formData.category,
         videoQuality: formData.videoQuality,
         genres: formData.genres,
-        videoUrl: formData.videoLink,
-        videoLink: formData.videoLink,
+        // videoLink tashqi link uchun, videoFile esa fayl uchun
+        videoLink: formData.videoLink || undefined,
         // Serial uchun qo'shimcha maydonlar - faqat yozilgan bo'lsa
         ...(formData.category === "series" && formData.totalEpisodes ? { totalEpisodes: formData.totalEpisodes } : {}),
         ...(formData.category === "series" && formData.currentEpisode ? { currentEpisode: formData.currentEpisode } : {}),
         quality: formData.videoQuality,
         // Add posterFile if uploaded - this will be extracted and sent as FormData
-        posterFile: formData.posterFile || undefined
+        posterFile: formData.posterFile || undefined,
+        // Video fayl ham FormData orqali yuboriladi
+        videoFile: formData.videoFile || undefined
       };
 
       // Add poster URL only if no file is provided (for URL-based posters)
@@ -1123,18 +1131,56 @@ export const AdminPanel = () => {
         </div>
       </div>
 
-      {/* 9/11. Video ko'rish tugasi uchun link */}
-      <div className="space-y-2">
-        <Label htmlFor="videoLink">Video ko'rish tugasi uchun link (Telegram) *</Label>
-        <Input
-          id="videoLink"
-          value={formData.videoLink}
-          onChange={(e) => setFormData(prev => ({ ...prev, videoLink: e.target.value }))}
-          placeholder="https://t.me/..."
-          required
-        />
+      {/* 9/11. Video manbai: qurilmadan yuklash yoki link (ixtiyoriy) */}
+      <div className="space-y-4">
+        <Label>Video manbai *</Label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Video fayl yuklash */}
+          <div className="space-y-2">
+            <Label>Qurilmadan video yuklash (tavsiya etiladi)</Label>
+            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+              <Image className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground mb-2">
+                MP4, WebM yoki MKV formatidagi video yuklang (maksimum 500MB)
+              </p>
+              <Input
+                type="file"
+                accept="video/mp4,video/webm,video/x-matroska"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setFormData(prev => ({
+                    ...prev,
+                    videoFile: file,
+                    // Fayl tanlanganda linkni tozalash shart emas, lekin xatolardan qochish uchun bo'shatamiz
+                    ...(file ? { videoLink: "" } : {})
+                  }));
+                }}
+              />
+              {formData.videoFile && (
+                <p className="text-xs text-green-600 mt-2">
+                  ✓ {formData.videoFile.name}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Ixtiyoriy tashqi link (masalan, Telegram) */}
+          <div className="space-y-2">
+            <Label htmlFor="videoLink">Video link (Telegram yoki boshqa) – ixtiyoriy</Label>
+            <Input
+              id="videoLink"
+              value={formData.videoLink}
+              onChange={(e) => setFormData(prev => ({ ...prev, videoLink: e.target.value }))}
+              placeholder="https://t.me/..."
+              disabled={!!formData.videoFile}
+            />
+            <p className="text-xs text-muted-foreground">
+              Agar fayl yuklamasangiz, shu yerga tashqi video link (masalan, Telegram) kiriting.
+            </p>
+          </div>
+        </div>
         <p className="text-xs text-muted-foreground">
-          Telegram linkini kiriting
+          Kamida bittasi bo'lishi shart: video fayl yoki tashqi video link.
         </p>
       </div>
 

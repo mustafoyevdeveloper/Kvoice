@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 const {
   R2_ACCOUNT_ID,
@@ -6,10 +6,12 @@ const {
   R2_SECRET_ACCESS_KEY,
   R2_BUCKET_NAME,
   R2_PUBLIC_BASE_URL,
-  R2_POSTER_FOLDER
+  R2_POSTER_FOLDER,
+  R2_VIDEO_FOLDER
 } = process.env;
 
 const POSTER_FOLDER = (R2_POSTER_FOLDER || 'PosterPhotos').replace(/^\//, '').replace(/\/$/, '');
+const VIDEO_FOLDER = (R2_VIDEO_FOLDER || 'VideoFiles').replace(/^\//, '').replace(/\/$/, '');
 
 // R2 faollashtirilganligini tekshirish
 export const isR2Configured = Boolean(
@@ -52,7 +54,10 @@ const getExtensionFromMime = (mime) => {
     'image/jpeg': 'jpg',
     'image/jpg': 'jpg',
     'image/png': 'png',
-    'image/webp': 'webp'
+    'image/webp': 'webp',
+    'video/mp4': 'mp4',
+    'video/webm': 'webm',
+    'video/x-matroska': 'mkv'
   };
   return map[mime] || '';
 };
@@ -91,5 +96,55 @@ export const uploadPosterToR2 = async (movieId, buffer, contentType = 'image/jpe
     key,
     url: buildPublicUrl(key)
   };
+};
+
+export const uploadVideoToR2 = async (movieId, buffer, contentType = 'video/mp4') => {
+  if (!isR2Configured || !buffer || !movieId) {
+    return null;
+  }
+
+  const client = getS3Client();
+  if (!client) {
+    return null;
+  }
+
+  const extension = getExtensionFromMime(contentType) || 'mp4';
+  const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
+  const key = `${VIDEO_FOLDER}/${movieId}/${uniqueSuffix}.${extension}`;
+
+  const command = new PutObjectCommand({
+    Bucket: R2_BUCKET_NAME,
+    Key: key,
+    Body: buffer,
+    ContentType: contentType
+  });
+
+  await client.send(command);
+
+  return {
+    key,
+    url: buildPublicUrl(key)
+  };
+};
+
+export const deleteFromR2 = async (key) => {
+  if (!isR2Configured || !key) {
+    return;
+  }
+
+  const client = getS3Client();
+  if (!client) {
+    return;
+  }
+
+  try {
+    const command = new DeleteObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: key
+    });
+    await client.send(command);
+  } catch (error) {
+    console.warn('⚠️ R2 obyektni o‘chirishda xato:', error.message);
+  }
 };
 

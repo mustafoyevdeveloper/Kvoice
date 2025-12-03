@@ -195,10 +195,13 @@ export const VideoPlayer = ({ movie, onBack }: VideoPlayerProps) => {
   }, [volume]);
 
   const togglePlayPause = () => {
-    // Agar videoLink Telegram URL bo'lsa, uni ochamiz
-    const videoLink = movie.videoLink || movie.videoUrl;
-    if (videoLink && (videoLink.startsWith('http://') || videoLink.startsWith('https://'))) {
-      window.open(videoLink, '_blank');
+    // Agar R2 videoUrl mavjud bo'lsa, <video> tag orqali o'ynaymiz
+    const directVideoUrl = movie.videoUrl;
+    const externalLink = movie.videoLink;
+
+    if (!directVideoUrl && externalLink && (externalLink.startsWith('http://') || externalLink.startsWith('https://'))) {
+      // Faqat tashqi link bo'lsa (masalan, Telegram), uni yangi oynada ochamiz
+      window.open(externalLink, '_blank');
       return;
     }
     

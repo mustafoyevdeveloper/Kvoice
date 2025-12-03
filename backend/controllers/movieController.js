@@ -1,6 +1,6 @@
 import Movie from '../models/Movie.js';
 import dotenv from 'dotenv';
-import { uploadPosterToR2, isR2Configured } from '../services/r2Client.js';
+import { uploadPosterToR2, uploadVideoToR2, deleteFromR2, isR2Configured } from '../services/r2Client.js';
 
 dotenv.config();
 
@@ -195,14 +195,16 @@ export const createMovie = async (req, res) => {
   try {
     let posterBuffer = null;
     let posterContentType = 'image/jpeg';
+    let videoBuffer = null;
+    let videoContentType = 'video/mp4';
 
-    // Handle file upload - store in MongoDB as Buffer
-    // Validation: max 500KB, PNG/WebP/JPG only
-    if (req.file) {
+    // Multer poster (uploadMedia.fields)
+    if (req.files && req.files.poster && Array.isArray(req.files.poster) && req.files.poster[0]) {
+      const file = req.files.poster[0];
       const maxSize = 1000 * 1024; // 500KB
       const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       
-      if (req.file.size > maxSize) {
+      if (file.size > maxSize) {
         return res.status(400).json({
           success: false,
           message: 'Rasm hajmi 1000KB dan katta bo\'lishi mumkin emas!',
@@ -210,7 +212,7 @@ export const createMovie = async (req, res) => {
         });
       }
       
-      if (!allowedMimes.includes(req.file.mimetype)) {
+      if (!allowedMimes.includes(file.mimetype)) {
         return res.status(400).json({
           success: false,
           message: 'Faqat PNG, WebP yoki JPG formatidagi rasmlar ruxsat etiladi!',
@@ -218,8 +220,15 @@ export const createMovie = async (req, res) => {
         });
       }
       
-      posterBuffer = req.file.buffer;
-      posterContentType = req.file.mimetype;
+      posterBuffer = file.buffer;
+      posterContentType = file.mimetype;
+    }
+
+    // Multer videoFile (uploadMedia.fields)
+    if (req.files && req.files.videoFile && Array.isArray(req.files.videoFile) && req.files.videoFile[0]) {
+      const file = req.files.videoFile[0];
+      videoBuffer = file.buffer;
+      videoContentType = file.mimetype || 'video/mp4';
     }
 
     // Parse JSON fields if they are strings
@@ -283,7 +292,8 @@ export const createMovie = async (req, res) => {
       category: req.body.category,
       genres: parseField(req.body.genres) || [],
       quality: sortedQuality,
-      videoLink: req.body.videoLink || req.body.videoUrl,
+      // video manbai - avval fayl (videoUrl), bo'lmasa tashqi link (videoLink)
+      videoLink: req.body.videoLink || req.body.videoUrl || '',
       poster: poster,
       ...(posterUrl ? { posterUrl: posterUrl } : {})
     };
@@ -300,6 +310,24 @@ export const createMovie = async (req, res) => {
 
     const movie = new Movie(movieData);
     await movie.save();
+
+    // Video fayl bo'lsa - R2 ga yuklash
+    if (videoBuffer && movie._id && isR2Configured) {
+      try {
+        const uploadResult = await uploadVideoToR2(
+          movie._id.toString(),
+          videoBuffer,
+          videoContentType
+        );
+        if (uploadResult?.url && uploadResult?.key) {
+          movie.videoUrl = uploadResult.url;
+          movie.videoKey = uploadResult.key;
+          await movie.save();
+        }
+      } catch (error) {
+        console.error('❌ Video R2 ga yuklanmadi:', error.message);
+      }
+    }
 
     // Update poster path with actual movie ID if file was uploaded
     // Save as full URL based on category: /api/movies/{id}/poster or /api/series/{id}/poster
@@ -330,14 +358,14 @@ export const createMovie = async (req, res) => {
           await movie.save();
         }
       } else {
-        const baseUrl = getApiBaseUrl(req);
-        const categoryPath = movie.category === 'series' ? 'series' : 'movies';
-        const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${movie._id}/poster`;
-        movie.poster = fullPosterUrl;
-        movie.posterUrl = fullPosterUrl;
+      const baseUrl = getApiBaseUrl(req);
+      const categoryPath = movie.category === 'series' ? 'series' : 'movies';
+      const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${movie._id}/poster`;
+      movie.poster = fullPosterUrl;
+      movie.posterUrl = fullPosterUrl;
         movie.posterData = posterBuffer;
         movie.posterContentType = posterContentType;
-        await movie.save();
+      await movie.save();
       }
     }
 
@@ -388,20 +416,22 @@ export const updateMovie = async (req, res) => {
     }
     let posterBuffer = null;
     let posterContentType = 'image/jpeg';
+    let videoBuffer = null;
+    let videoContentType = 'video/mp4';
 
-    // Handle file upload - store in MongoDB as Buffer
-    // Validation: max 500KB, PNG/WebP/JPG only
-    if (req.file) {
+    // Handle poster upload (uploadMedia.fields)
+    if (req.files && req.files.poster && Array.isArray(req.files.poster) && req.files.poster[0]) {
+      const file = req.files.poster[0];
       console.log('📤 Update: New poster file received:', {
-        filename: req.file.originalname,
-        size: req.file.size,
-        mimetype: req.file.mimetype
+        filename: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype
       });
       
       const maxSize = 1000 * 1024; // 1000KB
       const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       
-      if (req.file.size > maxSize) {
+      if (file.size > maxSize) {
         return res.status(400).json({
           success: false,
           message: 'Rasm hajmi 1000KB dan katta bo\'lishi mumkin emas!',
@@ -409,7 +439,7 @@ export const updateMovie = async (req, res) => {
         });
       }
       
-      if (!allowedMimes.includes(req.file.mimetype)) {
+      if (!allowedMimes.includes(file.mimetype)) {
         return res.status(400).json({
           success: false,
           message: 'Faqat PNG, WebP yoki JPG formatidagi rasmlar ruxsat etiladi!',
@@ -417,10 +447,10 @@ export const updateMovie = async (req, res) => {
         });
       }
       
-      posterBuffer = req.file.buffer;
-      posterContentType = req.file.mimetype;
+      posterBuffer = file.buffer;
+      posterContentType = file.mimetype;
     } else {
-      console.log('📤 Update: No file received, checking posterUrl:', {
+      console.log('📤 Update: No poster file received, checking posterUrl:', {
         hasPosterUrl: !!req.body.posterUrl,
         hasPoster: !!req.body.poster,
         posterUrl: req.body.posterUrl ? req.body.posterUrl.substring(0, 50) + '...' : null
@@ -438,6 +468,13 @@ export const updateMovie = async (req, res) => {
       }
       return field;
     };
+
+    // Multer videoFile (uploadVideo.single('videoFile'))
+    if (req.files && req.files.videoFile && Array.isArray(req.files.videoFile) && req.files.videoFile[0]) {
+      const file = req.files.videoFile[0];
+      videoBuffer = file.buffer;
+      videoContentType = file.mimetype || 'video/mp4';
+    }
 
     const updateData = {
       title: req.body.title,
@@ -460,7 +497,7 @@ export const updateMovie = async (req, res) => {
           return indexA - indexB;
         });
       })(),
-      videoLink: req.body.videoLink || req.body.videoUrl
+      videoLink: req.body.videoLink || req.body.videoUrl || ''
     };
 
     // Handle poster update - similar to createMovie
@@ -507,14 +544,14 @@ export const updateMovie = async (req, res) => {
           updateData.posterContentType = posterContentType;
         }
       } else {
-        const category = req.body.category || (await Movie.findById(id))?.category || 'movies';
-        const baseUrl = getApiBaseUrl(req);
-        const categoryPath = category === 'series' ? 'series' : 'movies';
-        const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${id}/poster`;
-        updateData.poster = fullPosterUrl;
-        updateData.posterUrl = fullPosterUrl;
-        updateData.posterData = posterBuffer;
-        updateData.posterContentType = posterContentType;
+      const category = req.body.category || (await Movie.findById(id))?.category || 'movies';
+      const baseUrl = getApiBaseUrl(req);
+      const categoryPath = category === 'series' ? 'series' : 'movies';
+      const fullPosterUrl = `${baseUrl}/api/${categoryPath}/${id}/poster`;
+      updateData.poster = fullPosterUrl;
+      updateData.posterUrl = fullPosterUrl;
+      updateData.posterData = posterBuffer;
+      updateData.posterContentType = posterContentType;
       }
     } else if (req.body.posterUrl) {
       // Handle poster URL - if it's base64/data URI, store in poster field, not posterUrl
@@ -557,6 +594,31 @@ export const updateMovie = async (req, res) => {
         updateData.poster = req.body.poster;
       }
       updateData.posterData = null;
+    }
+
+    // Video fayl yangilansa
+    if (videoBuffer) {
+      if (isR2Configured) {
+        try {
+          // Eski video bo'lsa, avval o'chiramiz
+          const existing = await Movie.findById(id);
+          if (existing?.videoKey) {
+            await deleteFromR2(existing.videoKey);
+          }
+
+          const uploadResult = await uploadVideoToR2(
+            id,
+            videoBuffer,
+            videoContentType
+          );
+          if (uploadResult?.url && uploadResult?.key) {
+            updateData.videoUrl = uploadResult.url;
+            updateData.videoKey = uploadResult.key;
+          }
+        } catch (error) {
+          console.error('❌ Video R2 ga yuklanmadi (update):', error.message);
+        }
+      }
     }
 
     // Serial uchun totalEpisodes va currentEpisode - faqat yozilgan bo'lsa qo'shish
@@ -673,7 +735,7 @@ export const getMoviePoster = async (req, res) => {
         }
       } catch (error) {
         console.warn('Invalid posterUrl, returning direct response:', movie.posterUrl, error.message);
-        return res.redirect(movie.posterUrl);
+      return res.redirect(movie.posterUrl);
       }
     }
 
@@ -726,7 +788,12 @@ export const deleteMovie = async (req, res) => {
       });
     }
 
-    // Files are stored in MongoDB, no file system cleanup needed
+    // R2 dagi videoni o'chirish (agar mavjud bo'lsa)
+    if (movie.videoKey) {
+      await deleteFromR2(movie.videoKey);
+    }
+
+    // Files are stored in MongoDB, no file system cleanup needed for posterData
     await Movie.findByIdAndDelete(id);
 
     res.json({
